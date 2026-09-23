@@ -1,0 +1,486 @@
+{
+  "verified_on": "2026-09-18",
+  "react_version": "19.3.0",
+  "tag": "v19.3.0",
+  "commit": "1d34f91dfde6bba84d08b683aaba164c7194dacb",
+  "release_published_at": "2026-09-09T18:01:33Z",
+  "scope": "Open-source stable React DOM client; other renderers and experimental flags distinguished",
+  "files": [
+    {
+      "path": "CHANGELOG.md",
+      "lines": 2854,
+      "bytes": 269830,
+      "sha256": "b5d0e23a10792424fd0d10d63b36e30e72fffb8a17893715f4f0c739f7a01418",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/CHANGELOG.md"
+    },
+    {
+      "path": "LICENSE",
+      "lines": 21,
+      "bytes": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/LICENSE"
+    },
+    {
+      "path": "package.json",
+      "lines": 164,
+      "bytes": 8611,
+      "sha256": "8b05314ee844cdda4eccc2150b8f516b0e663facdbddd081712098e007e7515e",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/package.json"
+    },
+    {
+      "path": "packages/react/index.experimental.js",
+      "lines": 75,
+      "bytes": 1511,
+      "sha256": "f73a8873d1d43127d4647cdd86a868e6602674cbb60f4e73cdfb2192eb430f4e",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/index.experimental.js"
+    },
+    {
+      "path": "packages/react/index.js",
+      "lines": 77,
+      "bytes": 1835,
+      "sha256": "b7e82a723fb43d5431dc21b9a6dd4ab5a6e08e6c65a9092aec54148e20a6ad8f",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/index.js"
+    },
+    {
+      "path": "packages/react/index.stable.js",
+      "lines": 55,
+      "bytes": 966,
+      "sha256": "c28f00cec9df33400199194b7018e8827aab6a1b57db013bc04a15c18a838f9c",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/index.stable.js"
+    },
+    {
+      "path": "packages/react/src/ReactAct.js",
+      "lines": 366,
+      "bytes": 14150,
+      "sha256": "4ff2de10adc72c891184cef1556e135a6a32095087585c7e7daa987e779d9174",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/src/ReactAct.js"
+    },
+    {
+      "path": "packages/react/src/ReactClient.js",
+      "lines": 137,
+      "bytes": 3369,
+      "sha256": "d7f70f7754e7f90f42107c0e6ed7af24cb3c559ed1e15de897aafc3b464a913f",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/src/ReactClient.js"
+    },
+    {
+      "path": "packages/react/src/ReactStartTransition.js",
+      "lines": 205,
+      "bytes": 6726,
+      "sha256": "45a65258b773890fae2d8d972d2bd9e02e88e8c54d8f3fe61fdd734b7540b9b5",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/src/ReactStartTransition.js"
+    },
+    {
+      "path": "packages/react-dom/index.js",
+      "lines": 26,
+      "bytes": 580,
+      "sha256": "c036865de891faff22fbdfdccad8bbe18d5f9bbd680d76b9f4d8cbaf1e41624f",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom/index.js"
+    },
+    {
+      "path": "packages/react-dom/src/shared/ReactDOMFlushSync.js",
+      "lines": 63,
+      "bytes": 2135,
+      "sha256": "1c7ad2873a8f6a8fc3a5c7e0c6e08561571bdb45a3116942cd686db8c3417656",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom/src/shared/ReactDOMFlushSync.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/client/ReactDOMComponent.js",
+      "lines": 3430,
+      "bytes": 105762,
+      "sha256": "b78cf5f156061f2f8c0d7665cbf74f511c6fdbb4aad162dfb380b97ab426004f",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/client/ReactDOMComponent.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/client/ReactDOMUpdatePriority.js",
+      "lines": 55,
+      "bytes": 1797,
+      "sha256": "5833519b79d071935009df9d4096966a67ad0ebceafee45377962d2e8ebb86cf",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/client/ReactDOMUpdatePriority.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/client/ReactFiberConfigDOM.js",
+      "lines": 7027,
+      "bytes": 239628,
+      "sha256": "073a5fc779e4e2d05bc214efb564b54230006c447aee7da4aed731c854592be6",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/client/ReactFiberConfigDOM.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/events/ReactDOMEventListener.js",
+      "lines": 416,
+      "bytes": 12400,
+      "sha256": "927355a591cb660af088bbdea92def753cd02bffca6fc639ec39ea869f0d8f60",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/ReactDOMEventListener.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/events/ReactDOMEventReplaying.js",
+      "lines": 676,
+      "bytes": 22568,
+      "sha256": "2bf855e76e42d2802ebc58e09c335e92a644e1ac6d8ff001d4f397c8c42af934",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/ReactDOMEventReplaying.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/events/ReactDOMUpdateBatching.js",
+      "lines": 64,
+      "bytes": 2275,
+      "sha256": "d2a72fd610d9c6d43e95b20419c79ad299374db86e21487562fe9056a3a74043",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/ReactDOMUpdateBatching.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/events/plugins/ChangeEventPlugin.js",
+      "lines": 319,
+      "bytes": 9977,
+      "sha256": "23afb2706e48750f610db6b8de9fdd15e312b27a67fa7c3c006e368f6133bdb8",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/plugins/ChangeEventPlugin.js"
+    },
+    {
+      "path": "packages/react-dom-bindings/src/server/ReactFizzConfigDOM.js",
+      "lines": 7247,
+      "bytes": 244113,
+      "sha256": "1425dc48af0acc4521d2b2ba116a96e5558421450d4f14c5b791e30a4288d1ae",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/server/ReactFizzConfigDOM.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactChildFiber.js",
+      "lines": 2259,
+      "bytes": 73943,
+      "sha256": "0682eede3db2179903952ab56de33820b54c15d415ba4ed3ae1fd056fbe265e7",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactChildFiber.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactEventPriorities.js",
+      "lines": 67,
+      "bytes": 1680,
+      "sha256": "d4a85dc77527db6e1baff3a0893922f02d2007f6d2d42c32658de04022cdd35c",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactEventPriorities.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiber.js",
+      "lines": 965,
+      "bytes": 28839,
+      "sha256": "7b3457e0f5a3feed71d68cfdb1479588ae2f8ec6e37cc0c01c3c84dc2c8bed45",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiber.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberActivityComponent.js",
+      "lines": 25,
+      "bytes": 966,
+      "sha256": "59ec885d3fed12021506366eba3a2bea85ebc72287ea1a14bbced073eb0dc049",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberActivityComponent.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberAsyncAction.js",
+      "lines": 263,
+      "bytes": 8926,
+      "sha256": "ca9e34707360f5fd34bc53497ea6cb890c47f1cadb6b5f0dbb1b12ade93ecd2c",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberAsyncAction.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+      "lines": 4514,
+      "bytes": 155784,
+      "sha256": "6cbb76af124c2271880965b92810a3559bd25e6cc186f4dc9612211776376f83",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberClassUpdateQueue.js",
+      "lines": 765,
+      "bytes": 26495,
+      "sha256": "6f12790a485744bec41344d5fad197c4dbddc1937f49b3b1a440a64a27db17f2",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberClassUpdateQueue.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberCommitEffects.js",
+      "lines": 1045,
+      "bytes": 32290,
+      "sha256": "fe3cd881c81f35ca83ed9df026df7ab680db5e315ccc6d88c18191b1cfeb091e",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitEffects.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberCommitHostEffects.js",
+      "lines": 793,
+      "bytes": 21188,
+      "sha256": "de52f930d732651383fe709f3b9ddd98c03a32c69a83c776acd66aec4ab5a337",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitHostEffects.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberCommitViewTransitions.js",
+      "lines": 1122,
+      "bytes": 40117,
+      "sha256": "7f7fac46481264fa1ba67c979b436fa550fbbd0dc8e03d9521f5bb77b1098b8d",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitViewTransitions.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberCommitWork.js",
+      "lines": 5618,
+      "bytes": 191926,
+      "sha256": "1ce9bc4f82b1e1f9a25ef54e7088d496764a1c93afa1a8a6b19f955d96cc898b",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitWork.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+      "lines": 2114,
+      "bytes": 78457,
+      "sha256": "21584f6572aa773a7d1ec7dd8938198aebe2aea726e127e042cdbdbb188bdd5c",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCompleteWork.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberConcurrentUpdates.js",
+      "lines": 288,
+      "bytes": 10347,
+      "sha256": "06d63a6039b94f83f1259e3be4653cf242f20469ce8faf1c752b249fd6f524fa",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberConcurrentUpdates.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberConfig.js",
+      "lines": 20,
+      "bytes": 673,
+      "sha256": "5d65ef5580398bd665f25e559ad96c1d8b998fd2ce1e8a1ead66a88e2137e851",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberConfig.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberFlags.js",
+      "lines": 150,
+      "bytes": 7413,
+      "sha256": "4d8d0878771559a8284b72fdbe26a7d6ca71523d339aa87fdd576e0cb30f83a0",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberFlags.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "lines": 5265,
+      "bytes": 175910,
+      "sha256": "59c5cc3290de729b1f8bb89153350872bfd55866a9cf6e01fb9be3d7a9a2dfca",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberHydrationContext.js",
+      "lines": 989,
+      "bytes": 31646,
+      "sha256": "d092c0eeff6a84566b3dd2c0f2766bc5222e0ea884f62f475a173fa06c13e43d",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHydrationContext.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "lines": 1308,
+      "bytes": 44485,
+      "sha256": "5a65870c42dd15560f9607250f9048cade55f247812ed90d1100ca1a9c34ad29",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberOffscreenComponent.js",
+      "lines": 61,
+      "bytes": 2132,
+      "sha256": "f7e39d5d510ed15ede28b5fc2c43452aa6adb510b66df0f7e951d6825e6533bb",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberOffscreenComponent.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberPerformanceTrack.js",
+      "lines": 1724,
+      "bytes": 44712,
+      "sha256": "365665494af24ba145c27e30604b6ddc0deb50776c2b546969d6542745e2d9dc",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberPerformanceTrack.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberReconciler.js",
+      "lines": 913,
+      "bytes": 27863,
+      "sha256": "51621bc0a91268dae42649154b0a07c044dbc91e173f4c2e4727e49ba608189c",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberReconciler.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberRoot.js",
+      "lines": 236,
+      "bytes": 6780,
+      "sha256": "7b36ae5596128eb606e8b58e8bc76e0c1d9d7c45820121f749c53c9795280880",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRoot.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberRootScheduler.js",
+      "lines": 738,
+      "bytes": 27673,
+      "sha256": "2b080d2cf30896fe56bf291169df7f457567f082f4d72d1006c7468212320cd3",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberSuspenseComponent.js",
+      "lines": 107,
+      "bytes": 3825,
+      "sha256": "22795e3d6311ba6b68f294e9de6540780ca6c64524e60ca4964c6823f2580329",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberSuspenseComponent.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberSuspenseContext.js",
+      "lines": 234,
+      "bytes": 9061,
+      "sha256": "6d129cd8aa6cb3325d320e8c55cda13d29891f698ad7c016deb2c7f26d47ad4c",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberSuspenseContext.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberThenable.js",
+      "lines": 479,
+      "bytes": 18716,
+      "sha256": "46aa1fe74e69e5edc3724aaf3aac4f46b839846fb12575532ff1a73087ef0d72",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberThenable.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberThrow.js",
+      "lines": 712,
+      "bytes": 27592,
+      "sha256": "7d0cb311732c5fd392c3f33963b51fe36d4986efbd2ca5051eef206657cbf929",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberThrow.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberTransition.js",
+      "lines": 357,
+      "bytes": 12052,
+      "sha256": "025d25a0b588259dd2c7347f3cb67cdae958dc488b03e587790b8fa57ebce011",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberTransition.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberUnwindWork.js",
+      "lines": 332,
+      "bytes": 10940,
+      "sha256": "54057ef0ed135000db7b9f5b99760f3fe41fb0db8ad98921413c84f9df17d57d",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberUnwindWork.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "lines": 5683,
+      "bytes": 203744,
+      "sha256": "4dc52a4f75bcf03fef0a9f5b412136107278c308933f958c2091f7ba3dfd5042",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactInternalTypes.js",
+      "lines": 464,
+      "bytes": 15088,
+      "sha256": "3a076fcac24e7536fbf5d8b49b1b9f3c63d9bd64fa8a3ecd58475762115fef40",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactInternalTypes.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactTypeOfMode.js",
+      "lines": 21,
+      "bytes": 898,
+      "sha256": "9431af817e3613bdc59c6d659c84c17fcd965111be7c1cf0f5bd407700157d1b",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactTypeOfMode.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/ReactWorkTags.js",
+      "lines": 73,
+      "bytes": 1599,
+      "sha256": "435789abb28ad67aa4e812df7ce31477e4340c053cd644788a45db8f91140572",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactWorkTags.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/__tests__/ReactHooksWithNoopRenderer-test.js",
+      "lines": 4424,
+      "bytes": 137578,
+      "sha256": "e38e6beec79c976cd5c03a7ffb3af9170958f8560af528ec27a4033a5ae0f4a2",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/__tests__/ReactHooksWithNoopRenderer-test.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/__tests__/ReactSuspense-test.internal.js",
+      "lines": 1462,
+      "bytes": 40956,
+      "sha256": "d281ce0b36c8672f8624e836c6559c1cc735a79330e41f6be770c392262627ed",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/__tests__/ReactSuspense-test.internal.js"
+    },
+    {
+      "path": "packages/react-reconciler/src/__tests__/ReactTransition-test.js",
+      "lines": 1295,
+      "bytes": 34938,
+      "sha256": "950f7c9ed7160ce7a1efe8ccbd805ddcc11eb70d2194702b5ae14e3b181a2838",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/__tests__/ReactTransition-test.js"
+    },
+    {
+      "path": "packages/react-server/src/ReactFizzServer.js",
+      "lines": 6706,
+      "bytes": 230263,
+      "sha256": "3faa2b7e3eeae7044e84f58884ebae2c372ce45b9186c170c377f90366616cbb",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-server/src/ReactFizzServer.js"
+    },
+    {
+      "path": "packages/scheduler/index.js",
+      "lines": 10,
+      "bytes": 246,
+      "sha256": "7102d67a73ac600d8eaffe9f0e9dcf93bd72c0fb2e55e003fcf7beb32b48d452",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/index.js"
+    },
+    {
+      "path": "packages/scheduler/npm/index.js",
+      "lines": 7,
+      "bytes": 194,
+      "sha256": "145965504d60007bc25486ab930b0367867dcd5d579ccd343c148d69349a7cfb",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/npm/index.js"
+    },
+    {
+      "path": "packages/scheduler/npm/unstable_post_task.js",
+      "lines": 7,
+      "bytes": 232,
+      "sha256": "2aa725364b0efa1772c01cd978ac888b655711645768bdcf5e885a0c4e435ef2",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/npm/unstable_post_task.js"
+    },
+    {
+      "path": "packages/scheduler/src/SchedulerFeatureFlags.js",
+      "lines": 18,
+      "bytes": 514,
+      "sha256": "7793d7d29a6341bf62838e70d21859e1df3c00aba8874512fb293643828c9c1e",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/SchedulerFeatureFlags.js"
+    },
+    {
+      "path": "packages/scheduler/src/SchedulerMinHeap.js",
+      "lines": 95,
+      "bytes": 2418,
+      "sha256": "451cfab4bbd53984e9a8b8e3684b963476d388a45144df7bdc38be1f88cfd68d",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/SchedulerMinHeap.js"
+    },
+    {
+      "path": "packages/scheduler/src/forks/Scheduler.js",
+      "lines": 613,
+      "bytes": 17892,
+      "sha256": "e044a6642c420c8e68470df497fc4114e652f52241a5b1282b878923ce4d57e8",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js"
+    },
+    {
+      "path": "packages/scheduler/src/forks/SchedulerPostTask.js",
+      "lines": 239,
+      "bytes": 6775,
+      "sha256": "e4434e4ddd574f2232585459b19a015d690a8fc07c8d38fdbfd25dbee48a0090",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/SchedulerPostTask.js"
+    },
+    {
+      "path": "packages/shared/ReactFeatureFlags.js",
+      "lines": 282,
+      "bytes": 11250,
+      "sha256": "3382ed6de2850ba2593bd5ef654ba74a1496fc713eca2be8dccc3255f7907cc0",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/shared/ReactFeatureFlags.js"
+    },
+    {
+      "path": "packages/shared/ReactVersion.js",
+      "lines": 15,
+      "bytes": 701,
+      "sha256": "58ad04186b1e31654cc03ba80149ba3d95625db56001ce6b03d8c38e9a2a58f9",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/shared/ReactVersion.js"
+    },
+    {
+      "path": "packages/shared/forks/ReactFeatureFlags.www.js",
+      "lines": 134,
+      "bytes": 4633,
+      "sha256": "3297fa3fb1099dd3dd19e513f472979eb8c6e1b5653d0f5a9c3284115940fc16",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/shared/forks/ReactFeatureFlags.www.js"
+    },
+    {
+      "path": "scripts/rollup/bundles.js",
+      "lines": 1385,
+      "bytes": 39822,
+      "sha256": "90a8d8c5bd9ca18c4826ed1f3fbb69f61a3997535ae17803c542cb9298c54041",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/scripts/rollup/bundles.js"
+    },
+    {
+      "path": "scripts/rollup/forks.js",
+      "lines": 477,
+      "bytes": 15736,
+      "sha256": "507d8ef31aa243e404f78e6035749a9d4be114a9d8c4c65a918b228768752e18",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/scripts/rollup/forks.js"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+PASS Rebasing preserves insertion order with noncommutative updates
+PASS Urgent input commits before transition; yielded work has no partial host commit
+PASS Second event abandons a draft, preserves updates, and commits only final query
+PASS An unchanged lane resumes the same draft across tasks
+PASS An update arriving after the draft snapshot survives its commit
+PASS A 100 ms row overshoots the 5 ms budget; it cannot yield inside the call
+PASS Store checkpoint detects interleaved mutation
+PASS Suspense model keeps revealed content for a transition and deduplicates listeners
+PASS A resolved resource schedules one retry and can be read
+9 behavioral checks passed.
+
+JavaScript syntax: passed for engine, mechanisms and embedded demo module.
+HTML static element references: passed.
+Source snapshot SHA-256 checks: 68 passed.
+Pinned source line ranges: 79 passed.
+All Markdown reference links resolved.
+Browser visual/runtime validation: not performed (Chromium installation unavailable).
+Upstream React test suites: not run.

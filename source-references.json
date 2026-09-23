@@ -1,0 +1,558 @@
+{
+  "commit": "1d34f91dfde6bba84d08b683aaba164c7194dacb",
+  "references": {
+    "exports": {
+      "path": "packages/react/index.stable.js",
+      "start": 10,
+      "end": 55,
+      "focus": "stable exports",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/index.stable.js#L10-L55"
+    },
+    "experimental-exports": {
+      "path": "packages/react/index.experimental.js",
+      "start": 10,
+      "end": 75,
+      "focus": "experimental exports",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/index.experimental.js#L10-L75"
+    },
+    "flags": {
+      "path": "packages/shared/ReactFeatureFlags.js",
+      "start": 24,
+      "end": 282,
+      "focus": "stable OSS feature flags",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/shared/ReactFeatureFlags.js#L24-L282"
+    },
+    "fiber-type": {
+      "path": "packages/react-reconciler/src/ReactInternalTypes.js",
+      "start": 89,
+      "end": 210,
+      "focus": "Fiber type",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactInternalTypes.js#L89-L210"
+    },
+    "fiber-copy": {
+      "path": "packages/react-reconciler/src/ReactFiber.js",
+      "start": 323,
+      "end": 522,
+      "focus": "createWorkInProgress; resetWorkInProgress",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiber.js#L323-L522"
+    },
+    "lane-groups": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 41,
+      "end": 240,
+      "focus": "lane constants; getHighestPriorityLanes",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L41-L240"
+    },
+    "next-lanes": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 249,
+      "end": 360,
+      "focus": "getNextLanes",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L249-L360"
+    },
+    "entangled-lanes": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 427,
+      "end": 475,
+      "focus": "getEntangledLanes",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L427-L475"
+    },
+    "lane-expiration": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 477,
+      "end": 588,
+      "focus": "computeExpirationTime; markStarvedLanesAsExpired",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L477-L588"
+    },
+    "blocking-lanes": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 684,
+      "end": 711,
+      "focus": "blocking and expired lane predicates",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L684-L711"
+    },
+    "deferred-mark": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 997,
+      "end": 1057,
+      "focus": "markSpawnedDeferredLane; markRootEntangled",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L997-L1057"
+    },
+    "view-lanes": {
+      "path": "packages/react-reconciler/src/ReactFiberLane.js",
+      "start": 650,
+      "end": 682,
+      "focus": "Suspensey/View Transition lane eligibility",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberLane.js#L650-L682"
+    },
+    "event-lane": {
+      "path": "packages/react-reconciler/src/ReactEventPriorities.js",
+      "start": 22,
+      "end": 67,
+      "focus": "event/lane priority conversion",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactEventPriorities.js#L22-L67"
+    },
+    "dispatch": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 3626,
+      "end": 3726,
+      "focus": "dispatchSetState; dispatchSetStateInternal",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L3626-L3726"
+    },
+    "concurrent-queues": {
+      "path": "packages/react-reconciler/src/ReactFiberConcurrentUpdates.js",
+      "start": 39,
+      "end": 264,
+      "focus": "finishQueueingConcurrentUpdates; enqueueConcurrentHookUpdate; ancestor marking",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberConcurrentUpdates.js#L39-L264"
+    },
+    "root-scheduler": {
+      "path": "packages/react-reconciler/src/ReactFiberRootScheduler.js",
+      "start": 116,
+      "end": 738,
+      "focus": "root scheduling entry points",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L116-L738"
+    },
+    "root-microtask": {
+      "path": "packages/react-reconciler/src/ReactFiberRootScheduler.js",
+      "start": 259,
+      "end": 348,
+      "focus": "processRootScheduleInMicrotask",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L259-L348"
+    },
+    "root-task": {
+      "path": "packages/react-reconciler/src/ReactFiberRootScheduler.js",
+      "start": 384,
+      "end": 508,
+      "focus": "scheduleTaskForRootDuringMicrotask",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L384-L508"
+    },
+    "root-callback": {
+      "path": "packages/react-reconciler/src/ReactFiberRootScheduler.js",
+      "start": 513,
+      "end": 605,
+      "focus": "performWorkOnRootViaSchedulerTask",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L513-L605"
+    },
+    "transition-lane": {
+      "path": "packages/react-reconciler/src/ReactFiberRootScheduler.js",
+      "start": 698,
+      "end": 724,
+      "focus": "requestTransitionLane",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L698-L724"
+    },
+    "scheduler-entry": {
+      "path": "packages/scheduler/index.js",
+      "start": 1,
+      "end": 10,
+      "focus": "default package export",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/index.js#L1-L10"
+    },
+    "scheduler-work": {
+      "path": "packages/scheduler/src/forks/Scheduler.js",
+      "start": 103,
+      "end": 260,
+      "focus": "advanceTimers; flushWork; workLoop",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L103-L260"
+    },
+    "scheduler-schedule": {
+      "path": "packages/scheduler/src/forks/Scheduler.js",
+      "start": 335,
+      "end": 427,
+      "focus": "unstable_scheduleCallback",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L335-L427"
+    },
+    "scheduler-host": {
+      "path": "packages/scheduler/src/forks/Scheduler.js",
+      "start": 450,
+      "end": 583,
+      "focus": "shouldYieldToHost; performWorkUntilDeadline; host scheduling",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L450-L583"
+    },
+    "scheduler-flags": {
+      "path": "packages/scheduler/src/SchedulerFeatureFlags.js",
+      "start": 10,
+      "end": 18,
+      "focus": "yield interval and priority timeout constants",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/SchedulerFeatureFlags.js#L10-L18"
+    },
+    "scheduler-heap": {
+      "path": "packages/scheduler/src/SchedulerMinHeap.js",
+      "start": 10,
+      "end": 95,
+      "focus": "push; peek; pop; comparator",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/SchedulerMinHeap.js#L10-L95"
+    },
+    "scheduler-posttask": {
+      "path": "packages/scheduler/src/forks/SchedulerPostTask.js",
+      "start": 1,
+      "end": 239,
+      "focus": "optional postTask Scheduler implementation",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/SchedulerPostTask.js#L1-L239"
+    },
+    "work-gate": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 1137,
+      "end": 1243,
+      "focus": "performWorkOnRoot; sync/concurrent policy and store retry",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1137-L1243"
+    },
+    "request-lane": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 812,
+      "end": 868,
+      "focus": "requestUpdateLane",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L812-L868"
+    },
+    "request-deferred": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 884,
+      "end": 921,
+      "focus": "requestDeferredLane",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L884-L921"
+    },
+    "fresh-stack": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 2023,
+      "end": 2293,
+      "focus": "prepareFreshStack",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L2023-L2293"
+    },
+    "handle-throw": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 2302,
+      "end": 2435,
+      "focus": "handleThrow",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L2302-L2435"
+    },
+    "concurrent-entry": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 2779,
+      "end": 3053,
+      "focus": "renderRootConcurrent",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L2779-L3053"
+    },
+    "work-loops": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 3007,
+      "end": 3123,
+      "focus": "work-loop selection; workLoopConcurrentByScheduler; performUnitOfWork",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3007-L3123"
+    },
+    "complete-unit": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 3368,
+      "end": 3431,
+      "focus": "completeUnitOfWork",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3368-L3431"
+    },
+    "begin": {
+      "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+      "start": 3870,
+      "end": 4310,
+      "focus": "beginWork dispatch",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L3870-L4310"
+    },
+    "bailout": {
+      "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+      "start": 3826,
+      "end": 3865,
+      "focus": "bailoutOnAlreadyFinishedWork",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L3826-L3865"
+    },
+    "complete": {
+      "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+      "start": 1100,
+      "end": 1490,
+      "focus": "completeWork and host branches",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCompleteWork.js#L1100-L1490"
+    },
+    "host-update": {
+      "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+      "start": 463,
+      "end": 481,
+      "focus": "updateHostComponent marks work",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCompleteWork.js#L463-L481"
+    },
+    "host-complete": {
+      "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+      "start": 1374,
+      "end": 1454,
+      "focus": "HostComponent mount/update completion",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCompleteWork.js#L1374-L1454"
+    },
+    "bubble": {
+      "path": "packages/react-reconciler/src/ReactFiberCompleteWork.js",
+      "start": 793,
+      "end": 920,
+      "focus": "bubbleProperties",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCompleteWork.js#L793-L920"
+    },
+    "child-reconcile": {
+      "path": "packages/react-reconciler/src/ReactChildFiber.js",
+      "start": 1177,
+      "end": 1535,
+      "focus": "reconcileChildrenArray and related matching",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactChildFiber.js#L1177-L1535"
+    },
+    "hook-queue": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 1316,
+      "end": 1588,
+      "focus": "updateReducerImpl",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L1316-L1588"
+    },
+    "class-queue": {
+      "path": "packages/react-reconciler/src/ReactFiberClassUpdateQueue.js",
+      "start": 487,
+      "end": 680,
+      "focus": "processUpdateQueue",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberClassUpdateQueue.js#L487-L680"
+    },
+    "hook-entanglement": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 3867,
+      "end": 3889,
+      "focus": "entangleTransitionUpdate",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L3867-L3889"
+    },
+    "start-transition": {
+      "path": "packages/react/src/ReactStartTransition.js",
+      "start": 45,
+      "end": 117,
+      "focus": "public startTransition",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react/src/ReactStartTransition.js#L45-L117"
+    },
+    "hook-transition": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 3117,
+      "end": 3455,
+      "focus": "startTransition; mountTransition; updateTransition",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L3117-L3455"
+    },
+    "async-actions": {
+      "path": "packages/react-reconciler/src/ReactFiberAsyncAction.js",
+      "start": 37,
+      "end": 139,
+      "focus": "entangleAsyncAction and scope completion",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberAsyncAction.js#L37-L139"
+    },
+    "transition-finish": {
+      "path": "packages/react-reconciler/src/ReactFiberTransition.js",
+      "start": 78,
+      "end": 98,
+      "focus": "renderer transition completion hook",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberTransition.js#L78-L98"
+    },
+    "optimistic": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 3728,
+      "end": 3832,
+      "focus": "dispatchOptimisticSetState and revertLane",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L3728-L3832"
+    },
+    "deferred-hook": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 3028,
+      "end": 3109,
+      "focus": "mount/updateDeferredValueImpl",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L3028-L3109"
+    },
+    "thenables": {
+      "path": "packages/react-reconciler/src/ReactFiberThenable.js",
+      "start": 55,
+      "end": 395,
+      "focus": "SuspenseException; trackUsedThenable; getSuspendedThenable",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberThenable.js#L55-L395"
+    },
+    "throw": {
+      "path": "packages/react-reconciler/src/ReactFiberThrow.js",
+      "start": 364,
+      "end": 548,
+      "focus": "throwException capture and wakeable handling",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberThrow.js#L364-L548"
+    },
+    "unwind": {
+      "path": "packages/react-reconciler/src/ReactFiberUnwindWork.js",
+      "start": 62,
+      "end": 224,
+      "focus": "unwindWork and boundary capture",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberUnwindWork.js#L62-L224"
+    },
+    "ping": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 4970,
+      "end": 5096,
+      "focus": "attachPingListener; pingSuspendedRoot",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4970-L5096"
+    },
+    "suspense-component": {
+      "path": "packages/react-reconciler/src/ReactFiberSuspenseComponent.js",
+      "start": 10,
+      "end": 107,
+      "focus": "Suspense state and helpers",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberSuspenseComponent.js#L10-L107"
+    },
+    "suspense-context": {
+      "path": "packages/react-reconciler/src/ReactFiberSuspenseContext.js",
+      "start": 22,
+      "end": 234,
+      "focus": "handler and shell boundary context",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberSuspenseContext.js#L22-L234"
+    },
+    "activity": {
+      "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+      "start": 898,
+      "end": 1255,
+      "focus": "mountActivityChildren; updateActivityComponent",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L898-L1255"
+    },
+    "offscreen": {
+      "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+      "start": 620,
+      "end": 896,
+      "focus": "updateOffscreenComponent",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L620-L896"
+    },
+    "commit-ready": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 1578,
+      "end": 1700,
+      "focus": "completeRootWhenReady",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1578-L1700"
+    },
+    "commit-orchestration": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 3725,
+      "end": 3921,
+      "focus": "commitRoot and phase orchestration",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3725-L3921"
+    },
+    "mutation-layout": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 4009,
+      "end": 4151,
+      "focus": "flushMutationEffects; root.current; flushLayoutEffects",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4009-L4151"
+    },
+    "spawned": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 4154,
+      "end": 4335,
+      "focus": "flushSpawnedWork; sync passive flushing",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4154-L4335"
+    },
+    "passive": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 4691,
+      "end": 4830,
+      "focus": "flushPassiveEffects; flushPassiveEffectsImpl",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4691-L4830"
+    },
+    "commit-work": {
+      "path": "packages/react-reconciler/src/ReactFiberCommitWork.js",
+      "start": 1978,
+      "end": 3115,
+      "focus": "attachSuspenseRetryListeners; mutation and layout traversals",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitWork.js#L1978-L3115"
+    },
+    "commit-effects": {
+      "path": "packages/react-reconciler/src/ReactFiberCommitEffects.js",
+      "start": 97,
+      "end": 921,
+      "focus": "effect setup/cleanup; class lifecycles and refs",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitEffects.js#L97-L921"
+    },
+    "external-store": {
+      "path": "packages/react-reconciler/src/ReactFiberHooks.js",
+      "start": 1648,
+      "end": 1918,
+      "focus": "mount/updateSyncExternalStore; consistency and subscription",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L1648-L1918"
+    },
+    "store-check": {
+      "path": "packages/react-reconciler/src/ReactFiberWorkLoop.js",
+      "start": 1703,
+      "end": 1759,
+      "focus": "isRenderConsistentWithExternalStores",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1703-L1759"
+    },
+    "dom-host": {
+      "path": "packages/react-dom-bindings/src/client/ReactFiberConfigDOM.js",
+      "start": 440,
+      "end": 1020,
+      "focus": "DOM host creation, scheduling and commitUpdate",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/client/ReactFiberConfigDOM.js#L440-L1020"
+    },
+    "dom-view-transition": {
+      "path": "packages/react-dom-bindings/src/client/ReactFiberConfigDOM.js",
+      "start": 2167,
+      "end": 2421,
+      "focus": "startViewTransition callbacks and readiness waits",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/client/ReactFiberConfigDOM.js#L2167-L2421"
+    },
+    "event-priority": {
+      "path": "packages/react-dom-bindings/src/events/ReactDOMEventListener.js",
+      "start": 98,
+      "end": 414,
+      "focus": "priority wrappers and getEventPriority",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/ReactDOMEventListener.js#L98-L414"
+    },
+    "event-hydration": {
+      "path": "packages/react-dom-bindings/src/events/ReactDOMEventListener.js",
+      "start": 170,
+      "end": 237,
+      "focus": "blocked event and synchronous hydration handling",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/ReactDOMEventListener.js#L170-L237"
+    },
+    "controlled-batching": {
+      "path": "packages/react-dom-bindings/src/events/ReactDOMUpdateBatching.js",
+      "start": 28,
+      "end": 59,
+      "focus": "finishEventHandler; controlled restoration",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom-bindings/src/events/ReactDOMUpdateBatching.js#L28-L59"
+    },
+    "hydration": {
+      "path": "packages/react-reconciler/src/ReactFiberHydrationContext.js",
+      "start": 156,
+      "end": 573,
+      "focus": "hydration entry/reentry and node claiming",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHydrationContext.js#L156-L573"
+    },
+    "dehydrated": {
+      "path": "packages/react-reconciler/src/ReactFiberBeginWork.js",
+      "start": 2972,
+      "end": 3240,
+      "focus": "updateDehydratedSuspenseComponent",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L2972-L3240"
+    },
+    "fizz-boundary": {
+      "path": "packages/react-server/src/ReactFizzServer.js",
+      "start": 1474,
+      "end": 1665,
+      "focus": "renderSuspenseBoundary",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-server/src/ReactFizzServer.js#L1474-L1665"
+    },
+    "fizz-retry": {
+      "path": "packages/react-server/src/ReactFizzServer.js",
+      "start": 5327,
+      "end": 5460,
+      "focus": "retryTask; retryRenderTask",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-server/src/ReactFizzServer.js#L5327-L5460"
+    },
+    "fizz-flow": {
+      "path": "packages/react-server/src/ReactFizzServer.js",
+      "start": 6370,
+      "end": 6496,
+      "focus": "startWork; startFlowing; stopFlowing",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-server/src/ReactFizzServer.js#L6370-L6496"
+    },
+    "flush-sync": {
+      "path": "packages/react-dom/src/shared/ReactDOMFlushSync.js",
+      "start": 10,
+      "end": 63,
+      "focus": "flushSyncImpl",
+      "url": "https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-dom/src/shared/ReactDOMFlushSync.js#L10-L63"
+    }
+  }
+}

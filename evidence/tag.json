@@ -1,0 +1,10 @@
+{
+  "ref": "refs/tags/v19.3.0",
+  "node_id": "MDM6UmVmMTAyNzAyNTA6cmVmcy90YWdzL3YxOS4zLjA=",
+  "url": "https://api.github.com/repos/react/react/git/refs/tags/v19.3.0",
+  "object": {
+    "sha": "1d34f91dfde6bba84d08b683aaba164c7194dacb",
+    "type": "commit",
+    "url": "https://api.github.com/repos/react/react/git/commits/1d34f91dfde6bba84d08b683aaba164c7194dacb"
+  }
+}

@@ -1,7 +1,8 @@
 # Concurrent React accuracy audit
 
-Reviewed 23 September 2026. Review only: existing examples, research documents,
-project instructions, and both upstream source directories were left unchanged.
+Reviewed 23 September 2026. The initial review left existing files unchanged.
+This report also records the subsequent corrections to teaching code and docs;
+both upstream source directories remain read-only references.
 
 ## Verdict
 
@@ -18,7 +19,9 @@ dossier generally make this distinction well; preserve it in slides and demos.
 
 The follow-up kept the mechanisms intentionally small:
 
-- Manual input now cancels the scripted replay and re-enables its button.
+- Manual input now cancels the scripted replay, clears its pending input timer,
+  and re-enables its button. Controlled timer checks cover cancellation before
+  the first scripted input and after a yield has queued the second input.
 - The boundary helper tracks one extra fact—whether this toy boundary is
   currently showing fallback—so a transition cannot resurrect old content.
   Documentation explicitly says this boolean stands in for richer React state.
@@ -182,7 +185,7 @@ shared hook queues, and async-action entanglement still matter. In particular,
 the same hook queue. Treat the release/source interpretation as version-specific
 and disclose the reference-page mismatch in presenter notes if covering this topic.
 
-## Verification performed
+## Initial audit verification
 
 | Check | Result |
 | --- | --- |

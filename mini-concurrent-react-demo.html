@@ -296,9 +296,12 @@ const $ = id => document.getElementById(id);
 const stats = {renders:0,yields:0,abandons:0,commits:0};
 const trace = []; const start = performance.now();
 let app, scripted=false, injectSecond=false, frames=0, traceDirty=true;
+let scriptedTimer;
 const cost = () => Number($('cost').value);
 const spin = ms => { const end=performance.now()+ms; while(performance.now()<end){} };
 function finishScriptedReplay() {
+  // Cancel the next scripted input even if its timer is already queued.
+  clearTimeout(scriptedTimer);
   scripted=false; injectSecond=false; $('scripted').disabled=false;
 }
 function onEvent(e) {
@@ -309,7 +312,7 @@ function onEvent(e) {
   performance.mark(`mini-react:${e.type}:g${e.generation}`);
   if(e.type==='yield' && injectSecond) {
     injectSecond=false;
-    setTimeout(()=>{ $('search').value='ab'; app.input('ab'); },0);
+    scriptedTimer=setTimeout(()=>{ $('search').value='ab'; app.input('ab'); },0);
   }
   if(e.type==='commit-end' && e.state.query==='ab' && scripted){
     finishScriptedReplay();
@@ -340,7 +343,7 @@ $('scripted').addEventListener('click',()=>{
   scripted=true; $('scripted').disabled=true;
   // Reset in an urgent update, then start the scripted pair in a fresh task.
   app.setState(()=>({input:'',query:''}));
-  setTimeout(()=>{injectSecond=true; $('search').value='a'; app.input('a');},0);
+  scriptedTimer=setTimeout(()=>{injectSecond=true; $('search').value='a'; app.input('a');},0);
 });
 function refresh(){
   $('frames').textContent=String(++frames);

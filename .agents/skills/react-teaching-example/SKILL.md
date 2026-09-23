@@ -8,6 +8,13 @@ description: Create or revise runnable React teaching examples and simplified in
 Follow the repository's `AGENTS.md` for source boundaries, accuracy, profiling,
 and slide conventions. Explicit user choices take precedence over this workflow.
 
+## Reference source safety
+
+Treat `react/` and `react-source-v19.3.0/` as strictly read-only reference
+directories. Never edit, format, build, install into, generate files inside, or
+run mutating Git commands in either directory. Put every example, test, trace,
+and generated artifact elsewhere in the project.
+
 ## Choose the teaching question
 
 Identify the single observation the audience should understand. Choose real React

@@ -357,16 +357,29 @@ Simplified version:
 
 ```js
 const channel = new MessageChannel();
+const queue = [];
+let hostTaskScheduled = false;
 
 channel.port1.onmessage = () => {
-  scheduledCallback?.();
+  hostTaskScheduled = false;
+  queue.shift()?.();
+  requestHostTask();
 };
 
 function schedule(callback) {
-  scheduledCallback = callback;
+  queue.push(callback);
+  requestHostTask();
+}
+
+function requestHostTask() {
+  if (hostTaskScheduled || queue.length === 0) return;
+  hostTaskScheduled = true;
   channel.port2.postMessage(null);
 }
 ```
+
+This deliberately small FIFO demonstrates host-task continuation. Real React's
+Scheduler also tracks priorities and deadlines in task/timer heaps.
 
 ### Explain why it helps
 
@@ -807,7 +820,9 @@ Fiber does not time-slice the browser rendering engine.
 
 ### Demo
 
-Use Astra's "cheap render, huge DOM publication" example.
+**Proposed demo — not implemented yet:** build a controlled "cheap render,
+huge DOM publication" comparison. Do not present the existing miniature as a
+recording of this case; its snapshot adapter is only an educational host model.
 
 ### Takeaway
 
@@ -856,10 +871,11 @@ Use Astra's simplified example:
 try {
   render();
 } catch (thing) {
-  if (isThenable(thing)) {
-    thing.then(scheduleRetry);
-    renderFallback();
-  }
+  if (!isThenable(thing)) throw thing;
+  // Either outcome makes the resource worth trying again. A rejection is then
+  // thrown during render and handled by the normal error path.
+  thing.then(scheduleRetry, scheduleRetry);
+  renderFallback();
 }
 ```
 

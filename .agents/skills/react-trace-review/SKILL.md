@@ -9,6 +9,13 @@ Follow the repository's `AGENTS.md` for source boundaries and evidence conventio
 Honor the user's requested analysis or recording scope; reviewing a trace does
 not itself authorize changes to the demo.
 
+## Reference source safety
+
+Treat `react/` and `react-source-v19.3.0/` as strictly read-only reference
+directories. Never edit, format, build, install into, generate files inside, or
+run mutating Git commands in either directory. Save traces and other evidence
+under the project `evidence/` directory or another explicitly requested location.
+
 ## Establish what the recording can show
 
 Identify the question and the supplied artifact: browser Performance trace,

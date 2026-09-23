@@ -808,11 +808,11 @@ The companion `mechanisms.mjs` includes a cached resource and this boundary:
 ```js
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
-  let committed, hasContent = false;
+  let committed, hasContent = false, showingFallback = false;
   return function renderBoundary(render, fallback, {transition = false} = {}) {
     try {
       const content = render();
-      committed = content; hasContent = true;
+      committed = content; hasContent = true; showingFallback = false;
       return {status: 'content', content};
     } catch (value) {
       if (value === null || (typeof value !== 'object' && typeof value !== 'function') ||
@@ -822,13 +822,29 @@ export function createBoundary(scheduleRetry) {
         const retry = () => { listening.delete(value); scheduleRetry(); };
         value.then(retry, retry);
       }
-      return {status: 'suspended', content: transition && hasContent ? committed : fallback};
+      // A transition may preserve currently revealed content. It must not bring
+      // back content after this simplified boundary has already shown fallback.
+      const keepRevealedContent = transition && hasContent && !showingFallback;
+      showingFallback = !keepRevealedContent;
+      return {status: 'suspended', content: keepRevealedContent ? committed : fallback};
     }
   };
 }
 ```
 
-The helper immediately treats a successful render result as committed. Its `transition` option simply keeps that one previous result while suspended. It is useful for demonstrating promise identity, listener deduplication, rejection and a scheduled retry, but it does **not** model a Fiber handler stack, lane sets, nested boundaries, internal sentinels, primary/Offscreen trees, commit-time listeners, fallback throttling, render unwinding, hydration, sibling prewarming or async Actions. It must not be presented as an implementation recipe for a production Suspense data source. The combined search renderer demonstrates CPU interruption; this separate helper isolates dependency suspension so the two mechanisms are not confused.
+The helper immediately treats a successful render result as committed. Its
+`transition` option keeps that previous result only while this simplified
+boundary is currently showing content; after it has shown fallback, another
+pending transition does not resurrect old content. This one boolean is a
+teaching substitute for React's Fiber/Suspense state, not a reproduction of it.
+The helper is useful for demonstrating promise identity, listener deduplication,
+rejection and a scheduled retry, but it does **not** model a Fiber handler stack,
+lane sets, nested boundaries, internal sentinels, primary/Offscreen trees,
+commit-time listeners, fallback throttling, render unwinding, hydration, sibling
+prewarming or async Actions. It must not be presented as an implementation
+recipe for a production Suspense data source. The combined search renderer
+demonstrates CPU interruption; this separate helper isolates dependency
+suspension so the two mechanisms are not confused.
 
 ## 16. Offscreen, Activity and View Transitions
 
@@ -1436,10 +1452,14 @@ Verification performed:
 
 - Tag/version/release metadata and the stable export/flag configuration were checked against primary sources.
 - The source manifest records immutable URLs and SHA-256 hashes for the downloaded source snapshot.
-- Nine deterministic behavioral checks cover noncommutative rebasing, urgent versus speculative publication, interrupted draft abandonment with update preservation, same-attempt continuation, updates arriving after a snapshot, an indivisible 100 ms unit, store snapshot validation, retained Suspense content/listener deduplication, and a settled-promise retry.
+- Ten deterministic behavioral checks cover noncommutative rebasing, urgent versus speculative publication, interrupted draft abandonment with update preservation, same-attempt continuation, updates arriving after a snapshot, an indivisible 100 ms unit, store snapshot validation, retained Suspense content/listener deduplication, fallback-state preservation, and a settled-promise retry.
 - JavaScript syntax and artifact/reference integrity are checked separately during packaging.
 
-Limits: this is a source study and educational implementation, not a formal proof or a production performance benchmark. React's upstream tests were not run. A browser runtime could not be installed in the research environment, so the standalone page has not received an actual browser rendering/visual test; its engine behavior is covered by the deterministic checks. Millisecond values in narrative timelines are illustrative unless explicitly identified as source constants.
+Limits: this is a source study and educational implementation, not a formal
+proof or a production performance benchmark. React's upstream tests were not
+run. The standalone page's behavior and DOM results were exercised in headless
+Edge, but its visual layout was not reviewed. Millisecond values in narrative
+timelines are illustrative unless explicitly identified as source constants.
 
 ### Immutable source references
 
@@ -1849,7 +1869,7 @@ Use memoization, state localization, virtualization, pagination, algorithmic imp
 
 DevTools Profiler/Profiler callbacks primarily describe committed component work; browser traces capture abandoned CPU and host timing. React Performance Tracks in development/profiling builds align Blocking/Transition/Suspense/Idle and component activity with the browser timeline; ordinary production builds do not expose them by default. Identify input delay, urgent render/commit, interrupted transition, final commit, passive work and browser layout/paint separately. Long-task thresholds are diagnostics, not guarantees. [Tracks](https://react.dev/reference/dev-tools/react-performance-tracks), [Chrome Performance](https://developer.chrome.com/docs/devtools/performance)
 
-The companion mini-renderer has Fiber traversal, current/alternate storage, two toy lanes, MessageChannel scheduler, microtask root coordination, persistent rebase queue, query memoization and synchronous final-snapshot commit. Separate helpers demonstrate Suspense and store consistency. It excludes production hooks, lane groups/entanglement, hydration, multi-root policy and View Transitions. Nine deterministic behavioral checks pass; actual browser visual execution and upstream React suites were not run. The teaching demo is not a production React benchmark.
+The companion mini-renderer has Fiber traversal, current/alternate storage, two toy lanes, MessageChannel scheduler, microtask root coordination, persistent rebase queue, query memoization and synchronous final-snapshot commit. Separate helpers demonstrate Suspense and store consistency. It excludes production hooks, lane groups/entanglement, hydration, multi-root policy and View Transitions. Ten deterministic behavioral checks pass; headless browser behavior was exercised, but visual layout and upstream React suites were not checked. The teaching demo is not a production React benchmark.
 
 ## 15. Essential teaching statements
 
@@ -1998,4 +2018,3 @@ All source links below are immutable and include the repository file and relevan
 [transition-lane]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L698-L724
 [work-gate]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L1137-L1243
 [work-loops]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3007-L3123
-

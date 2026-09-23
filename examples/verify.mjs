@@ -75,6 +75,13 @@ check('Suspense model keeps revealed content for a transition and deduplicates l
   assert.equal(boundary(()=>resource.read(),'fallback',{transition:true}).content,'old');
   assert.equal(boundary(()=>resource.read(),'fallback',{transition:true}).status,'suspended');
 });
+check('Suspense model does not restore old content after showing fallback', () => {
+  const pending=createResource(new Promise(()=>{}));
+  const localBoundary=createBoundary(()=>{});
+  assert.equal(localBoundary(()=> 'old','fallback').content,'old');
+  assert.equal(localBoundary(()=>pending.read(),'fallback').content,'fallback');
+  assert.equal(localBoundary(()=>pending.read(),'fallback',{transition:true}).content,'fallback');
+});
 resolve('ready'); await Promise.resolve(); await Promise.resolve();
 check('A resolved resource schedules one retry and can be read', () => {
   assert.equal(retries,1); assert.equal(boundary(()=>resource.read(),'fallback').content,'ready');

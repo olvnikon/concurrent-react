@@ -13,11 +13,11 @@ export function createResource(promise) {
 }
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
-  let committed, hasContent = false;
+  let committed, hasContent = false, showingFallback = false;
   return function renderBoundary(render, fallback, {transition = false} = {}) {
     try {
       const content = render();
-      committed = content; hasContent = true;
+      committed = content; hasContent = true; showingFallback = false;
       return {status: 'content', content};
     } catch (value) {
       if (value === null || (typeof value !== 'object' && typeof value !== 'function') ||
@@ -27,7 +27,11 @@ export function createBoundary(scheduleRetry) {
         const retry = () => { listening.delete(value); scheduleRetry(); };
         value.then(retry, retry);
       }
-      return {status: 'suspended', content: transition && hasContent ? committed : fallback};
+      // A transition may preserve currently revealed content. It must not bring
+      // back content after this simplified boundary has already shown fallback.
+      const keepRevealedContent = transition && hasContent && !showingFallback;
+      showingFallback = !keepRevealedContent;
+      return {status: 'suspended', content: keepRevealedContent ? committed : fallback};
     }
   };
 }

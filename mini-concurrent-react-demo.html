@@ -298,6 +298,9 @@ const trace = []; const start = performance.now();
 let app, scripted=false, injectSecond=false, frames=0, traceDirty=true;
 const cost = () => Number($('cost').value);
 const spin = ms => { const end=performance.now()+ms; while(performance.now()<end){} };
+function finishScriptedReplay() {
+  scripted=false; injectSecond=false; $('scripted').disabled=false;
+}
 function onEvent(e) {
   if(e.type==='begin'||e.type==='complete'||e.type==='update'||e.type==='bailout')return;
   const key = {'render-start':'renders','yield':'yields','abandon':'abandons','commit-end':'commits'}[e.type];
@@ -309,7 +312,7 @@ function onEvent(e) {
     setTimeout(()=>{ $('search').value='ab'; app.input('ab'); },0);
   }
   if(e.type==='commit-end' && e.state.query==='ab' && scripted){
-    scripted=false; $('scripted').disabled=false;
+    finishScriptedReplay();
   }
 }
 app=createMiniConcurrentRoot({onEvent,rowCount:120, renderRow:({query,index})=>{
@@ -326,7 +329,11 @@ app=createMiniConcurrentRoot({onEvent,rowCount:120, renderRow:({query,index})=>{
     $('rows').replaceChildren(fragment);$('rows').dataset.query=snapshot.query;
   }
 }});
-$('search').addEventListener('input',e=>app.input(e.target.value));
+$('search').addEventListener('input',e=>{
+  // Real input takes ownership from the scripted replay.
+  if(scripted)finishScriptedReplay();
+  app.input(e.target.value);
+});
 $('clear').addEventListener('click',()=>{trace.length=0;Object.keys(stats).forEach(k=>stats[k]=0);traceDirty=true;});
 $('scripted').addEventListener('click',()=>{
   if(app.root.pendingLanes)return;

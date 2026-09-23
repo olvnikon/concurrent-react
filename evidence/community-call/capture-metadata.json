@@ -1,0 +1,71 @@
+{
+  "capturedAt": "2026-09-23T14:03:20.785Z",
+  "browser": "153.0.4234.48",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "cpuThrottling": "none",
+  "react": "19.3.0",
+  "build": "development",
+  "strictMode": false,
+  "headless": true,
+  "recordings": [
+    {
+      "name": "search-ordinary",
+      "events": 2043,
+      "commits": 4,
+      "reactEventNames": [
+        "​SlowRow"
+      ],
+      "input": "Playwright keyboard events / UI clicks",
+      "cpuPerRowMs": 2,
+      "rows": 120
+    },
+    {
+      "name": "search-transition",
+      "events": 1905,
+      "commits": 6,
+      "reactEventNames": [
+        "​SlowRow"
+      ],
+      "input": "Playwright keyboard events / UI clicks",
+      "cpuPerRowMs": 2,
+      "rows": 120
+    },
+    {
+      "name": "search-indivisible",
+      "events": 1315,
+      "commits": 8,
+      "reactEventNames": [
+        "​SlowRow"
+      ],
+      "input": "Playwright keyboard events / UI clicks",
+      "cpuPerRowMs": 2,
+      "rows": 120
+    },
+    {
+      "name": "suspense-urgent",
+      "events": 1378,
+      "commits": 3,
+      "reactEventNames": [
+        "​Article"
+      ],
+      "input": "Playwright keyboard events / UI clicks",
+      "cpuPerRowMs": 2,
+      "rows": 120
+    },
+    {
+      "name": "suspense-transition",
+      "events": 1350,
+      "commits": 3,
+      "reactEventNames": [
+        "call:request:transition",
+        "​Article"
+      ],
+      "input": "Playwright keyboard events / UI clicks",
+      "cpuPerRowMs": 2,
+      "rows": 120
+    }
+  ]
+}

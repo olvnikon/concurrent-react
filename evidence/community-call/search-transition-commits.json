@@ -1,0 +1,50 @@
+[
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 0,
+    "baseDuration": 3.9000000953674316,
+    "startTime": 1451.6000000238419,
+    "commitTime": 1451.6000000238419
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 0.20000004768371582,
+    "baseDuration": 4.1000001430511475,
+    "startTime": 1451.3999999761581,
+    "commitTime": 1451.6000000238419
+  },
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 0,
+    "baseDuration": 3.9000000953674316,
+    "startTime": 1501.8999999761581,
+    "commitTime": 1501.8999999761581
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 0.2999999523162842,
+    "baseDuration": 4.200000047683716,
+    "startTime": 1501.6000000238419,
+    "commitTime": 1501.8999999761581
+  },
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 243.40000009536743,
+    "baseDuration": 243.29999995231628,
+    "startTime": 1503.6000000238419,
+    "commitTime": 1757.5
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 243.60000014305115,
+    "baseDuration": 243.5,
+    "startTime": 1503.3999999761581,
+    "commitTime": 1757.5
+  }
+]

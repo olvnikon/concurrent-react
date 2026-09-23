@@ -1,0 +1,34 @@
+[
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 245.89999985694885,
+    "baseDuration": 245.799999833107,
+    "startTime": 734.2000000476837,
+    "commitTime": 980.5
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 246.79999995231628,
+    "baseDuration": 246.69999992847443,
+    "startTime": 733.2999999523163,
+    "commitTime": 980.5
+  },
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 243.80000007152557,
+    "baseDuration": 243.70000004768372,
+    "startTime": 1025.2000000476837,
+    "commitTime": 1269.2999999523163
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 244.0000001192093,
+    "baseDuration": 243.90000009536743,
+    "startTime": 1025,
+    "commitTime": 1269.2999999523163
+  }
+]

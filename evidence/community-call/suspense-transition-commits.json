@@ -1,0 +1,26 @@
+[
+  {
+    "id": "Suspense",
+    "phase": "update",
+    "actualDuration": 0.30000007152557373,
+    "baseDuration": 0.30000007152557373,
+    "startTime": 3852.899999976158,
+    "commitTime": 3853.2000000476837
+  },
+  {
+    "id": "Suspense",
+    "phase": "update",
+    "actualDuration": 0.6000000238418579,
+    "baseDuration": 0.6000000238418579,
+    "startTime": 4387.700000047684,
+    "commitTime": 4388.399999976158
+  },
+  {
+    "id": "Suspense",
+    "phase": "update",
+    "actualDuration": 0.5,
+    "baseDuration": 0.5,
+    "startTime": 4390.299999952316,
+    "commitTime": 4391
+  }
+]

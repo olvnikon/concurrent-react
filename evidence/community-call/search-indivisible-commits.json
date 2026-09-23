@@ -1,0 +1,66 @@
+[
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 0,
+    "baseDuration": 3.600000023841858,
+    "startTime": 1836.2999999523163,
+    "commitTime": 1836.3999999761581
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 0.19999992847442627,
+    "baseDuration": 3.799999952316284,
+    "startTime": 1836.1000000238419,
+    "commitTime": 1836.3999999761581
+  },
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 243.79999995231628,
+    "baseDuration": 243.69999992847443,
+    "startTime": 1843.6000000238419,
+    "commitTime": 2088.399999976158
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 244.69999992847443,
+    "baseDuration": 244.59999990463257,
+    "startTime": 1842.7000000476837,
+    "commitTime": 2088.399999976158
+  },
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 0,
+    "baseDuration": 243.69999992847443,
+    "startTime": 2093.7999999523163,
+    "commitTime": 2093.7999999523163
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 0.19999992847442627,
+    "baseDuration": 243.89999985694885,
+    "startTime": 2093.600000023842,
+    "commitTime": 2093.7999999523163
+  },
+  {
+    "id": "SlowResults",
+    "phase": "update",
+    "actualDuration": 247.10000002384186,
+    "baseDuration": 246.39999997615814,
+    "startTime": 2096.399999976158,
+    "commitTime": 2345.899999976158
+  },
+  {
+    "id": "Search",
+    "phase": "update",
+    "actualDuration": 247.29999995231628,
+    "baseDuration": 246.59999990463257,
+    "startTime": 2096.2000000476837,
+    "commitTime": 2345.899999976158
+  }
+]

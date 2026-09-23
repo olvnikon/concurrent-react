@@ -1,2 +1,6 @@
 react/
 react-source-v19.3.0/
+node_modules/
+dist/
+.vite/
+*.log

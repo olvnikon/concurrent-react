@@ -1,12 +1,26 @@
 {
   "name": "concurrent-react",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "build:profiling": "vite build --mode profiling",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node examples/verify.mjs && node --test demos/models/models.test.mjs",
+    "test:browser": "node demos/tools/browser-check.mjs",
+    "record": "node demos/tools/record.mjs",
+    "models": "node demos/models/walkthrough.mjs"
   },
-  "keywords": [],
-  "author": "",
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.0",
+    "playwright": "1.63.0"
+  },
   "license": "ISC",
-  "description": ""
+  "description": "Small Concurrent React teaching models and real React profiling examples."
 }

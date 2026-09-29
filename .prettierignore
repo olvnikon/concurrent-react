@@ -1,0 +1,13 @@
+# Immutable React references: never format these directories.
+/react/
+/react-source-v19.3.0/
+
+# Dependencies, build output, recordings, and historical source metadata.
+/node_modules/
+/dist/
+/.vite/
+/evidence/
+/source-manifest.json
+/source-references.json
+/package-lock.json
+*.log

@@ -1,7 +1,7 @@
 // Commit observations only. Never infer an abandoned render from this log.
 export const commits = [];
 export function onRender(id, phase, actualDuration, baseDuration, startTime, commitTime) {
-  commits.push({id, phase, actualDuration, baseDuration, startTime, commitTime});
+  commits.push({ id, phase, actualDuration, baseDuration, startTime, commitTime });
   if (commits.length > 200) commits.shift();
 }
 export function mark(label) {
@@ -14,4 +14,4 @@ export function clearRecording() {
   }
 }
 // Read-only diagnostics used by the browser rehearsal/recording scripts.
-window.communityCall = {commits, clearRecording};
+window.communityCall = { commits, clearRecording };

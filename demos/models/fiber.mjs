@@ -1,7 +1,7 @@
 // Educational reconstruction: fixed tree; output is a list, not a DOM diff.
 // React reuses current/alternate Fibers and records flags for commit.
 export function createFiber(name, children = []) {
-  const fiber = {name, child: null, sibling: null, return: null};
+  const fiber = { name, child: null, sibling: null, return: null };
   children.forEach((child, index) => {
     child.return = fiber;
     if (index === 0) fiber.child = child;
@@ -18,7 +18,7 @@ export function exampleTree() {
 }
 
 export function createDraft(root) {
-  return {next: root, output: [], events: []};
+  return { next: root, output: [], events: [] };
 }
 
 export function performUnitOfWork(draft) {

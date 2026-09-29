@@ -1,9 +1,9 @@
 // Educational reconstruction: a queue of small work units, no React imports.
 // React's Scheduler also has priority/deadline heaps and task continuations.
-export function scheduleUnits(units, {
-  postTask, now = () => performance.now(), budgetMs = 5,
-  onSlice = () => {}, onDone = () => {},
-}) {
+export function scheduleUnits(
+  units,
+  { postTask, now = () => performance.now(), budgetMs = 5, onSlice = () => {}, onDone = () => {} },
+) {
   let next = 0;
   let cancelled = false;
 
@@ -18,13 +18,15 @@ export function scheduleUnits(units, {
     } while (!cancelled && next < units.length && now() < deadline);
 
     if (cancelled) return;
-    onSlice({first, next});
+    onSlice({ first, next });
     if (next < units.length) postTask(workLoop);
     else onDone();
   }
 
   postTask(workLoop);
-  return () => { cancelled = true; };
+  return () => {
+    cancelled = true;
+  };
 }
 
 // One message delivers one host callback. Caller closes the channel after use.

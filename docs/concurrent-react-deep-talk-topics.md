@@ -469,10 +469,10 @@ React usually schedules **work on a root**, not one Scheduler callback per compo
 Start with toy lanes:
 
 ```js
-const SyncLane       = 0b0001;
-const DefaultLane    = 0b0010;
+const SyncLane = 0b0001;
+const DefaultLane = 0b0010;
 const TransitionLane = 0b0100;
-const RetryLane      = 0b1000;
+const RetryLane = 0b1000;
 ```
 
 Explain:
@@ -1326,25 +1326,25 @@ Key concepts:
 
 ## 29. Myth vs reality slide
 
-| Myth | Correct model |
-|---|---|
-| Concurrent React is multithreaded | It cooperatively uses normal JS/main-thread execution |
-| Transition uses Web Workers | No automatic worker is involved |
-| React interrupts a component halfway through | It yields only after JS control returns |
-| One Fiber = one browser task | One callback usually processes many Fibers |
-| Fiber schedules itself | Root scheduler + Scheduler schedule work |
-| Transition = Scheduler LowPriority | Transition lanes commonly map to Scheduler NormalPriority |
-| MessageChannel is React's priority system | It is mainly a host task mechanism |
-| React always resumes exactly where it stopped | Work may continue, restart, rebase, bail out, or be abandoned |
-| Abandoned render loses updates | Queues preserve intent and rebase skipped work |
-| Rendering a Fiber updates visible DOM | Publication happens during commit |
-| Concurrent rendering makes giant commits cheap | Mutation/layout/paint still cost real time |
-| Suspense is a spinner API | It is a render-completion/presentation boundary |
-| Suspense freezes the JS stack | Render unwinds and retries later |
-| Promise resolution updates the DOM | It pings/schedules React work |
-| `useDeferredValue` is debounce | It is scheduling/deferred rendering, not a timer |
-| StrictMode double render is concurrency | It is a dev check exposing unsafe assumptions |
-| 5 ms means React tasks are capped at 5 ms | React cannot preempt the current unit |
+| Myth                                           | Correct model                                                 |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| Concurrent React is multithreaded              | It cooperatively uses normal JS/main-thread execution         |
+| Transition uses Web Workers                    | No automatic worker is involved                               |
+| React interrupts a component halfway through   | It yields only after JS control returns                       |
+| One Fiber = one browser task                   | One callback usually processes many Fibers                    |
+| Fiber schedules itself                         | Root scheduler + Scheduler schedule work                      |
+| Transition = Scheduler LowPriority             | Transition lanes commonly map to Scheduler NormalPriority     |
+| MessageChannel is React's priority system      | It is mainly a host task mechanism                            |
+| React always resumes exactly where it stopped  | Work may continue, restart, rebase, bail out, or be abandoned |
+| Abandoned render loses updates                 | Queues preserve intent and rebase skipped work                |
+| Rendering a Fiber updates visible DOM          | Publication happens during commit                             |
+| Concurrent rendering makes giant commits cheap | Mutation/layout/paint still cost real time                    |
+| Suspense is a spinner API                      | It is a render-completion/presentation boundary               |
+| Suspense freezes the JS stack                  | Render unwinds and retries later                              |
+| Promise resolution updates the DOM             | It pings/schedules React work                                 |
+| `useDeferredValue` is debounce                 | It is scheduling/deferred rendering, not a timer              |
+| StrictMode double render is concurrency        | It is a dev check exposing unsafe assumptions                 |
+| 5 ms means React tasks are capped at 5 ms      | React cannot preempt the current unit                         |
 
 ---
 
@@ -1596,18 +1596,18 @@ mini-concurrent-react-demo.html
 
 Suggested placement:
 
-| Artifact / mechanism | Section |
-|---|---|
-| `createFiber`, `createWorkInProgress` | Fiber + double buffering |
-| `performUnitOfWork` | traversal |
-| simplified `createScheduler` | Scheduler / MessageChannel |
-| lane helpers | lanes |
-| `processQueue` / rebase | update queues |
-| `MiniConcurrentReact` search demo | main Transition example |
-| `createResource` / `createBoundary` | Suspense |
-| commit snapshot adapter | render vs commit |
-| store consistency helper | tearing |
-| deterministic verification | Q&A / backup |
+| Artifact / mechanism                  | Section                    |
+| ------------------------------------- | -------------------------- |
+| `createFiber`, `createWorkInProgress` | Fiber + double buffering   |
+| `performUnitOfWork`                   | traversal                  |
+| simplified `createScheduler`          | Scheduler / MessageChannel |
+| lane helpers                          | lanes                      |
+| `processQueue` / rebase               | update queues              |
+| `MiniConcurrentReact` search demo     | main Transition example    |
+| `createResource` / `createBoundary`   | Suspense                   |
+| commit snapshot adapter               | render vs commit           |
+| store consistency helper              | tearing                    |
+| deterministic verification            | Q&A / backup               |
 
 Every educational snippet should be labelled:
 

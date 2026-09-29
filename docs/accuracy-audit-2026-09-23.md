@@ -160,16 +160,16 @@ Fiber-plus-Suspense demo; `mechanisms.mjs` supplies a separate boundary helper.
 
 ## Important claims that checked out
 
-| Topic | Audit result and qualification |
-| --- | --- |
-| Fiber and yielding | The source supports linked work units, current/alternate reuse, interruption, and discarded speculative output. A running component call is not preempted. The work loop and enabled feature flags support the dossier's qualifications. |
-| Scheduler and lanes | Host tasks, scheduling microtasks, Scheduler priorities, and lanes are correctly distinguished in the detailed research. The 5 ms budget is a cooperative threshold, not a hard limit or guaranteed paint cadence. Real Scheduler queues are not the miniature's FIFO algorithm. |
-| Transitions and rebasing | Immediate `startTransition` callback execution, urgent controlled input, skipped updates, and ordered replay are supported. The noncommutative queue example reaches urgent state 2 and eventual state 23. See [`updateReducerImpl`][hook-queue] and the [public Transition reference](https://react.dev/reference/react/startTransition). |
-| Suspense | Pending resources, capture, notification, retry, and publication are correctly separated in the detailed research. `use`'s internal suspension sentinel is distinguished from the educational raw-thenable model. The boundary-state defect above is a specific exception. |
-| Commit and effects | The dossier correctly distinguishes ordinary synchronous publication from resource/View Transition orchestration and does not promise passive effects always run after paint. Preserve those qualifications when shortening slides; see [commit orchestration][commit] and [DOM View Transition integration][view-transition]. |
-| Deferred values and external stores | The explanations match deferred-value lane selection and store consistency checks, including synchronous recovery from inconsistent snapshots. These are not generic debounce or automatic background-thread mechanisms. |
-| Public versus internal APIs | The pinned stable exports and feature flags support the release-specific Activity/View Transition discussion. Internal Offscreen machinery and experimental exports are not treated as interchangeable stable APIs. |
-| Profiling | The proposed pairing of a commit-focused Profiler with browser/React Performance Tracks is sound. Tracks require supported development/profiling instrumentation; toy User Timing marks are not React tracks. See [Performance Tracks](https://react.dev/reference/dev-tools/react-performance-tracks) and [Profiler](https://react.dev/reference/react/Profiler). |
+| Topic                               | Audit result and qualification                                                                                                                                                                                                                                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Fiber and yielding                  | The source supports linked work units, current/alternate reuse, interruption, and discarded speculative output. A running component call is not preempted. The work loop and enabled feature flags support the dossier's qualifications.                                                                                                                           |
+| Scheduler and lanes                 | Host tasks, scheduling microtasks, Scheduler priorities, and lanes are correctly distinguished in the detailed research. The 5 ms budget is a cooperative threshold, not a hard limit or guaranteed paint cadence. Real Scheduler queues are not the miniature's FIFO algorithm.                                                                                   |
+| Transitions and rebasing            | Immediate `startTransition` callback execution, urgent controlled input, skipped updates, and ordered replay are supported. The noncommutative queue example reaches urgent state 2 and eventual state 23. See [`updateReducerImpl`][hook-queue] and the [public Transition reference](https://react.dev/reference/react/startTransition).                         |
+| Suspense                            | Pending resources, capture, notification, retry, and publication are correctly separated in the detailed research. `use`'s internal suspension sentinel is distinguished from the educational raw-thenable model. The boundary-state defect above is a specific exception.                                                                                         |
+| Commit and effects                  | The dossier correctly distinguishes ordinary synchronous publication from resource/View Transition orchestration and does not promise passive effects always run after paint. Preserve those qualifications when shortening slides; see [commit orchestration][commit] and [DOM View Transition integration][view-transition].                                     |
+| Deferred values and external stores | The explanations match deferred-value lane selection and store consistency checks, including synchronous recovery from inconsistent snapshots. These are not generic debounce or automatic background-thread mechanisms.                                                                                                                                           |
+| Public versus internal APIs         | The pinned stable exports and feature flags support the release-specific Activity/View Transition discussion. Internal Offscreen machinery and experimental exports are not treated as interchangeable stable APIs.                                                                                                                                                |
+| Profiling                           | The proposed pairing of a commit-focused Profiler with browser/React Performance Tracks is sound. Tracks require supported development/profiling instrumentation; toy User Timing marks are not React tracks. See [Performance Tracks](https://react.dev/reference/dev-tools/react-performance-tracks) and [Profiler](https://react.dev/reference/react/Profiler). |
 
 ### An upstream documentation discrepancy to preserve explicitly
 
@@ -187,17 +187,17 @@ and disclose the reference-page mismatch in presenter notes if covering this top
 
 ## Initial audit verification
 
-| Check | Result |
-| --- | --- |
-| Existing `node examples/verify.mjs` suite | **9 checks passed**, rerun during this audit. |
-| Module and embedded-engine syntax | Passed. |
-| Snapshot provenance/integrity | **68/68** manifest hashes and pinned Git file contents matched. |
-| Source-reference bounds | **79/79** ranges valid. Bounds alone do not prove a claim; relevant implementations were also read. |
-| Duplicated artifacts | Root/docs research copies and embedded/module engine agree. |
-| Additional queue stress check | **100 deterministic seeds**, each with 30 mixed Sync/Transition noncommutative updates and varied host/microtask interleavings, matched an enqueue-order final-state oracle. |
-| Browser replay | Passed at 0.5, 1, and 3 ms row workloads, and with a 100 ms first-row block. Each settled at input/query `ab` and 120 result rows; each observed one abandoned draft. |
-| Browser input | Automated browser input settled correctly; no page errors observed in the normal replay/input checks. This was not a human typing rehearsal. |
-| Targeted edge cases | Reproduced the stuck replay button, boundary historical-content issue, dropped scheduler callback, and swallowed outline error described above. |
+| Check                                     | Result                                                                                                                                                                       |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Existing `node examples/verify.mjs` suite | **9 checks passed**, rerun during this audit.                                                                                                                                |
+| Module and embedded-engine syntax         | Passed.                                                                                                                                                                      |
+| Snapshot provenance/integrity             | **68/68** manifest hashes and pinned Git file contents matched.                                                                                                              |
+| Source-reference bounds                   | **79/79** ranges valid. Bounds alone do not prove a claim; relevant implementations were also read.                                                                          |
+| Duplicated artifacts                      | Root/docs research copies and embedded/module engine agree.                                                                                                                  |
+| Additional queue stress check             | **100 deterministic seeds**, each with 30 mixed Sync/Transition noncommutative updates and varied host/microtask interleavings, matched an enqueue-order final-state oracle. |
+| Browser replay                            | Passed at 0.5, 1, and 3 ms row workloads, and with a 100 ms first-row block. Each settled at input/query `ab` and 120 result rows; each observed one abandoned draft.        |
+| Browser input                             | Automated browser input settled correctly; no page errors observed in the normal replay/input checks. This was not a human typing rehearsal.                                 |
+| Targeted edge cases                       | Reproduced the stuck replay button, boundary historical-content issue, dropped scheduler callback, and swallowed outline error described above.                              |
 
 Browser environment: headless Microsoft Edge **153.0.4234.48**, 1440 × 1100
 viewport, no CPU throttling, standalone local HTML. React version/build and

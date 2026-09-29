@@ -1,44 +1,68 @@
 // Teaching-only mechanisms. These are not production Suspense integration APIs.
 export function createResource(promise) {
-  let status = 'pending', result;
+  let status = 'pending',
+    result;
   const wakeable = Promise.resolve(promise).then(
-    value => { status = 'fulfilled'; result = value; },
-    error => { status = 'rejected'; result = error; },
+    (value) => {
+      status = 'fulfilled';
+      result = value;
+    },
+    (error) => {
+      status = 'rejected';
+      result = error;
+    },
   );
-  return {read() {
-    if (status === 'pending') throw wakeable;
-    if (status === 'rejected') throw result;
-    return result;
-  }};
+  return {
+    read() {
+      if (status === 'pending') throw wakeable;
+      if (status === 'rejected') throw result;
+      return result;
+    },
+  };
 }
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
-  let committed, hasContent = false, showingFallback = false;
-  return function renderBoundary(render, fallback, {transition = false} = {}) {
+  let committed,
+    hasContent = false,
+    showingFallback = false;
+  return function renderBoundary(render, fallback, { transition = false } = {}) {
     try {
       const content = render();
-      committed = content; hasContent = true; showingFallback = false;
-      return {status: 'content', content};
+      committed = content;
+      hasContent = true;
+      showingFallback = false;
+      return { status: 'content', content };
     } catch (value) {
-      if (value === null || (typeof value !== 'object' && typeof value !== 'function') ||
-          typeof value.then !== 'function') throw value;
+      if (
+        value === null ||
+        (typeof value !== 'object' && typeof value !== 'function') ||
+        typeof value.then !== 'function'
+      )
+        throw value;
       if (!listening.has(value)) {
         listening.add(value);
-        const retry = () => { listening.delete(value); scheduleRetry(); };
+        const retry = () => {
+          listening.delete(value);
+          scheduleRetry();
+        };
         value.then(retry, retry);
       }
       // A transition may preserve currently revealed content. It must not bring
       // back content after this simplified boundary has already shown fallback.
       const keepRevealedContent = transition && hasContent && !showingFallback;
       showingFallback = !keepRevealedContent;
-      return {status: 'suspended', content: keepRevealedContent ? committed : fallback};
+      return { status: 'suspended', content: keepRevealedContent ? committed : fallback };
     }
   };
 }
 // Simplified store consistency checkpoint; React tracks these checks on Fibers.
 export function snapshotsAreConsistent(reads) {
-  return reads.every(({getSnapshot, value}) => {
-    try { return Object.is(getSnapshot(), value); } catch { return false; }
+  return reads.every(({ getSnapshot, value }) => {
+    try {
+      return Object.is(getSnapshot(), value);
+    } catch {
+      return false;
+    }
   });
 }
 // Effects recorded by an isolated render draft become observable at commit only.
@@ -48,5 +72,7 @@ export function commitDraft(draft, host) {
   for (const layout of draft.layoutEffects ?? []) layout();
   // Scheduling a later task does NOT guarantee that a paint happened first.
   if (draft.passiveEffects?.length)
-    host.schedule(() => { for (const effect of draft.passiveEffects) effect(); });
+    host.schedule(() => {
+      for (const effect of draft.passiveEffects) effect();
+    });
 }

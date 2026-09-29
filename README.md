@@ -1,4 +1,40 @@
-# Concurrent React internals research package
+# Concurrent React community call
+
+Five small lessons: Scheduler, Fiber, lanes/rebasing, real React search, and
+Suspense. The teaching models and real React examples are explicitly labeled.
+
+## Run the lesson host
+
+```sh
+npm ci
+npm run dev
+```
+
+Open the printed localhost URL. Use Node 22.12+; verified with 22.17.1.
+React and React DOM are pinned to **19.3.0**.
+
+- [Demo guide](docs/demo-guide.md): lesson steps, code walkthroughs and simplifications.
+- [Slide text](docs/community-call-slides.md): 20 slides with speaker notes and demo cues.
+- [Profiling walkthrough](docs/profiling-walkthrough.md): five captured real React
+  traces, observed interruption, and exact recording/rehearsal instructions.
+- [Implementation progress](docs/community-call-implementation-plan.md): completed
+  work and remaining manual DevTools/presenter rehearsal steps.
+
+```sh
+npm test                  # original 10 checks + 5 isolated-model tests
+npm run models            # executable minimal internals walkthroughs
+npm run test:browser       # headless Edge functional rehearsal
+npm run build
+npm run build:profiling
+npm run format            # Prettier, respecting protected reference folders
+npm run format:check
+```
+
+Use `npm run preview` after the desired build. `npm run record` creates a new
+timestamped evidence folder. The guide documents prerequisites and scope.
+Neither `react/` nor `react-source-v19.3.0/` may be modified or formatted.
+
+## Original research and standalone miniature
 
 React **19.3.0**, tag `v19.3.0`, commit `1d34f91dfde6bba84d08b683aaba164c7194dacb`.
 Source baseline checked 18 September 2026; package finalized 19 September 2026.
@@ -16,7 +52,7 @@ Source baseline checked 18 September 2026; package finalized 19 September 2026.
 - `react-source-v19.3.0/`: selected original React repository files, including the upstream MIT license. This is a source-reading subset, not a complete buildable React checkout.
 - `evidence/`: release/tag metadata and verification results.
 
-## Run the demo
+## Run the standalone miniature
 
 1. Open `mini-concurrent-react-demo.html` in a browser.
 2. Press **Run a → ab**. This injects the second update in a later task after the first transition yield.
@@ -58,7 +94,9 @@ source hash verification and source-line/reference integrity checks passed. The
 page's replay, automated input, interruption, and final DOM state were exercised
 in headless Microsoft Edge 153.0.4234.48 without CPU throttling. Its visual
 layout was not reviewed, and React's upstream suites were not run. The proposed
-real-React profiling demonstrations are experiment designs, not measured
-benchmark results.
+real-React profiling designs in the original dossier are not benchmark results.
+The new lesson host has separate measured recordings and verification boundaries
+documented in the profiling walkthrough above. A manual React DevTools extension
+capture and complete live presentation rehearsal are still pending.
 
 The dossier distinguishes public contracts, current implementation, history and experimental features. Timing illustrations are not browser scheduling guarantees. React's bundled source retains its original license; the teaching code is an original educational reconstruction.

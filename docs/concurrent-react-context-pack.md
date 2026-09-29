@@ -19,17 +19,17 @@
 
 ## 2. Layer ownership and end-to-end update route
 
-| Layer | Responsibility |
-| --- | --- |
-| Browser event loop | Choose runnable tasks, run microtask checkpoints, allow rendering opportunities |
-| DOM event system | Dispatch handlers under React event/update priority |
-| Hook/class queue | Preserve ordered updates and base history |
-| Lanes | Encode eligible work sets, urgency, suspension and dependencies |
-| Root scheduler | Coordinate roots, sync flushing and callback reuse/replacement |
-| Scheduler package | General callbacks, deadlines, host tasks and cooperative yield predicate |
-| Fiber/reconciler | Persistent work records, traversal, reconciliation, suspension and retry |
-| DOM renderer/commit | Prepare host instances and publish completed changes |
-| Browser rendering | Style, layout, paint and compositing |
+| Layer               | Responsibility                                                                  |
+| ------------------- | ------------------------------------------------------------------------------- |
+| Browser event loop  | Choose runnable tasks, run microtask checkpoints, allow rendering opportunities |
+| DOM event system    | Dispatch handlers under React event/update priority                             |
+| Hook/class queue    | Preserve ordered updates and base history                                       |
+| Lanes               | Encode eligible work sets, urgency, suspension and dependencies                 |
+| Root scheduler      | Coordinate roots, sync flushing and callback reuse/replacement                  |
+| Scheduler package   | General callbacks, deadlines, host tasks and cooperative yield predicate        |
+| Fiber/reconciler    | Persistent work records, traversal, reconciliation, suspension and retry        |
+| DOM renderer/commit | Prepare host instances and publish completed changes                            |
+| Browser rendering   | Style, layout, paint and compositing                                            |
 
 Ordinary path: event → context/priority → `setState` update+lane → queue/staged concurrent update → mark Fiber/ancestor/root lanes → `ensureRootIsScheduled` → root microtask → sync flush or Scheduler callback → `performWorkOnRoot` → render loop → `beginWork`/reconcile/`completeWork` → completed candidate → commit readiness → mutation/current switch/layout → host rendering and passive effects, whose relative order is conditional. [Dispatch][dispatch], [staging][concurrent-queues], [root scheduler][root-scheduler], [work gate][work-gate]
 
@@ -56,8 +56,7 @@ function completeUnitOfWork(unit) {
   }
   return null;
 }
-while (nextUnit && !shouldYield())
-  nextUnit = performUnitOfWork(nextUnit);
+while (nextUnit && !shouldYield()) nextUnit = performUnitOfWork(nextUnit);
 ```
 
 Pseudocode omits real props bookkeeping, exceptions, profiling and completion paths that return further work. One unit can include a full component function, reconciliation loop and multiple ancestor completions. React cannot pause an arbitrary component instruction. A 100 ms call blocks for 100 ms. Suspension at `use` throws/unwinds; it does not preserve a paused language stack. [Unit loop][work-loops], [completion][complete-unit]
@@ -78,14 +77,14 @@ Call path: `performWorkUntilDeadline` → `flushWork` → `workLoop` → root ca
 
 `root.callbackPriority` is a representative **lane**, not a Scheduler enum. `scheduleTaskForRootDuringMicrotask` maps eligible work to a callback. At execution, `performWorkOnRootViaSchedulerTask` checks pending commits, flushes pending effects, reselects lanes and returns a continuation only if the root still owns the same callback node. [Scheduling][root-task], [callback][root-callback]
 
-| Work | Typical root route | Ordinary render policy |
-| --- | --- | --- |
-| Discrete input/Sync | Sync flush, often without Scheduler callback | Blocking |
-| Continuous input | Scheduler UserBlocking | Blocking lane classification |
-| Default | Scheduler Normal | Blocking lane classification |
-| Transition update/deferred | Usually Scheduler Normal | Concurrent unless forced, expired or exceptional |
-| Retry | Scheduler Normal | Usually concurrent; retry policy matters |
-| Idle/Offscreen | Scheduler Idle | Usually concurrent |
+| Work                       | Typical root route                           | Ordinary render policy                           |
+| -------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| Discrete input/Sync        | Sync flush, often without Scheduler callback | Blocking                                         |
+| Continuous input           | Scheduler UserBlocking                       | Blocking lane classification                     |
+| Default                    | Scheduler Normal                             | Blocking lane classification                     |
+| Transition update/deferred | Usually Scheduler Normal                     | Concurrent unless forced, expired or exceptional |
+| Retry                      | Scheduler Normal                             | Usually concurrent; retry policy matters         |
+| Idle/Offscreen             | Scheduler Idle                               | Usually concurrent                               |
 
 **TransitionLane is not Scheduler LowPriority. Asynchronous callback scheduling is not proof of interruptible rendering.** `performWorkOnRoot` uses `!forceSync && !includesBlockingLane && !includesExpiredLane`, with a prerender exception. Scheduler timeout can force sync in this build. [Event conversion][event-lane], [blocking mask][blocking-lanes], [gate][work-gate]
 
@@ -95,17 +94,17 @@ Controlled event cleanup checks restoration needs, calls `flushSyncWork`, then r
 
 31 usable bits; lower bits generally indicate higher priority, with grouping/policy exceptions. Exact zero-based bit layout in this tag:
 
-| Bits | Meaning |
-| --- | --- |
-| 0 / 1 | SyncHydration / Sync |
-| 2 / 3 | InputContinuousHydration / InputContinuous |
-| 4 / 5 | DefaultHydration / Default |
-| 6 / 7 | Experimental Gesture / TransitionHydration |
-| 8–17 | Ten transition-update lanes |
-| 18–21 | Four transition-deferred lanes |
-| 22–25 | Four retry lanes |
-| 26 / 27 | SelectiveHydration / IdleHydration |
-| 28 / 29 / 30 | Idle / Offscreen / Deferred marker |
+| Bits         | Meaning                                    |
+| ------------ | ------------------------------------------ |
+| 0 / 1        | SyncHydration / Sync                       |
+| 2 / 3        | InputContinuousHydration / InputContinuous |
+| 4 / 5        | DefaultHydration / Default                 |
+| 6 / 7        | Experimental Gesture / TransitionHydration |
+| 8–17         | Ten transition-update lanes                |
+| 18–21        | Four transition-deferred lanes             |
+| 22–25        | Four retry lanes                           |
+| 26 / 27      | SelectiveHydration / IdleHydration         |
+| 28 / 29 / 30 | Idle / Offscreen / Deferred marker         |
 
 `a | b`: union; `a & b`: overlap; `lanes & -lanes`: lowest set bit; `a & ~b`: removal; `(set & subset) === subset`: containment, including NoLane=0. [Lane layout/grouping][lane-groups]
 
@@ -125,19 +124,22 @@ Proof example: initial 1; A transition `+10`; B Sync `×2`; C transition `+1`. U
 
 ```js
 function rebase(base, updates, lanes) {
-  let state = base, saved = base, skipped = false;
+  let state = base,
+    saved = base,
+    skipped = false;
   const rest = [];
   for (const u of updates) {
     const include = u.lane === 0 || (u.lane & lanes) === u.lane;
     if (!include) {
       if (!skipped) saved = state;
-      skipped = true; rest.push({...u});
+      skipped = true;
+      rest.push({ ...u });
     } else {
       state = u.action(state);
-      if (skipped) rest.push({...u, lane: 0});
+      if (skipped) rest.push({ ...u, lane: 0 });
     }
   }
-  return {state, base: skipped ? saved : state, updates: rest};
+  return { state, base: skipped ? saved : state, updates: rest };
 }
 ```
 
@@ -170,7 +172,11 @@ let inTransition = false;
 function startTransitionToy(fn) {
   const previous = inTransition;
   inTransition = true;
-  try { fn(); } finally { inTransition = previous; }
+  try {
+    fn();
+  } finally {
+    inTransition = previous;
+  }
 }
 ```
 
@@ -198,8 +204,9 @@ Already revealed content may remain during a suspending transition; new nested b
 
 ```js
 // Concept only: production uses Fiber handlers, internal sentinels and lanes.
-try { return render(); }
-catch (x) {
+try {
+  return render();
+} catch (x) {
   if (!x || typeof x.then !== 'function') throw x;
   x.then(scheduleRetry, scheduleRetry);
   return transition && hasCommittedContent ? previousContent : fallback;
@@ -228,13 +235,13 @@ History: stack reconciler → Fiber (React 16) → expiration-time models/Schedu
 
 ## 14. Performance, profiling and teaching constraints
 
-| Bottleneck | Concurrency outcome |
-| --- | --- |
-| One 100 ms component | Cannot slice the call; optimize/offload computation |
-| Many small Fibers | Can yield between units; parent/reconciliation/completion still indivisible |
-| 20,000 DOM insertions | Commit/browser cost remains; reduce node count |
-| Large layout/paint | Browser work dominates; inspect CSS, invalidation and reads |
-| Repeatedly interrupted typing | Better urgent responsiveness can cost more CPU and slower final completion |
+| Bottleneck                    | Concurrency outcome                                                         |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| One 100 ms component          | Cannot slice the call; optimize/offload computation                         |
+| Many small Fibers             | Can yield between units; parent/reconciliation/completion still indivisible |
+| 20,000 DOM insertions         | Commit/browser cost remains; reduce node count                              |
+| Large layout/paint            | Browser work dominates; inspect CSS, invalidation and reads                 |
+| Repeatedly interrupted typing | Better urgent responsiveness can cost more CPU and slower final completion  |
 
 Use memoization, state localization, virtualization, pagination, algorithmic improvement, caching or Workers according to the bottleneck. `flushSync` forces relevant work and reduces flexibility; it is not a general optimization. Responsiveness, final-result latency, CPU and throughput must be measured separately.
 

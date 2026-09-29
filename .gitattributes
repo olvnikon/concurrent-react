@@ -1,0 +1,9 @@
+# Match Prettier/EditorConfig on Windows as well as Unix checkouts.
+* text=auto eol=lf
+
+# Preserve reference and recorded artifact bytes; do not renormalize them.
+/react/** -text !eol
+/react-source-v19.3.0/** -text !eol
+/evidence/** -text !eol
+/source-manifest.json -text !eol
+/source-references.json -text !eol

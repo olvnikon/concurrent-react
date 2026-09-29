@@ -66,17 +66,17 @@ Evidence: [stable exports][exports], [feature flags][flags], [lane grouping][lan
 
 This is speculative calculation with controlled publication. A lower-priority attempt may finish, pause, suspend, restart, or become unnecessary. Its uncommitted component output is not progressively published to the document. The updates that led to it need not disappear when the attempt is abandoned.
 
-| Responsibility | Owner | What it does not do |
-| --- | --- | --- |
-| Describe desired UI | Component functions and elements | Schedule browser execution by themselves |
-| Retain work and tree identity | Fiber objects | Create threads or preempt functions |
-| Choose compatible/prioritized updates | Lanes and root lane state | Tell the browser what a transition means |
-| Coordinate pending roots | `ReactFiberRootScheduler` | Execute every update immediately |
-| Order callbacks and offer yield checkpoints | `scheduler` package | Know components, DOM nodes, hooks or Suspense boundaries |
-| Reconcile, traverse, suspend, retry | React reconciler | Own browser paint timing |
-| Create/update host objects | DOM host configuration | Make a large layout cheap |
-| Run tasks, checkpoints and rendering opportunities | Browser event loop | Promise a paint after every task |
-| Calculate style, geometry and pixels | Browser rendering pipeline | Interpret React lane bits |
+| Responsibility                                     | Owner                            | What it does not do                                      |
+| -------------------------------------------------- | -------------------------------- | -------------------------------------------------------- |
+| Describe desired UI                                | Component functions and elements | Schedule browser execution by themselves                 |
+| Retain work and tree identity                      | Fiber objects                    | Create threads or preempt functions                      |
+| Choose compatible/prioritized updates              | Lanes and root lane state        | Tell the browser what a transition means                 |
+| Coordinate pending roots                           | `ReactFiberRootScheduler`        | Execute every update immediately                         |
+| Order callbacks and offer yield checkpoints        | `scheduler` package              | Know components, DOM nodes, hooks or Suspense boundaries |
+| Reconcile, traverse, suspend, retry                | React reconciler                 | Own browser paint timing                                 |
+| Create/update host objects                         | DOM host configuration           | Make a large layout cheap                                |
+| Run tasks, checkpoints and rendering opportunities | Browser event loop               | Promise a paint after every task                         |
+| Calculate style, geometry and pixels               | Browser rendering pipeline       | Interpret React lane bits                                |
 
 The ordinary route is: event dispatch → update priority/transition context → update object and lane → enqueue and mark the root → ensure root scheduling → root-scheduling microtask → synchronous flush or Scheduler callback → render work loop → `beginWork` and `completeWork` → completed candidate → commit eligibility → mutation → current-tree switch → layout work → browser rendering opportunities and passive effects.
 
@@ -106,28 +106,28 @@ Source entry points: [Hooks: `dispatchSetState`][dispatch], [ConcurrentUpdates: 
 
 **CURRENT IMPLEMENTATION.** A Fiber is a record for a position/identity in the reconciled tree. It can represent a function, class, host element, text, root, Fragment, Suspense boundary, Activity, portal or another internal kind. It is not necessarily a component function or a DOM node. Elements are descriptions; Fibers are persistent work records.
 
-| Field | Meaning in the current model |
-| --- | --- |
-| `tag` | Work category used by `beginWork`, completion and commit switches |
-| `key` | Identity among siblings; affects reuse during reconciliation |
-| `elementType` | Original element type used in identity matching |
-| `type` | Resolved implementation type; may differ for wrappers or lazy types |
-| `stateNode` | Tag-dependent instance: DOM node, class instance, root, internal instance |
-| `return` | Parent/work-return link for the current traversal |
-| `child` / `sibling` / `index` | First child, next sibling and sibling position |
-| `ref` / `refCleanup` | Ref and, in current React, possible callback-ref cleanup |
-| `pendingProps` | Inputs for this attempted version |
-| `memoizedProps` | Inputs represented by the completed/current version |
-| `memoizedState` | Tag-dependent state; function components use a hook chain here |
-| `updateQueue` | Tag-dependent update/effect structure; not always a state queue |
-| `dependencies` | Tracked context and related dependencies |
-| `flags` | Work/effect markers on this Fiber |
-| `subtreeFlags` | Aggregated descendant markers; enables skipping unaffected branches |
-| `deletions` | Children to remove during commit |
-| `lanes` | Pending work associated with this Fiber |
-| `childLanes` | Pending descendant work aggregated up the tree |
-| `alternate` | Other pooled version of the same Fiber identity |
-| `mode` | Rendering/development/profiling mode bits |
+| Field                         | Meaning in the current model                                              |
+| ----------------------------- | ------------------------------------------------------------------------- |
+| `tag`                         | Work category used by `beginWork`, completion and commit switches         |
+| `key`                         | Identity among siblings; affects reuse during reconciliation              |
+| `elementType`                 | Original element type used in identity matching                           |
+| `type`                        | Resolved implementation type; may differ for wrappers or lazy types       |
+| `stateNode`                   | Tag-dependent instance: DOM node, class instance, root, internal instance |
+| `return`                      | Parent/work-return link for the current traversal                         |
+| `child` / `sibling` / `index` | First child, next sibling and sibling position                            |
+| `ref` / `refCleanup`          | Ref and, in current React, possible callback-ref cleanup                  |
+| `pendingProps`                | Inputs for this attempted version                                         |
+| `memoizedProps`               | Inputs represented by the completed/current version                       |
+| `memoizedState`               | Tag-dependent state; function components use a hook chain here            |
+| `updateQueue`                 | Tag-dependent update/effect structure; not always a state queue           |
+| `dependencies`                | Tracked context and related dependencies                                  |
+| `flags`                       | Work/effect markers on this Fiber                                         |
+| `subtreeFlags`                | Aggregated descendant markers; enables skipping unaffected branches       |
+| `deletions`                   | Children to remove during commit                                          |
+| `lanes`                       | Pending work associated with this Fiber                                   |
+| `childLanes`                  | Pending descendant work aggregated up the tree                            |
+| `alternate`                   | Other pooled version of the same Fiber identity                           |
+| `mode`                        | Rendering/development/profiling mode bits                                 |
 
 The full type is [ReactInternalTypes: `Fiber`, L89–210][fiber-type]. The creation and reuse logic is [ReactFiber: `createWorkInProgress`, L323–436][fiber-copy].
 
@@ -153,12 +153,27 @@ Educational Fiber:
 ```js
 function createFiber(tag, pendingProps, key = null) {
   return {
-    tag, key, elementType: tag, type: tag, stateNode: null,
-    return: null, child: null, sibling: null, index: 0,
-    ref: null, pendingProps, memoizedProps: null,
-    memoizedState: null, updateQueue: null, dependencies: null,
-    flags: 0, subtreeFlags: 0, deletions: null,
-    lanes: 0, childLanes: 0, alternate: null,
+    tag,
+    key,
+    elementType: tag,
+    type: tag,
+    stateNode: null,
+    return: null,
+    child: null,
+    sibling: null,
+    index: 0,
+    ref: null,
+    pendingProps,
+    memoizedProps: null,
+    memoizedState: null,
+    updateQueue: null,
+    dependencies: null,
+    flags: 0,
+    subtreeFlags: 0,
+    deletions: null,
+    lanes: 0,
+    childLanes: 0,
+    alternate: null,
   };
 }
 ```
@@ -171,20 +186,20 @@ Production adds tag-specific invariants, hydration, profiling, debugging, refs a
 
 For the requested abstract tree, excluding HostRoot, Fragment and host/text Fibers that real JSX would add, the order is:
 
-| Step | Operation |
-| --- | --- |
-| 1 | begin App |
-| 2 | begin Header |
-| 3 | complete Header |
-| 4 | begin Results |
-| 5 | begin Row A |
-| 6 | complete Row A |
-| 7 | begin Row B |
-| 8 | complete Row B |
-| 9 | begin Row C |
-| 10 | complete Row C |
-| 11 | complete Results |
-| 12 | complete App |
+| Step | Operation        |
+| ---- | ---------------- |
+| 1    | begin App        |
+| 2    | begin Header     |
+| 3    | complete Header  |
+| 4    | begin Results    |
+| 5    | begin Row A      |
+| 6    | complete Row A   |
+| 7    | begin Row B      |
+| 8    | complete Row B   |
+| 9    | begin Row C      |
+| 10   | complete Row C   |
+| 11   | complete Results |
+| 12   | complete App     |
 
 Educational traversal:
 
@@ -236,33 +251,33 @@ A parent `.map()` that performs all expensive computation inline has the same li
 
 A yield proceeds through ordinary returns: the reconciler stops its loop, the root callback returns a continuation, Scheduler arranges another host callback, and the active JavaScript stack unwinds. The host can subsequently dispatch input or perform rendering work. Fiber pointers and other module state retain React's continuation data; the old language call stack does not remain suspended.
 
-| Primitive | Role in this study |
-| --- | --- |
-| Task, often informally called macrotask | Host-dispatched work such as an input handler, timer or MessagePort delivery |
-| Microtask | Promise reactions and `queueMicrotask`; used for root scheduling decisions and sync flushing |
-| `MessageChannel` | Ordinary modern-browser Scheduler host-callback mechanism |
-| `setImmediate` | Preferred by this Scheduler when available, notably Node; not an ordinary browser standard |
-| `setTimeout` | Host fallback and delayed-task wakeups; subject to timer semantics/clamping |
-| `scheduler.postTask` | Separate opt-in Scheduler implementation; not the default stable package entry |
-| `requestAnimationFrame` | Work associated with rendering opportunities; not the normal reconciler work-loop driver |
-| `requestIdleCallback` | Not the current default React Scheduler implementation |
-| Web Worker | Separate agent useful for explicitly offloaded app computation; React transitions do not automatically use one |
+| Primitive                               | Role in this study                                                                                             |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Task, often informally called macrotask | Host-dispatched work such as an input handler, timer or MessagePort delivery                                   |
+| Microtask                               | Promise reactions and `queueMicrotask`; used for root scheduling decisions and sync flushing                   |
+| `MessageChannel`                        | Ordinary modern-browser Scheduler host-callback mechanism                                                      |
+| `setImmediate`                          | Preferred by this Scheduler when available, notably Node; not an ordinary browser standard                     |
+| `setTimeout`                            | Host fallback and delayed-task wakeups; subject to timer semantics/clamping                                    |
+| `scheduler.postTask`                    | Separate opt-in Scheduler implementation; not the default stable package entry                                 |
+| `requestAnimationFrame`                 | Work associated with rendering opportunities; not the normal reconciler work-loop driver                       |
+| `requestIdleCallback`                   | Not the current default React Scheduler implementation                                                         |
+| Web Worker                              | Separate agent useful for explicitly offloaded app computation; React transitions do not automatically use one |
 
 The [HTML event-loop model](https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model) describes task selection, microtask checkpoints and rendering opportunities. Multiple task sources exist; do not teach a single universal FIFO “macrotask queue.” A later MessageChannel callback is an opportunity for interleaving, not a guarantee that a waiting input or paint wins next. See also [MessageChannel](https://developer.mozilla.org/en-US/docs/Web/API/MessageChannel).
 
 A possible timeline, with order constrained but durations illustrative:
 
-| Execution turn | Stack activity | State visible to the application |
-| --- | --- | --- |
-| Input task A | React dispatch → handler → enqueue input and transition; controlled-event cleanup may sync-flush | Input `a`, prior results |
-| Microtask checkpoint | Process root schedule; choose remaining transition lanes | Prior results |
-| MessagePort task | Several Fiber units; deadline check; return continuation | Prior results |
-| Between tasks | Host chooses another runnable task; rendering may be possible | No partial transition result |
-| Input task B | Handle next input; enqueue `ab`; urgent render and commit | Input `ab`, prior results |
-| Microtask checkpoint | Reschedule outstanding lower-priority work | Same |
-| Later MessagePort tasks | Restart/rebase if necessary; continue slices | Same until commit |
-| Final render callback | Finish candidate; ordinary commit may run immediately | Results `ab` published |
-| Rendering opportunity | Style, layout, paint and compositing as required | New pixels can appear |
+| Execution turn          | Stack activity                                                                                   | State visible to the application |
+| ----------------------- | ------------------------------------------------------------------------------------------------ | -------------------------------- |
+| Input task A            | React dispatch → handler → enqueue input and transition; controlled-event cleanup may sync-flush | Input `a`, prior results         |
+| Microtask checkpoint    | Process root schedule; choose remaining transition lanes                                         | Prior results                    |
+| MessagePort task        | Several Fiber units; deadline check; return continuation                                         | Prior results                    |
+| Between tasks           | Host chooses another runnable task; rendering may be possible                                    | No partial transition result     |
+| Input task B            | Handle next input; enqueue `ab`; urgent render and commit                                        | Input `ab`, prior results        |
+| Microtask checkpoint    | Reschedule outstanding lower-priority work                                                       | Same                             |
+| Later MessagePort tasks | Restart/rebase if necessary; continue slices                                                     | Same until commit                |
+| Final render callback   | Finish candidate; ordinary commit may run immediately                                            | Results `ab` published           |
+| Rendering opportunity   | Style, layout, paint and compositing as required                                                 | New pixels can appear            |
 
 “Task ends → paint → next task” is not a promise. A long chain of microtasks can postpone both input tasks and rendering. Replacing every work slice with `queueMicrotask` or `await Promise.resolve()` would not provide the same responsiveness boundary as yielding to a host task.
 
@@ -279,13 +294,13 @@ Its task record contains an ID, callback, priority level, start time, expiration
 
 The priority influences the initial timeout used to calculate expiration; the heap orders deadlines rather than simply sorting five enum labels. [Scheduler: `advanceTimers`, `flushWork`, `workLoop`][scheduler-work], [callback creation][scheduler-schedule], [heap implementation][scheduler-heap].
 
-| Scheduler priority | Timeout used for a newly eligible callback |
-| --- | --- |
-| Immediate | −1 ms; already expired |
-| UserBlocking | 250 ms |
-| Normal | 5,000 ms |
-| Low | 10,000 ms |
-| Idle | Very large sentinel; conceptually non-expiring for normal interactions |
+| Scheduler priority | Timeout used for a newly eligible callback                             |
+| ------------------ | ---------------------------------------------------------------------- |
+| Immediate          | −1 ms; already expired                                                 |
+| UserBlocking       | 250 ms                                                                 |
+| Normal             | 5,000 ms                                                               |
+| Low                | 10,000 ms                                                              |
+| Idle               | Very large sentinel; conceptually non-expiring for normal interactions |
 
 These are implementation deadlines, not prescribed callback delays, input-latency guarantees, or time-slice sizes. A Normal callback can run immediately when the host gives it time. The root's lane expiration mechanism is distinct from Scheduler callback expiration.
 
@@ -306,23 +321,30 @@ MessagePort delivery supplies another host task without recursive JavaScript cal
 This runnable teaching scheduler models the host boundary and continuation protocol. It deliberately uses a FIFO array and one budget instead of two heaps, five priorities and expiration:
 
 ```js
-export function createScheduler({
-  now = () => performance.now(),
-  postTask, budgetMs = 5,
-} = {}) {
+export function createScheduler({ now = () => performance.now(), postTask, budgetMs = 5 } = {}) {
   let close = () => {};
   if (!postTask) {
     const channel = new MessageChannel();
     const posted = [];
     channel.port1.onmessage = () => posted.shift()?.();
-    postTask = callback => { posted.push(callback); channel.port2.postMessage(0); };
-    close = () => { channel.port1.close(); channel.port2.close(); };
+    postTask = (callback) => {
+      posted.push(callback);
+      channel.port2.postMessage(0);
+    };
+    close = () => {
+      channel.port1.close();
+      channel.port2.close();
+    };
   }
   const queue = [];
-  let posted = false, deadline = 0;
+  let posted = false,
+    deadline = 0;
   const shouldYield = () => now() >= deadline;
   function request() {
-    if (!posted && queue.length) { posted = true; postTask(workLoop); }
+    if (!posted && queue.length) {
+      posted = true;
+      postTask(workLoop);
+    }
   }
   function workLoop() {
     posted = false;
@@ -330,7 +352,10 @@ export function createScheduler({
     try {
       while (queue.length) {
         const task = queue[0];
-        if (!task.callback) { queue.shift(); continue; }
+        if (!task.callback) {
+          queue.shift();
+          continue;
+        }
         if (shouldYield()) break;
         const callback = task.callback;
         task.callback = null;
@@ -341,14 +366,23 @@ export function createScheduler({
         }
         queue.shift();
       }
-    } finally { request(); }
+    } finally {
+      request();
+    }
   }
   function schedule(callback) {
-    const task = {callback, cancelled: false};
-    queue.push(task); request(); return task;
+    const task = { callback, cancelled: false };
+    queue.push(task);
+    request();
+    return task;
   }
-  function cancel(task) { if (task) { task.cancelled = true; task.callback = null; } }
-  return {schedule, cancel, shouldYield, close};
+  function cancel(task) {
+    if (task) {
+      task.cancelled = true;
+      task.callback = null;
+    }
+  }
+  return { schedule, cancel, shouldYield, close };
 }
 ```
 
@@ -398,10 +432,10 @@ This omits multi-root reentrancy guards, passive-effect handling, pending commit
 **CURRENT IMPLEMENTATION.** A lane is one bit; a lane set is a bitmask. The 31 usable bits allow inexpensive set operations in JavaScript's signed 32-bit bitwise arithmetic without using the sign bit. Lower set-bit positions generally represent higher priority, but selection applies grouping and state rules.
 
 ```js
-const merged = lanes | lane;       // Union / add membership.
-const overlap = lanes & lane;      // Intersection; nonzero means overlap.
-const highest = lanes & -lanes;    // Isolate the least-significant set bit.
-const remaining = lanes & ~lane;   // Remove membership.
+const merged = lanes | lane; // Union / add membership.
+const overlap = lanes & lane; // Intersection; nonzero means overlap.
+const highest = lanes & -lanes; // Isolate the least-significant set bit.
+const remaining = lanes & ~lane; // Remove membership.
 const containsAll = (set & subset) === subset;
 ```
 
@@ -409,38 +443,38 @@ const containsAll = (set & subset) === subset;
 
 The exact 19.3.0 layout is below. It is **not a public API**, and toy snippets use smaller illustrative masks.
 
-| Bit position, zero-based | Lane/group | Purpose |
-| --- | --- | --- |
-| 0 | SyncHydration | Urgent hydration |
-| 1 | Sync | Discrete urgent updates |
-| 2 | InputContinuousHydration | Continuous-priority hydration |
-| 3 | InputContinuous | Continuous interaction updates |
-| 4 | DefaultHydration | Default-priority hydration |
-| 5 | Default | Ordinary update priority |
-| 6 | Gesture | Reserved path for experimental gesture transitions |
-| 7 | TransitionHydration | Hydration promoted relative to a transition |
-| 8–17 | TransitionLane1–10 | Transition **update** lanes |
-| 18–21 | TransitionLane11–14 | Transition **deferred** lanes |
-| 22–25 | RetryLane1–4 | Suspense boundary retries |
-| 26 | SelectiveHydration | Selective hydration work |
-| 27 | IdleHydration | Idle hydration |
-| 28 | Idle | Idle work |
-| 29 | Offscreen | Hidden/prerender and certain hydration work |
-| 30 | Deferred | Marker entangled with spawned deferred work |
+| Bit position, zero-based | Lane/group               | Purpose                                            |
+| ------------------------ | ------------------------ | -------------------------------------------------- |
+| 0                        | SyncHydration            | Urgent hydration                                   |
+| 1                        | Sync                     | Discrete urgent updates                            |
+| 2                        | InputContinuousHydration | Continuous-priority hydration                      |
+| 3                        | InputContinuous          | Continuous interaction updates                     |
+| 4                        | DefaultHydration         | Default-priority hydration                         |
+| 5                        | Default                  | Ordinary update priority                           |
+| 6                        | Gesture                  | Reserved path for experimental gesture transitions |
+| 7                        | TransitionHydration      | Hydration promoted relative to a transition        |
+| 8–17                     | TransitionLane1–10       | Transition **update** lanes                        |
+| 18–21                    | TransitionLane11–14      | Transition **deferred** lanes                      |
+| 22–25                    | RetryLane1–4             | Suspense boundary retries                          |
+| 26                       | SelectiveHydration       | Selective hydration work                           |
+| 27                       | IdleHydration            | Idle hydration                                     |
+| 28                       | Idle                     | Idle work                                          |
+| 29                       | Offscreen                | Hidden/prerender and certain hydration work        |
+| 30                       | Deferred                 | Marker entangled with spawned deferred work        |
 
 This is 14 transition bits partitioned into 10 update lanes and 4 deferred lanes, not the familiar older diagrams with 16 interchangeable transition lanes. `DeferredLane` is not simply “the lane returned by every `useDeferredValue`.” That hook normally obtains a transition-deferred lane; the high Deferred bit marks its origin and prevents cascaded deferral waterfalls. [Lane constants and grouping, L41–240][lane-groups], [deferred marking][deferred-mark], [WorkLoop: `requestDeferredLane`][request-deferred].
 
 Root state has several different masks:
 
-| Root field | Question it answers |
-| --- | --- |
-| `pendingLanes` | Which lanes still have outstanding work? |
-| `suspendedLanes` | Which attempted lanes could not complete/reveal yet? |
-| `pingedLanes` | Which suspended lanes have been notified that they may proceed? |
-| `warmLanes` | Which suspended lanes have already received speculative/prewarming attention? |
-| `expiredLanes` | Which CPU-bound lanes have waited long enough to require stronger completion treatment? |
-| `entangledLanes` and `entanglements` | Which lanes have relationships requiring additional updates in a render batch? |
-| `expirationTimes` | Per-lane expiration timestamps, separate from Scheduler task deadlines |
+| Root field                           | Question it answers                                                                     |
+| ------------------------------------ | --------------------------------------------------------------------------------------- |
+| `pendingLanes`                       | Which lanes still have outstanding work?                                                |
+| `suspendedLanes`                     | Which attempted lanes could not complete/reveal yet?                                    |
+| `pingedLanes`                        | Which suspended lanes have been notified that they may proceed?                         |
+| `warmLanes`                          | Which suspended lanes have already received speculative/prewarming attention?           |
+| `expiredLanes`                       | Which CPU-bound lanes have waited long enough to require stronger completion treatment? |
+| `entangledLanes` and `entanglements` | Which lanes have relationships requiring additional updates in a render batch?          |
+| `expirationTimes`                    | Per-lane expiration timestamps, separate from Scheduler task deadlines                  |
 
 A pending lane need not be runnable; a ping is not proof that every dependency is ready. It authorizes another attempt. Retry rendering can suspend again.
 
@@ -471,9 +505,12 @@ flowchart TD
 A useful miniature, intentionally without warm lanes, grouping, expiration or entanglement:
 
 ```js
-const NoLane = 0, SyncLane = 1, TransitionLane = 2, IdleLane = 4;
+const NoLane = 0,
+  SyncLane = 1,
+  TransitionLane = 2,
+  IdleLane = 4;
 const mergeLanes = (a, b) => a | b;
-const getHighestPriorityLane = lanes => lanes & -lanes;
+const getHighestPriorityLane = (lanes) => lanes & -lanes;
 function getNextLanes(root) {
   const unblocked = root.pendingLanes & ~root.suspendedLanes;
   const pinged = root.pendingLanes & root.pingedLanes;
@@ -485,16 +522,16 @@ function getNextLanes(root) {
 
 **CURRENT IMPLEMENTATION.** These are separate abstractions. Browser task prioritization decides which host work runs. React classifies an event while dispatching it. Update-lane selection also checks transition context. The root later translates selected lane groups into a much coarser Scheduler priority.
 
-| Origin / selected work | React priority or lane | Root scheduling route | Render loop, ordinary case |
-| --- | --- | --- | --- |
-| Click, keydown, input/change | Discrete → SyncLane | Sync flush; no ordinary Scheduler callback needed | Synchronous |
-| Pointer movement, scroll, wheel | Continuous → InputContinuousLane | Scheduler UserBlocking | Blocking/synchronous Fiber render in this baseline |
-| Ordinary update outside an explicit higher priority | DefaultLane | Scheduler Normal | Blocking/synchronous Fiber render in this baseline |
-| `setState` inside transition context | Transition update lane | Scheduler Normal | Concurrent unless forced/expired or otherwise exceptional |
-| Deferred follow-up | Transition-deferred lane, or Offscreen when appropriate | Usually Normal, or Idle for Offscreen | Usually concurrent |
-| Suspense retry | Retry lane | Scheduler Normal | Usually concurrent; separate retry policies apply |
-| Idle / Offscreen | Corresponding low lane | Scheduler Idle | Usually concurrent |
-| Sync work intentionally prerendered | Sync-class lane | UserBlocking on the callback path | Concurrent prerender exception |
+| Origin / selected work                              | React priority or lane                                  | Root scheduling route                             | Render loop, ordinary case                                |
+| --------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------- |
+| Click, keydown, input/change                        | Discrete → SyncLane                                     | Sync flush; no ordinary Scheduler callback needed | Synchronous                                               |
+| Pointer movement, scroll, wheel                     | Continuous → InputContinuousLane                        | Scheduler UserBlocking                            | Blocking/synchronous Fiber render in this baseline        |
+| Ordinary update outside an explicit higher priority | DefaultLane                                             | Scheduler Normal                                  | Blocking/synchronous Fiber render in this baseline        |
+| `setState` inside transition context                | Transition update lane                                  | Scheduler Normal                                  | Concurrent unless forced/expired or otherwise exceptional |
+| Deferred follow-up                                  | Transition-deferred lane, or Offscreen when appropriate | Usually Normal, or Idle for Offscreen             | Usually concurrent                                        |
+| Suspense retry                                      | Retry lane                                              | Scheduler Normal                                  | Usually concurrent; separate retry policies apply         |
+| Idle / Offscreen                                    | Corresponding low lane                                  | Scheduler Idle                                    | Usually concurrent                                        |
+| Sync work intentionally prerendered                 | Sync-class lane                                         | UserBlocking on the callback path                 | Concurrent prerender exception                            |
 
 Sources: [DOM event classification][event-priority], [event-to-lane and lane-to-event conversion][event-lane], [requestUpdateLane][request-lane], [root mapping][root-task], [render-loop choice][work-gate]. Hydration lanes require their own classification; a blocked boundary can be promoted for the triggering event.
 
@@ -515,10 +552,12 @@ function Search() {
     setInput(value);
     startTransition(() => setQuery(value));
   }
-  return <>
-    <input value={input} onChange={onChange} />
-    <SlowResults query={query} />
-  </>;
+  return (
+    <>
+      <input value={input} onChange={onChange} />
+      <SlowResults query={query} />
+    </>
+  );
 }
 ```
 
@@ -567,14 +606,14 @@ The diagram shows one legal task selection, not a browser scheduling guarantee. 
 
 ### C. Current and work-in-progress
 
-| Moment | Committed current | Candidate WIP | What can be retained |
-| --- | --- | --- | --- |
-| Before typing | input `''`, query `''` | None | Current Fibers and host instances |
-| After urgent `a` | input `a`, query `''` | Transition `a` begins | Unchanged results can be reused during urgent work |
-| At a yield | Same current | Some `a` Fibers computed; next pointer retained | Same-attempt progress, queues, allocated alternates |
-| During urgent `ab` | Still previous current until commit | New urgent attempt based on current | Queue history and valid unchanged subtrees |
-| After urgent `ab` | input `ab`, old query | Lower-priority attempt must reflect this current | Alternate storage; eligible bailouts, not arbitrary stale results |
-| Final commit | input `ab`, query `ab` | Finished candidate becomes current | Previous current becomes the reusable alternate side |
+| Moment             | Committed current                   | Candidate WIP                                    | What can be retained                                              |
+| ------------------ | ----------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------- |
+| Before typing      | input `''`, query `''`              | None                                             | Current Fibers and host instances                                 |
+| After urgent `a`   | input `a`, query `''`               | Transition `a` begins                            | Unchanged results can be reused during urgent work                |
+| At a yield         | Same current                        | Some `a` Fibers computed; next pointer retained  | Same-attempt progress, queues, allocated alternates               |
+| During urgent `ab` | Still previous current until commit | New urgent attempt based on current              | Queue history and valid unchanged subtrees                        |
+| After urgent `ab`  | input `ab`, old query               | Lower-priority attempt must reflect this current | Alternate storage; eligible bailouts, not arbitrary stale results |
+| Final commit       | input `ab`, query `ab`              | Finished candidate becomes current               | Previous current becomes the reusable alternate side              |
 
 The statement “Fiber 1 and 2 finished; Fiber 3 had not started; then the old transition is canceled” is a useful storyboard for abandoned **speculative output**. It is inaccurate if it implies a transaction object was canceled, update records were erased, all allocated objects were discarded, every completed subtree is always unusable, or the network request was aborted. React can cancel a Scheduler callback and abandon a particular render attempt while preserving its updates for rebasing. Another case with no higher-priority change simply resumes the same WIP at Fiber 3.
 
@@ -584,26 +623,26 @@ The statement “Fiber 1 and 2 finished; Fiber 3 had not started; then the old t
 
 **CURRENT IMPLEMENTATION.** Render executes components, reads state/context, processes queues, reconciles identities, constructs candidate Fibers and records work flags. Its host behavior depends on whether it is mounting, updating or hydrating.
 
-| Work | Ordinary render behavior | Publication behavior |
-| --- | --- | --- |
-| Existing host element | Compare relevant inputs and mark update work | DOM property changes occur in commit |
-| New host element | `completeWork` can create a detached DOM instance, append detached children and initialize it | Placement into the connected parent occurs in commit |
-| Host text | Compute/prepare candidate text work | Retained text-node update occurs in commit |
-| Hydration | Match and inspect existing server nodes; maintain hydration state | Required changes and attachment effects follow hydration/commit rules |
-| Resources and hoistable/singleton host features | Renderer-specific preparation, preloading and specialized paths | Broader than the simple detached-element model |
+| Work                                            | Ordinary render behavior                                                                      | Publication behavior                                                  |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Existing host element                           | Compare relevant inputs and mark update work                                                  | DOM property changes occur in commit                                  |
+| New host element                                | `completeWork` can create a detached DOM instance, append detached children and initialize it | Placement into the connected parent occurs in commit                  |
+| Host text                                       | Compute/prepare candidate text work                                                           | Retained text-node update occurs in commit                            |
+| Hydration                                       | Match and inspect existing server nodes; maintain hydration state                             | Required changes and attachment effects follow hydration/commit rules |
+| Resources and hoistable/singleton host features | Renderer-specific preparation, preloading and specialized paths                               | Broader than the simple detached-element model                        |
 
 Do not say “render never calls a DOM API.” A newly mounted detached element is a DOM object. Say **render does not progressively publish ordinary component results into the live UI**. In this tag, `updateHostComponent` in `completeWork` marks an update when old/new props differ; old tutorials about calculating a DOM `prepareUpdate` payload in render do not accurately describe this current DOM path. The host's `commitUpdate` calls its property update machinery. [Host completion][host-complete], [host update flag][host-update], [DOM host configuration][dom-host]
 
 The ordinary commit sequence is:
 
-| Phase | Representative work | Timing and yield behavior |
-| --- | --- | --- |
-| Before mutation | Class `getSnapshotBeforeUpdate`; host preparation and transition-related reads | Synchronous traversal; no Fiber time slicing |
-| Mutation | Placements, updates, deletions, visibility; relevant effect cleanup and ref detachment | Synchronous traversal once entered |
-| Current switch | `root.current = finishedWork` after mutation | The finished tree becomes the root's committed model |
-| Layout | Layout-effect setup, class layout lifecycles, ref attachment and related work | Synchronous traversal; can schedule sync updates |
-| After mutation / spawned work | Newer orchestration, View Transition callbacks, paint request and scheduling | Version- and feature-dependent orchestration |
-| Passive effects | Passive cleanup and setup | Scheduled/flushed separately; not invariably after paint |
+| Phase                         | Representative work                                                                    | Timing and yield behavior                                |
+| ----------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Before mutation               | Class `getSnapshotBeforeUpdate`; host preparation and transition-related reads         | Synchronous traversal; no Fiber time slicing             |
+| Mutation                      | Placements, updates, deletions, visibility; relevant effect cleanup and ref detachment | Synchronous traversal once entered                       |
+| Current switch                | `root.current = finishedWork` after mutation                                           | The finished tree becomes the root's committed model     |
+| Layout                        | Layout-effect setup, class layout lifecycles, ref attachment and related work          | Synchronous traversal; can schedule sync updates         |
+| After mutation / spawned work | Newer orchestration, View Transition callbacks, paint request and scheduling           | Version- and feature-dependent orchestration             |
+| Passive effects               | Passive cleanup and setup                                                              | Scheduled/flushed separately; not invariably after paint |
 
 Ref work is distributed: an old ref may detach during mutation, and a new one attach during layout. Callback refs may return cleanup functions. The current switch occurs before layout effects observe the new tree. Insertion-effect handling participates in commit ordering and exists for style insertion before layout effects read layout; applications should not infer a universal all-components “DOM already updated” point for each insertion effect. [Mutation/current/layout][mutation-layout], [commit effects and refs][commit-effects]
 
@@ -628,14 +667,14 @@ The bottom of this diagram summarizes the ordinary path; it does not impose pass
 
 A huge render can have a huge synchronous commit, but this is **possible, not inevitable**. Ten thousand expensive components may calculate output identical to the current DOM. Conversely a cheap render can request twenty thousand insertions. Render CPU, mutation volume and browser rendering cost are separate axes.
 
-| Cost | Can ordinary concurrent rendering distribute it? | Typical intervention |
-| --- | --- | --- |
-| Many independent render units | Yes, between units | Transitions plus small units and urgent-path bailouts |
-| One long component call or child reconciliation loop | No interruption inside the call | Better algorithm, less work, explicit chunking outside render, Worker |
-| A large ordinary mutation pass | No Fiber time slicing inside it | Fewer mounted nodes, virtualization, pagination |
-| Layout effects and synchronous reads/writes | No | Reduce effect work; avoid layout thrashing |
-| Browser style, layout and paint | React does not schedule their internals | Smaller/contained DOM, appropriate CSS, simpler painting |
-| Compositing and animation | Browser/GPU pipeline dependent | Appropriate animation properties and measurement |
+| Cost                                                 | Can ordinary concurrent rendering distribute it? | Typical intervention                                                  |
+| ---------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
+| Many independent render units                        | Yes, between units                               | Transitions plus small units and urgent-path bailouts                 |
+| One long component call or child reconciliation loop | No interruption inside the call                  | Better algorithm, less work, explicit chunking outside render, Worker |
+| A large ordinary mutation pass                       | No Fiber time slicing inside it                  | Fewer mounted nodes, virtualization, pagination                       |
+| Layout effects and synchronous reads/writes          | No                                               | Reduce effect work; avoid layout thrashing                            |
+| Browser style, layout and paint                      | React does not schedule their internals          | Smaller/contained DOM, appropriate CSS, simpler painting              |
+| Compositing and animation                            | Browser/GPU pipeline dependent                   | Appropriate animation properties and measurement                      |
 
 React may trigger layout earlier than the browser's natural rendering phase if code reads geometry after writes. “The commit was short” therefore does not prove the frame or interaction was cheap. View Transitions can improve visual continuity, but snapshots, layout and animation still have costs.
 
@@ -662,11 +701,11 @@ A transition repeatedly interrupted by typing may therefore compute some rows se
 
 For state initially `1`, enqueue:
 
-| Update | Lane | Action |
-| --- | --- | --- |
-| A | Transition | `s => s + 10` |
-| B | Sync | `s => s * 2` |
-| C | Transition | `s => s + 1` |
+| Update | Lane       | Action        |
+| ------ | ---------- | ------------- |
+| A      | Transition | `s => s + 10` |
+| B      | Sync       | `s => s * 2`  |
+| C      | Transition | `s => s + 1`  |
 
 A Sync-only render skips A, remembers base state `1`, applies B to obtain visible state `2`, and skips C. The retained queue is **A(T), B(NoLane), C(T)**. B is retained even though its effect is now committed: after replaying A later, B must run again to preserve order. `NoLane` makes that clone eligible in later rebasing passes; it does not represent new urgent work.
 
@@ -680,21 +719,22 @@ Runnable educational algorithm, also used by the supplied renderer:
 
 ```js
 export function processQueue(baseState, updates, renderLanes) {
-  let state = baseState, nextBaseState = baseState, skipped = false;
+  let state = baseState,
+    nextBaseState = baseState,
+    skipped = false;
   const baseQueue = [];
   for (const update of updates) {
-    const include = update.lane === NoLane ||
-      (update.lane & renderLanes) === update.lane;
+    const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
     if (!include) {
       if (!skipped) nextBaseState = state;
       skipped = true;
-      baseQueue.push({...update});
+      baseQueue.push({ ...update });
     } else {
       state = update.action(state);
-      if (skipped) baseQueue.push({...update, lane: NoLane});
+      if (skipped) baseQueue.push({ ...update, lane: NoLane });
     }
   }
-  return {state, baseState: skipped ? nextBaseState : state, baseQueue};
+  return { state, baseState: skipped ? nextBaseState : state, baseQueue };
 }
 ```
 
@@ -723,16 +763,16 @@ Overlapping async Actions can share a pending counter, lane and completion thena
 
 Important distinctions:
 
-| Question | Current answer |
-| --- | --- |
-| Are two calls in the same event necessarily separate lanes? | No; event-level caching can assign one lane. |
-| Can 19.3 transitions on independent state advance separately? | Yes; eligible transition-update lanes are selected individually, subject to dependencies and other rules. |
-| Can multiple pending transitions updating one queue become coupled? | Yes; queue entanglement remains. |
-| Does a new transition cancel an old network request? | No; application/request-layer cancellation is separate. |
-| Does async completion always respect request initiation order? | No; raw overlapping requests can resolve out of order. Use ordering/cancellation or the suitable Action abstraction. |
-| Can a transition drive the controlled text input value itself? | Keep the controlled value urgent; defer the dependent expensive UI. |
-| Is a transition guaranteed never to block? | No; large units, expiration, commit, effects and browser work can block. |
-| Do errors have identical handling in every starter? | No; standalone `startTransition` reports caught errors, while the hook's rejected completion can surface through render/error-boundary handling. |
+| Question                                                            | Current answer                                                                                                                                   |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Are two calls in the same event necessarily separate lanes?         | No; event-level caching can assign one lane.                                                                                                     |
+| Can 19.3 transitions on independent state advance separately?       | Yes; eligible transition-update lanes are selected individually, subject to dependencies and other rules.                                        |
+| Can multiple pending transitions updating one queue become coupled? | Yes; queue entanglement remains.                                                                                                                 |
+| Does a new transition cancel an old network request?                | No; application/request-layer cancellation is separate.                                                                                          |
+| Does async completion always respect request initiation order?      | No; raw overlapping requests can resolve out of order. Use ordering/cancellation or the suitable Action abstraction.                             |
+| Can a transition drive the controlled text input value itself?      | Keep the controlled value urgent; defer the dependent expensive UI.                                                                              |
+| Is a transition guaranteed never to block?                          | No; large units, expiration, commit, effects and browser work can block.                                                                         |
+| Do errors have identical handling in every starter?                 | No; standalone `startTransition` reports caught errors, while the hook's rejected completion can surface through render/error-boundary handling. |
 
 `useOptimistic` helps explain the queue's extra `revertLane`: ordinary optimistic updates commit with SyncLane but retain the associated transition lane describing when that optimistic overlay should revert. This is not an ordinary low-priority update moved earlier without bookkeeping. Gesture-specific behavior in this source is experimental. [Optimistic dispatch][optimistic]
 
@@ -768,13 +808,13 @@ A stable promise identity or framework cache matters. Manufacturing a fresh pend
 
 ### Root ping versus boundary retry
 
-| Mechanism | When attached / stored | Purpose |
-| --- | --- | --- |
-| Root ping listener | During suspended rendering, cached by wakeable and lane set | Mark suspended lanes pinged and reconsider root work; may restart a relevant attempt |
-| Boundary retry listener | Associated with captured wakeables and committed boundary state | Retry a fallback/hidden boundary when its dependency settles |
-| Retry lane | Selected/allocated for boundary retry work | Describe retry work independently of the original event's update lane |
-| Suspended lanes | Root pending work that cannot currently finish | Avoid spending every scheduling turn repeating blocked work |
-| Warm lanes / prerender state | Track work already explored despite suspension | Discover dependencies without indefinitely redoing the same blocked work |
+| Mechanism                    | When attached / stored                                          | Purpose                                                                              |
+| ---------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Root ping listener           | During suspended rendering, cached by wakeable and lane set     | Mark suspended lanes pinged and reconsider root work; may restart a relevant attempt |
+| Boundary retry listener      | Associated with captured wakeables and committed boundary state | Retry a fallback/hidden boundary when its dependency settles                         |
+| Retry lane                   | Selected/allocated for boundary retry work                      | Describe retry work independently of the original event's update lane                |
+| Suspended lanes              | Root pending work that cannot currently finish                  | Avoid spending every scheduling turn repeating blocked work                          |
+| Warm lanes / prerender state | Track work already explored despite suspension                  | Discover dependencies without indefinitely redoing the same blocked work             |
 
 A promise callback normally performs bookkeeping and scheduling. It does not directly resume a saved component call stack at the `use` expression. On retry React calls component logic again using retained React state where applicable; JavaScript locals from the failed invocation are reconstructed.
 
@@ -808,25 +848,36 @@ The companion `mechanisms.mjs` includes a cached resource and this boundary:
 ```js
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
-  let committed, hasContent = false, showingFallback = false;
-  return function renderBoundary(render, fallback, {transition = false} = {}) {
+  let committed,
+    hasContent = false,
+    showingFallback = false;
+  return function renderBoundary(render, fallback, { transition = false } = {}) {
     try {
       const content = render();
-      committed = content; hasContent = true; showingFallback = false;
-      return {status: 'content', content};
+      committed = content;
+      hasContent = true;
+      showingFallback = false;
+      return { status: 'content', content };
     } catch (value) {
-      if (value === null || (typeof value !== 'object' && typeof value !== 'function') ||
-          typeof value.then !== 'function') throw value;
+      if (
+        value === null ||
+        (typeof value !== 'object' && typeof value !== 'function') ||
+        typeof value.then !== 'function'
+      )
+        throw value;
       if (!listening.has(value)) {
         listening.add(value);
-        const retry = () => { listening.delete(value); scheduleRetry(); };
+        const retry = () => {
+          listening.delete(value);
+          scheduleRetry();
+        };
         value.then(retry, retry);
       }
       // A transition may preserve currently revealed content. It must not bring
       // back content after this simplified boundary has already shown fallback.
       const keepRevealedContent = transition && hasContent && !showingFallback;
       showingFallback = !keepRevealedContent;
-      return {status: 'suspended', content: keepRevealedContent ? committed : fallback};
+      return { status: 'suspended', content: keepRevealedContent ? committed : fallback };
     }
   };
 }
@@ -848,14 +899,14 @@ suspension so the two mechanisms are not confused.
 
 ## 16. Offscreen, Activity and View Transitions
 
-| Concept | Status in this baseline | Concurrency relevance |
-| --- | --- | --- |
-| Internal Offscreen Fiber | **CURRENT IMPLEMENTATION** | Retained hidden trees, deferred background work and Suspense primary content |
-| `<Activity>` | **PUBLIC CONTRACT**, stable since 19.2 | Hide/restore children while retaining state; effect lifecycle follows visibility |
-| Public `<Offscreen>` API | Not a stable export | Do not infer a supported public component from the internal tag |
-| `<ViewTransition>` and `addTransitionType` | **PUBLIC CONTRACT**, stable in 19.3 | Coordinate eligible React changes with browser View Transitions |
-| Gesture transitions and related lanes | **EXPERIMENTAL / CANARY** | Code exists but its flag is experimental in stable builds |
-| `SuspenseList` | **EXPERIMENTAL / CANARY** | Internal implementation does not imply a stable export |
+| Concept                                    | Status in this baseline                | Concurrency relevance                                                            |
+| ------------------------------------------ | -------------------------------------- | -------------------------------------------------------------------------------- |
+| Internal Offscreen Fiber                   | **CURRENT IMPLEMENTATION**             | Retained hidden trees, deferred background work and Suspense primary content     |
+| `<Activity>`                               | **PUBLIC CONTRACT**, stable since 19.2 | Hide/restore children while retaining state; effect lifecycle follows visibility |
+| Public `<Offscreen>` API                   | Not a stable export                    | Do not infer a supported public component from the internal tag                  |
+| `<ViewTransition>` and `addTransitionType` | **PUBLIC CONTRACT**, stable in 19.3    | Coordinate eligible React changes with browser View Transitions                  |
+| Gesture transitions and related lanes      | **EXPERIMENTAL / CANARY**              | Code exists but its flag is experimental in stable builds                        |
+| `SuspenseList`                             | **EXPERIMENTAL / CANARY**              | Internal implementation does not imply a stable export                           |
 
 **CURRENT IMPLEMENTATION.** Activity has its own Fiber tag and constructs an internal Offscreen child. Hidden mode retains component state and host content, hides the content, disconnects effects, and permits background updates at lower priority. Restoring visibility reconnects effects. “Hidden” therefore differs from unmounting, from leaving everything live behind ordinary CSS, and from a frozen screenshot that can never receive work. [Activity/Offscreen begin work][activity], [Offscreen processing][offscreen], [Activity contract](https://react.dev/reference/react/Activity)
 
@@ -884,11 +935,11 @@ Local mutation of newly created objects is compatible with purity when it cannot
 
 **PUBLIC CONTRACT / CURRENT IMPLEMENTATION.** Effects belong to committed work. Rendering an uncommitted candidate may allocate effect records but does not run that candidate's effect setup. Abandoning the candidate therefore does not require cleaning up an effect that never ran. The currently committed effect can remain active while replacement work is in progress.
 
-| Hook | Relevant behavior | Timing pitfall |
-| --- | --- | --- |
-| `useLayoutEffect` | Cleanup/setup associated with commit; measures or adjusts layout before the usual next paint | Its work and synchronous updates can delay paint |
-| `useEffect` | Passive cleanup/setup for committed work; dependencies determine reruns | “Always after paint” is false |
-| `useInsertionEffect` | Specialized style insertion ordered before layout-effect reads | Not a general place for state updates or assumptions about refs/DOM phase completeness |
+| Hook                 | Relevant behavior                                                                            | Timing pitfall                                                                         |
+| -------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `useLayoutEffect`    | Cleanup/setup associated with commit; measures or adjusts layout before the usual next paint | Its work and synchronous updates can delay paint                                       |
+| `useEffect`          | Passive cleanup/setup for committed work; dependencies determine reruns                      | “Always after paint” is false                                                          |
+| `useInsertionEffect` | Specialized style insertion ordered before layout-effect reads                               | Not a general place for state updates or assumptions about refs/DOM phase completeness |
 
 For a changed passive effect, cleanup of the previous committed effect precedes setup of the next relevant effect. Unmounting disconnects committed effects. Hiding and revealing certain retained trees adds disconnect/reconnect paths without ordinary state destruction. Avoid relying on an undocumented total ordering across every sibling/component and phase.
 
@@ -910,9 +961,12 @@ Educational checkpoint:
 
 ```js
 function snapshotsAreConsistent(reads) {
-  return reads.every(({getSnapshot, value}) => {
-    try { return Object.is(getSnapshot(), value); }
-    catch { return false; }
+  return reads.every(({ getSnapshot, value }) => {
+    try {
+      return Object.is(getSnapshot(), value);
+    } catch {
+      return false;
+    }
   });
 }
 ```
@@ -933,14 +987,14 @@ On the client, hydration state maps server nodes and Suspense markers to dehydra
 
 ## 21. What changed since React 18-era explanations?
 
-| Period | Material change | What an older explanation can get wrong |
-| --- | --- | --- |
-| React 18 | Modern-root concurrent features, transitions, deferred values, streaming SSR/selective hydration, broader batching | Fiber's existence alone does not mean every update time-slices |
-| React 19 | Async Actions, `use`, optimistic/action-related queues, Suspense sibling prewarming | A transition is more than a synchronous priority marker; production suspension is not always a raw promise throw |
-| React 19.1 | Hydration and Suspense scheduling/retry refinements | A React 18 event-replay or fallback trace is not necessarily current |
-| React 19.2 | Stable Activity, Effect Events, cache lifetime signal, Performance Tracks; partial prerender/resume APIs and server reveal batching | Hidden trees and browser profiling have public capabilities absent from early concurrency tutorials |
-| React 19.3 | Stable View Transitions, independent transition scheduling, browser-only subtree support; Fragment refs also stabilize | All transitions need not form one global batch; commit orchestration is more nuanced |
-| Current source structure | Dedicated root scheduler, lane subsets for update/deferred work, `completeRootWhenReady`, multiple pending commit phases | Old function names, transition counts, effect-list descriptions or timing heuristics may be stale |
+| Period                   | Material change                                                                                                                     | What an older explanation can get wrong                                                                          |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| React 18                 | Modern-root concurrent features, transitions, deferred values, streaming SSR/selective hydration, broader batching                  | Fiber's existence alone does not mean every update time-slices                                                   |
+| React 19                 | Async Actions, `use`, optimistic/action-related queues, Suspense sibling prewarming                                                 | A transition is more than a synchronous priority marker; production suspension is not always a raw promise throw |
+| React 19.1               | Hydration and Suspense scheduling/retry refinements                                                                                 | A React 18 event-replay or fallback trace is not necessarily current                                             |
+| React 19.2               | Stable Activity, Effect Events, cache lifetime signal, Performance Tracks; partial prerender/resume APIs and server reveal batching | Hidden trees and browser profiling have public capabilities absent from early concurrency tutorials              |
+| React 19.3               | Stable View Transitions, independent transition scheduling, browser-only subtree support; Fragment refs also stabilize              | All transitions need not form one global batch; commit orchestration is more nuanced                             |
+| Current source structure | Dedicated root scheduler, lane subsets for update/deferred work, `completeRootWhenReady`, multiple pending commit phases            | Old function names, transition counts, effect-list descriptions or timing heuristics may be stale                |
 
 Release evidence: [18](https://react.dev/blog/2022/03/29/react-v18), [19](https://react.dev/blog/2024/12/05/react-19), [19.2](https://react.dev/blog/2025/10/01/react-19-2), [19.3](https://react.dev/blog/2026/09/09/react-19-3), [19.3 release record](https://github.com/react/react/releases/tag/v19.3.0). The downloaded `CHANGELOG.md` has older release sections and is not the sole authority for 19.3's release contents.
 
@@ -950,13 +1004,13 @@ Scheduler did not become a default `requestIdleCallback`, rAF or `scheduler.post
 
 ## 22. Performance implications: five distinct bottlenecks
 
-| Scenario | Where concurrency helps | Where it cannot help | What to change and measure |
-| --- | --- | --- | --- |
-| A. One component spends 100 ms on synchronous CPU | Can defer when the call begins relative to urgent work | Cannot interrupt that call once entered | Improve the algorithm, cache valid results, move suitable pure computation to a Worker; measure the longest indivisible segment |
-| B. 10,000 Fibers do small amounts of work | Can distribute render units across tasks so input can run between slices | Parent element construction, array reconciliation and completion can still be long; total CPU remains | Memoize useful boundaries, localize state, virtualize/window, avoid creating work unnecessarily; inspect slice and unit duration |
-| C. Cheap render inserts 20,000 DOM nodes | Can defer candidate calculation and presentation policy | Ordinary mutation pass still runs synchronously; node creation/initialization also costs | Reduce the published node count through windowing/pagination; measure mutation and retained memory |
-| D. Moderate mutations trigger huge layout/paint | Can decide when eligible UI changes become ready | Does not break up browser layout/paint algorithms or layout-effect work | Inspect CSS/layout invalidation, geometry reads, paint regions and layer costs; use containment where appropriate |
-| E. Typing repeatedly interrupts transitions | Can prioritize the input and avoid publishing obsolete candidates | May repeat render work, postpone results and increase CPU | Keep urgent path small, cache reusable calculations, reduce result workload, consider request cancellation/debounce independently |
+| Scenario                                          | Where concurrency helps                                                  | Where it cannot help                                                                                  | What to change and measure                                                                                                        |
+| ------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| A. One component spends 100 ms on synchronous CPU | Can defer when the call begins relative to urgent work                   | Cannot interrupt that call once entered                                                               | Improve the algorithm, cache valid results, move suitable pure computation to a Worker; measure the longest indivisible segment   |
+| B. 10,000 Fibers do small amounts of work         | Can distribute render units across tasks so input can run between slices | Parent element construction, array reconciliation and completion can still be long; total CPU remains | Memoize useful boundaries, localize state, virtualize/window, avoid creating work unnecessarily; inspect slice and unit duration  |
+| C. Cheap render inserts 20,000 DOM nodes          | Can defer candidate calculation and presentation policy                  | Ordinary mutation pass still runs synchronously; node creation/initialization also costs              | Reduce the published node count through windowing/pagination; measure mutation and retained memory                                |
+| D. Moderate mutations trigger huge layout/paint   | Can decide when eligible UI changes become ready                         | Does not break up browser layout/paint algorithms or layout-effect work                               | Inspect CSS/layout invalidation, geometry reads, paint regions and layer costs; use containment where appropriate                 |
+| E. Typing repeatedly interrupts transitions       | Can prioritize the input and avoid publishing obsolete candidates        | May repeat render work, postpone results and increase CPU                                             | Keep urgent path small, cache reusable calculations, reduce result workload, consider request cancellation/debounce independently |
 
 **Responsiveness** asks whether urgent interaction can get service promptly. **Latency** asks when the desired result becomes visible. **CPU cost** asks how much calculation occurs. **Throughput** asks how much useful work completes over time. A transition can improve responsiveness while worsening completion latency and CPU due to retries. It is a scheduling tradeoff, not a general speed multiplier.
 
@@ -970,13 +1024,13 @@ The source mechanisms supporting this table are the [yield checkpoint][work-loop
 
 **CURRENT TOOLING.** Use complementary tools rather than one duration number:
 
-| Tool | Useful evidence | Limitation |
-| --- | --- | --- |
-| React DevTools Profiler | Committed component renders, component cost and update attribution | A commit-focused view alone can miss CPU spent on abandoned attempts |
-| `<Profiler>` callback | Commit-associated `actualDuration`, `baseDuration`, timestamps and phase | It is not a callback for every yielded slice or abandoned root attempt |
-| React Performance Tracks | Scheduler/component activity aligned with browser timelines, including transitions and Suspense | Availability/detail depend on development/profiling build and instrumentation |
-| Browser Performance panel | Input dispatch, JS tasks, User Timing, style/layout/paint and long tasks | React intent requires React tracks or app marks to interpret precisely |
-| Long Tasks / interaction timing | Main-thread blocking and input-to-presentation evidence | A 50 ms threshold is a diagnostic convention, not a responsiveness guarantee |
+| Tool                            | Useful evidence                                                                                 | Limitation                                                                    |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| React DevTools Profiler         | Committed component renders, component cost and update attribution                              | A commit-focused view alone can miss CPU spent on abandoned attempts          |
+| `<Profiler>` callback           | Commit-associated `actualDuration`, `baseDuration`, timestamps and phase                        | It is not a callback for every yielded slice or abandoned root attempt        |
+| React Performance Tracks        | Scheduler/component activity aligned with browser timelines, including transitions and Suspense | Availability/detail depend on development/profiling build and instrumentation |
+| Browser Performance panel       | Input dispatch, JS tasks, User Timing, style/layout/paint and long tasks                        | React intent requires React tracks or app marks to interpret precisely        |
+| Long Tasks / interaction timing | Main-thread blocking and input-to-presentation evidence                                         | A 50 ms threshold is a diagnostic convention, not a responsiveness guarantee  |
 
 Performance Tracks are available in development and profiling configurations, not ordinary optimized production builds by default. Profiling builds have different default component visibility; `<Profiler>` and the DevTools extension affect coverage. Consult the [current tracks reference](https://react.dev/reference/dev-tools/react-performance-tracks), [Profiler reference](https://react.dev/reference/react/Profiler), [Chrome Performance documentation](https://developer.chrome.com/docs/devtools/performance) and [long-task guidance](https://web.dev/articles/optimize-long-tasks). The supplied mini-renderer emits custom `mini-react:` User Timing marks; those are **not** React Performance Tracks.
 
@@ -990,16 +1044,16 @@ A disciplined trace-reading sequence:
 
 Reproducible demonstrations:
 
-| Demo | Procedure | Expected teaching observation |
-| --- | --- | --- |
-| Runnable miniature | Open the supplied HTML, press **Run a → ab** | First transition yields; later injected update causes urgent commit, abandonment/rebase and final `ab` results |
-| Indivisible call | Select **First row blocks 100 ms** | One row overshoots the 5 ms checkpoint budget; the frame counter stalls |
-| Many small real React rows | In React 19.3, memoize `SlowResults`, put CPU work in individual `Row` functions, type quickly | Eligible transition render yields while urgent input skips unchanged results |
-| Missing bailout | Remove that memoization in a controlled version | The urgent parent update can re-enter expensive old-query work synchronously |
-| Suspense rather than CPU | Use a cached promise with `use`, compare urgent replacement with transition replacement | Boundary policy changes whether already revealed content remains visible |
-| Commit bottleneck | Use cheap rows but publish many DOM nodes | Render time slicing does not eliminate mutation/layout/paint cost |
-| Rebasing | Run the A(+10), B(×2), C(+1) queue example | Urgent state is 2; eventual state is 23, not 13 |
-| Independent transitions | Separate events and separate state queues; suspend one transition | 19.3 can advance independent work; same-event/shared-queue variants demonstrate coupling |
+| Demo                       | Procedure                                                                                      | Expected teaching observation                                                                                  |
+| -------------------------- | ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Runnable miniature         | Open the supplied HTML, press **Run a → ab**                                                   | First transition yields; later injected update causes urgent commit, abandonment/rebase and final `ab` results |
+| Indivisible call           | Select **First row blocks 100 ms**                                                             | One row overshoots the 5 ms checkpoint budget; the frame counter stalls                                        |
+| Many small real React rows | In React 19.3, memoize `SlowResults`, put CPU work in individual `Row` functions, type quickly | Eligible transition render yields while urgent input skips unchanged results                                   |
+| Missing bailout            | Remove that memoization in a controlled version                                                | The urgent parent update can re-enter expensive old-query work synchronously                                   |
+| Suspense rather than CPU   | Use a cached promise with `use`, compare urgent replacement with transition replacement        | Boundary policy changes whether already revealed content remains visible                                       |
+| Commit bottleneck          | Use cheap rows but publish many DOM nodes                                                      | Render time slicing does not eliminate mutation/layout/paint cost                                              |
+| Rebasing                   | Run the A(+10), B(×2), C(+1) queue example                                                     | Urgent state is 2; eventual state is 23, not 13                                                                |
+| Independent transitions    | Separate events and separate state queues; suspend one transition                              | 19.3 can advance independent work; same-event/shared-queue variants demonstrate coupling                       |
 
 The first two and queue demonstrations are supplied runnable artifacts. The real React variants are experiment designs, not claimed recorded benchmarks. Use a framework/environment that actually pins `react` and `react-dom` to 19.3.0; display the version. Avoid `act` for performance observations, because its testing queue changes scheduling. Console logging every Fiber can dominate the cost; the miniature keeps its visible trace to scheduling events and batches diagnostic display updates through rAF.
 
@@ -1013,19 +1067,19 @@ The bundle contains `examples/mini-concurrent-react.mjs`, `examples/mechanisms.m
 node examples/verify.mjs
 ```
 
-| Concept | Real source / function | Educational implementation | Deliberate difference |
-| --- | --- | --- | --- |
-| Fiber record | `ReactFiber.js`, creation and `createWorkInProgress` | `createFiber`, `createWorkInProgress` | Fixed tags, fewer fields/invariants |
-| Traversal | WorkLoop `performUnitOfWork`, `completeUnitOfWork`; Begin/CompleteWork | Same conceptual function names | Search/Input/Results/Row only; no JSX or generic reconciliation |
-| Concurrent loop | `workLoopConcurrentByScheduler` | `perform` loop | Two toy lanes; no expiration, prerendering or errors |
-| Host scheduling | Scheduler `workLoop`, `shouldYieldToHost` | `createScheduler` | FIFO array, one budget, MessageChannel only by default |
-| Lanes | Lane `getNextLanes`, bit operations | `mergeLanes`, `getHighestPriorityLane`, `getNextLanes` | No real lane layout, ping selection, warm lanes or entanglement |
-| Root scheduling | RootScheduler `ensureRootIsScheduled` and microtask processing | Root-local microtask and callback | One root; no pending-commit/effect guards |
-| Transition context | `ReactStartTransition.startTransition`, `requestUpdateLane` | `transitionDepth`, synchronous scope | No async Action or `isPending` semantics |
-| Rebase queue | Hooks `updateReducerImpl` | `processQueue` | One root state queue rather than separate hook queues |
-| Suspense | Thenable/Throw/WorkLoop modules | `createResource`, `createBoundary` in `mechanisms.mjs` | Raw thenable demonstration separate from Fiber renderer |
-| Commit | WorkLoop/CommitWork/DOM host config | Synchronous snapshot adapter; `commitDraft` example | No DOM diff, lifecycle tree or View Transition orchestration |
-| Store consistency | Hooks/WorkLoop store checks | `snapshotsAreConsistent` | Demonstrates validation only; no subscriptions or retry integration |
+| Concept            | Real source / function                                                 | Educational implementation                             | Deliberate difference                                               |
+| ------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------- |
+| Fiber record       | `ReactFiber.js`, creation and `createWorkInProgress`                   | `createFiber`, `createWorkInProgress`                  | Fixed tags, fewer fields/invariants                                 |
+| Traversal          | WorkLoop `performUnitOfWork`, `completeUnitOfWork`; Begin/CompleteWork | Same conceptual function names                         | Search/Input/Results/Row only; no JSX or generic reconciliation     |
+| Concurrent loop    | `workLoopConcurrentByScheduler`                                        | `perform` loop                                         | Two toy lanes; no expiration, prerendering or errors                |
+| Host scheduling    | Scheduler `workLoop`, `shouldYieldToHost`                              | `createScheduler`                                      | FIFO array, one budget, MessageChannel only by default              |
+| Lanes              | Lane `getNextLanes`, bit operations                                    | `mergeLanes`, `getHighestPriorityLane`, `getNextLanes` | No real lane layout, ping selection, warm lanes or entanglement     |
+| Root scheduling    | RootScheduler `ensureRootIsScheduled` and microtask processing         | Root-local microtask and callback                      | One root; no pending-commit/effect guards                           |
+| Transition context | `ReactStartTransition.startTransition`, `requestUpdateLane`            | `transitionDepth`, synchronous scope                   | No async Action or `isPending` semantics                            |
+| Rebase queue       | Hooks `updateReducerImpl`                                              | `processQueue`                                         | One root state queue rather than separate hook queues               |
+| Suspense           | Thenable/Throw/WorkLoop modules                                        | `createResource`, `createBoundary` in `mechanisms.mjs` | Raw thenable demonstration separate from Fiber renderer             |
+| Commit             | WorkLoop/CommitWork/DOM host config                                    | Synchronous snapshot adapter; `commitDraft` example    | No DOM diff, lifecycle tree or View Transition orchestration        |
+| Store consistency  | Hooks/WorkLoop store checks                                            | `snapshotsAreConsistent`                               | Demonstrates validation only; no subscriptions or retry integration |
 
 The renderer intentionally snapshots its root queue when starting a draft. Same-lane updates arriving after that snapshot remain pending and can require another render after the existing draft commits. This is a teaching simplification, not a complete model of React's concurrent-update staging. The Search example's two real hook queues are represented by one object-state queue so the rebase algorithm is inspectable in a small file.
 
@@ -1037,56 +1091,70 @@ Complete integrated implementation:
 // Educational reconstruction, not React source or a compatible renderer.
 // Fixed Search/Input/Results/Row tree; one root update queue; one transition lane.
 // See README.md for deliberate differences from React 19.3.0.
-export const NoLane = 0, SyncLane = 1, TransitionLane = 2;
+export const NoLane = 0,
+  SyncLane = 1,
+  TransitionLane = 2;
 export const mergeLanes = (a, b) => a | b;
-export const getHighestPriorityLane = lanes => lanes & -lanes;
+export const getHighestPriorityLane = (lanes) => lanes & -lanes;
 export function getNextLanes(root) {
   return getHighestPriorityLane(root.pendingLanes & ~root.suspendedLanes);
 }
 let transitionDepth = 0;
 export function startTransition(action) {
   transitionDepth++;
-  try { action(); } finally { transitionDepth--; }
+  try {
+    action();
+  } finally {
+    transitionDepth--;
+  }
 }
 
 // Pure queue processing. Calling this never consumes committed updates.
 export function processQueue(baseState, updates, renderLanes) {
-  let state = baseState, nextBaseState = baseState, skipped = false;
+  let state = baseState,
+    nextBaseState = baseState,
+    skipped = false;
   const baseQueue = [];
   for (const update of updates) {
-    const include = update.lane === NoLane ||
-      (update.lane & renderLanes) === update.lane;
+    const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
     if (!include) {
       if (!skipped) nextBaseState = state;
       skipped = true;
-      baseQueue.push({...update});
+      baseQueue.push({ ...update });
     } else {
       state = update.action(state);
-      if (skipped) baseQueue.push({...update, lane: NoLane});
+      if (skipped) baseQueue.push({ ...update, lane: NoLane });
     }
   }
-  return {state, baseState: skipped ? nextBaseState : state, baseQueue};
+  return { state, baseState: skipped ? nextBaseState : state, baseQueue };
 }
 
 // 43 lines: FIFO host scheduler with cancellation and continuations.
 // Deliberately omits React Scheduler's heaps, deadlines and five priorities.
-export function createScheduler({
-  now = () => performance.now(),
-  postTask, budgetMs = 5,
-} = {}) {
+export function createScheduler({ now = () => performance.now(), postTask, budgetMs = 5 } = {}) {
   let close = () => {};
   if (!postTask) {
     const channel = new MessageChannel();
     const posted = [];
     channel.port1.onmessage = () => posted.shift()?.();
-    postTask = callback => { posted.push(callback); channel.port2.postMessage(0); };
-    close = () => { channel.port1.close(); channel.port2.close(); };
+    postTask = (callback) => {
+      posted.push(callback);
+      channel.port2.postMessage(0);
+    };
+    close = () => {
+      channel.port1.close();
+      channel.port2.close();
+    };
   }
   const queue = [];
-  let posted = false, deadline = 0;
+  let posted = false,
+    deadline = 0;
   const shouldYield = () => now() >= deadline;
   function request() {
-    if (!posted && queue.length) { posted = true; postTask(workLoop); }
+    if (!posted && queue.length) {
+      posted = true;
+      postTask(workLoop);
+    }
   }
   function workLoop() {
     posted = false;
@@ -1094,7 +1162,10 @@ export function createScheduler({
     try {
       while (queue.length) {
         const task = queue[0];
-        if (!task.callback) { queue.shift(); continue; }
+        if (!task.callback) {
+          queue.shift();
+          continue;
+        }
         if (shouldYield()) break;
         const callback = task.callback;
         task.callback = null;
@@ -1105,82 +1176,134 @@ export function createScheduler({
         }
         queue.shift();
       }
-    } finally { request(); }
+    } finally {
+      request();
+    }
   }
   function schedule(callback) {
-    const task = {callback, cancelled: false};
-    queue.push(task); request(); return task;
+    const task = { callback, cancelled: false };
+    queue.push(task);
+    request();
+    return task;
   }
-  function cancel(task) { if (task) { task.cancelled = true; task.callback = null; } }
-  return {schedule, cancel, shouldYield, close};
+  function cancel(task) {
+    if (task) {
+      task.cancelled = true;
+      task.callback = null;
+    }
+  }
+  return { schedule, cancel, shouldYield, close };
 }
 
 export function createFiber(tag, pendingProps, key = null) {
   return {
-    tag, key, elementType: tag, type: tag, stateNode: null,
-    return: null, child: null, sibling: null, index: 0, ref: null,
-    pendingProps, memoizedProps: null, memoizedState: null,
-    updateQueue: null, dependencies: null, flags: 0, subtreeFlags: 0,
-    deletions: null, lanes: 0, childLanes: 0, alternate: null,
-    output: null, bailedOut: false,
+    tag,
+    key,
+    elementType: tag,
+    type: tag,
+    stateNode: null,
+    return: null,
+    child: null,
+    sibling: null,
+    index: 0,
+    ref: null,
+    pendingProps,
+    memoizedProps: null,
+    memoizedState: null,
+    updateQueue: null,
+    dependencies: null,
+    flags: 0,
+    subtreeFlags: 0,
+    deletions: null,
+    lanes: 0,
+    childLanes: 0,
+    alternate: null,
+    output: null,
+    bailedOut: false,
   };
 }
 export function createWorkInProgress(current, props) {
   let work = current.alternate;
   if (!work) {
     work = createFiber(current.tag, props, current.key);
-    work.alternate = current; current.alternate = work;
+    work.alternate = current;
+    current.alternate = work;
   }
   Object.assign(work, {
-    pendingProps: props, memoizedProps: current.memoizedProps,
-    memoizedState: current.memoizedState, output: current.output,
-    stateNode: current.stateNode, updateQueue: current.updateQueue,
-    child: current.child, lanes: current.lanes, childLanes: current.childLanes,
-    flags: 0, subtreeFlags: 0, deletions: null, bailedOut: false,
-    return: null, sibling: null,
+    pendingProps: props,
+    memoizedProps: current.memoizedProps,
+    memoizedState: current.memoizedState,
+    output: current.output,
+    stateNode: current.stateNode,
+    updateQueue: current.updateQueue,
+    child: current.child,
+    lanes: current.lanes,
+    childLanes: current.childLanes,
+    flags: 0,
+    subtreeFlags: 0,
+    deletions: null,
+    bailedOut: false,
+    return: null,
+    sibling: null,
   });
   return work;
 }
 function linkChildren(parent, descriptions) {
-  let old = parent.alternate?.child ?? null, previous = null;
+  let old = parent.alternate?.child ?? null,
+    previous = null;
   parent.child = null;
   for (let i = 0; i < descriptions.length; i++) {
     const [tag, props, key = null] = descriptions[i];
     const same = old && old.tag === tag && old.key === key;
     const child = same ? createWorkInProgress(old, props) : createFiber(tag, props, key);
-    child.return = parent; child.index = i;
-    if (previous) previous.sibling = child; else parent.child = child;
+    child.return = parent;
+    child.index = i;
+    if (previous) previous.sibling = child;
+    else parent.child = child;
     previous = child;
     old = old?.sibling ?? null;
   }
 }
 export function beginWork(fiber, root) {
   const props = fiber.pendingProps;
-  root.emit('begin', {fiber: fiber.tag, key: fiber.key});
+  root.emit('begin', { fiber: fiber.tag, key: fiber.key });
   switch (fiber.tag) {
     case 'Search':
-      linkChildren(fiber, [['Input', {value: props.input}], ['Results', {query: props.query}]]);
+      linkChildren(fiber, [
+        ['Input', { value: props.input }],
+        ['Results', { query: props.query }],
+      ]);
       return fiber.child;
-    case 'Input': fiber.output = props.value; return null;
+    case 'Input':
+      fiber.output = props.value;
+      return null;
     case 'Results': {
       // Explicit query-only memoization, analogous to memo(SlowResults).
       const old = fiber.alternate;
       if (old && old.memoizedProps.query === props.query && root.memoResults) {
         fiber.bailedOut = true;
-        fiber.child = old.child; fiber.output = old.output;
-        root.emit('bailout', {fiber: 'Results', query: props.query});
+        fiber.child = old.child;
+        fiber.output = old.output;
+        root.emit('bailout', { fiber: 'Results', query: props.query });
         return null;
       }
       // Like React reconciliation, this loop itself cannot yield.
-      linkChildren(fiber, Array.from({length: root.rowCount}, (_, i) =>
-        ['Row', {query: props.query, index: i}, String(i)]));
+      linkChildren(
+        fiber,
+        Array.from({ length: root.rowCount }, (_, i) => [
+          'Row',
+          { query: props.query, index: i },
+          String(i),
+        ]),
+      );
       return fiber.child;
     }
     case 'Row':
       // One whole call is indivisible from the scheduler's perspective.
       fiber.output = root.renderRow(props);
       return null;
-    default: throw new Error('Unknown educational Fiber tag');
+    default:
+      throw new Error('Unknown educational Fiber tag');
   }
 }
 export function completeWork(fiber, root) {
@@ -1189,11 +1312,12 @@ export function completeWork(fiber, root) {
     for (let child = fiber.child; child; child = child.sibling) rows.push(child.output);
     fiber.output = rows;
   }
-  if (fiber.tag === 'Search') fiber.output = {
-    input: fiber.child.output,
-    query: fiber.pendingProps.query,
-    rows: fiber.child.sibling.output,
-  };
+  if (fiber.tag === 'Search')
+    fiber.output = {
+      input: fiber.child.output,
+      query: fiber.pendingProps.query,
+      rows: fiber.child.sibling.output,
+    };
   // Model an effect marker; the host adapter applies the final snapshot at commit.
   fiber.flags = fiber.output !== fiber.alternate?.output ? 1 : 0;
   if (!fiber.bailedOut) {
@@ -1201,7 +1325,7 @@ export function completeWork(fiber, root) {
       fiber.subtreeFlags |= child.flags | child.subtreeFlags;
   }
   fiber.memoizedProps = fiber.pendingProps;
-  root.emit('complete', {fiber: fiber.tag, key: fiber.key});
+  root.emit('complete', { fiber: fiber.tag, key: fiber.key });
 }
 export function completeUnitOfWork(unit, root) {
   let fiber = unit;
@@ -1217,37 +1341,58 @@ export function performUnitOfWork(unit, root) {
 }
 
 export function createMiniConcurrentRoot({
-  scheduler = createScheduler(), queueMicrotask: enqueueMicrotask = globalThis.queueMicrotask,
-  now = () => performance.now(), rowCount = 120,
-  renderRow = ({query, index}) => `${query || 'empty'} · row ${index + 1}`,
-  commit = () => {}, onEvent = () => {}, memoResults = true,
+  scheduler = createScheduler(),
+  queueMicrotask: enqueueMicrotask = globalThis.queueMicrotask,
+  now = () => performance.now(),
+  rowCount = 120,
+  renderRow = ({ query, index }) => `${query || 'empty'} · row ${index + 1}`,
+  commit = () => {},
+  onEvent = () => {},
+  memoResults = true,
 } = {}) {
-  const initial = {input: '', query: ''};
+  const initial = { input: '', query: '' };
   const root = {
-    current: createFiber('Search', initial), baseState: initial, baseQueue: [], pending: [],
-    pendingLanes: 0, suspendedLanes: 0, draft: null, nextUnit: null,
-    callback: null, microtaskScheduled: false, rowCount, renderRow, memoResults,
-    generation: 0, committedGeneration: 0, lastSnapshot: null,
-    emit(type, detail = {}) { onEvent({type, time: now(), generation: root.generation, ...detail}); },
+    current: createFiber('Search', initial),
+    baseState: initial,
+    baseQueue: [],
+    pending: [],
+    pendingLanes: 0,
+    suspendedLanes: 0,
+    draft: null,
+    nextUnit: null,
+    callback: null,
+    microtaskScheduled: false,
+    rowCount,
+    renderRow,
+    memoResults,
+    generation: 0,
+    committedGeneration: 0,
+    lastSnapshot: null,
+    emit(type, detail = {}) {
+      onEvent({ type, time: now(), generation: root.generation, ...detail });
+    },
   };
   function refreshLanes() {
     root.pendingLanes = [...root.baseQueue, ...root.pending].reduce((n, u) => n | u.lane, 0);
   }
   function prepare(lanes) {
-    if (root.draft) root.emit('abandon', {lanes: root.draft.lanes});
+    if (root.draft) root.emit('abandon', { lanes: root.draft.lanes });
     const pendingCount = root.pending.length;
-    const queueResult = processQueue(root.baseState,
-      [...root.baseQueue, ...root.pending.slice(0, pendingCount)], lanes);
+    const queueResult = processQueue(
+      root.baseState,
+      [...root.baseQueue, ...root.pending.slice(0, pendingCount)],
+      lanes,
+    );
     root.generation++;
     const work = createWorkInProgress(root.current, queueResult.state);
-    root.draft = {work, lanes, queueResult, pendingCount};
+    root.draft = { work, lanes, queueResult, pendingCount };
     root.nextUnit = work;
-    root.emit('render-start', {lanes, state: queueResult.state});
+    root.emit('render-start', { lanes, state: queueResult.state });
   }
   function commitRoot() {
     const draft = root.draft;
     // No yields or awaits within this synchronous mutation adapter.
-    root.emit('commit-start', {lanes: draft.lanes});
+    root.emit('commit-start', { lanes: draft.lanes });
     commit(draft.work.output);
     root.current = draft.work;
     root.baseState = draft.queueResult.baseState;
@@ -1255,20 +1400,24 @@ export function createMiniConcurrentRoot({
     root.pending.splice(0, draft.pendingCount); // Keep updates received after render began.
     root.lastSnapshot = draft.work.output;
     root.committedGeneration = root.generation;
-    root.draft = null; root.nextUnit = null;
+    root.draft = null;
+    root.nextUnit = null;
     refreshLanes();
-    root.emit('commit-end', {lanes: draft.lanes, state: root.current.pendingProps});
+    root.emit('commit-end', { lanes: draft.lanes, state: root.current.pendingProps });
   }
   function perform(lanes, sync) {
     if (!root.draft || root.draft.lanes !== lanes) prepare(lanes);
     while (root.nextUnit && (sync || !scheduler.shouldYield()))
       root.nextUnit = performUnitOfWork(root.nextUnit, root);
     if (!root.nextUnit) commitRoot();
-    else root.emit('yield', {lanes, next: root.nextUnit.tag});
+    else root.emit('yield', { lanes, next: root.nextUnit.tag });
   }
   function concurrentCallback() {
     const lanes = getNextLanes(root);
-    if (!lanes) { root.callback = null; return null; }
+    if (!lanes) {
+      root.callback = null;
+      return null;
+    }
     perform(lanes, lanes === SyncLane);
     if (root.draft) return concurrentCallback;
     root.callback = null;
@@ -1278,7 +1427,8 @@ export function createMiniConcurrentRoot({
   function processRootScheduleInMicrotask() {
     root.microtaskScheduled = false;
     if (getNextLanes(root) === SyncLane) {
-      scheduler.cancel(root.callback); root.callback = null;
+      scheduler.cancel(root.callback);
+      root.callback = null;
       perform(SyncLane, true);
     }
     if (getNextLanes(root) && !root.callback)
@@ -1291,16 +1441,20 @@ export function createMiniConcurrentRoot({
     }
   }
   function setState(action, lane = transitionDepth ? TransitionLane : SyncLane) {
-    root.pending.push({action, lane}); refreshLanes();
-    root.emit('update', {lane}); ensureRootIsScheduled();
+    root.pending.push({ action, lane });
+    refreshLanes();
+    root.emit('update', { lane });
+    ensureRootIsScheduled();
   }
   function input(value) {
-    root.emit('input', {value});
-    setState(s => ({...s, input: value}));
-    startTransition(() => setState(s => ({...s, query: value})));
+    root.emit('input', { value });
+    setState((s) => ({ ...s, input: value }));
+    startTransition(() => setState((s) => ({ ...s, query: value })));
   }
-  function mount() { setState(s => s, SyncLane); }
-  return {root, input, setState, mount, ensureRootIsScheduled, scheduler};
+  function mount() {
+    setState((s) => s, SyncLane);
+  }
+  return { root, input, setState, mount, ensureRootIsScheduled, scheduler };
 }
 ```
 
@@ -1308,57 +1462,57 @@ A minimal non-DOM use of the engine can pass `commit: snapshot => console.log(sn
 
 ## 25. Misconceptions: myth versus mechanism
 
-| Myth | Accurate version |
-| --- | --- |
-| Concurrent React means multithreaded React | The DOM renderer cooperatively interleaves eligible work on the main thread. |
-| Transitions use Web Workers | A transition does not offload JavaScript; Workers require explicit app architecture. |
-| React interrupts a component halfway through | Scheduler checks happen after React regains control; explicit suspension unwinds rather than freezes locals. |
-| Each Fiber is an event-loop task | Many Fiber units can execute in one host callback. |
-| Every component is scheduled separately | A root callback drives traversal through many components. |
-| `startTransition` makes its callback asynchronous | The callback runs immediately; eligible updates receive transition treatment. |
-| `startTransition` reduces computation | It may repeat work and increase CPU while improving urgent responsiveness. |
-| Suspense catches any promise anywhere | Supported rendering reads use React's suspension machinery; effect/event promises do not automatically activate it. |
-| Suspense is just a spinner | It is also a reveal, retention, retry and hydration boundary. |
-| Fiber updates the live DOM as each component renders | Ordinary candidate output is published at commit; detached host instances may be prepared during render. |
-| React progressively commits finished Fibers | A time-sliced attempt does not expose its completed prefix as partial UI. |
-| React always resumes exactly where it stopped | Unchanged attempts may resume; changed priority/dependencies can require restart. |
-| Interrupted work is always fully discarded | Queues, pooled objects, current subtrees and eligible bailouts can survive; speculative calculations may be repeated. |
-| Transition means Scheduler LowPriority | Transition lanes normally map to Scheduler NormalPriority. |
-| MessageChannel is the React scheduler | It is a host-callback mechanism without knowledge of lanes or UI. |
-| React renders exactly 5 ms at a time | 5 ms is this build's default cooperative threshold; indivisible work can overrun it. |
-| Every modern-root update is time-sliced | Sync, continuous and default work have blocking paths; eligibility matters. |
-| A Scheduler callback necessarily implies concurrent rendering | The callback can call the synchronous Fiber loop. |
-| Concurrent rendering makes giant commits cheap | Mutation, layout effects and browser rendering remain distinct costs. |
-| `useDeferredValue` is debounce | It spawns eligible follow-up work without a fixed delay or request suppression. |
-| `useEffect` always runs after paint | Passive effects can flush before paint, including sync-related paths. |
-| There are two complete DOM trees | Fiber alternates share retained host instances; WIP is not a cloned live document. |
-| Higher priority means reorder the update queue | React skips by lanes and later rebases in enqueue order. |
-| A skipped update can be erased | It must remain available unless legitimately superseded by queue semantics. |
-| A second transition automatically aborts a fetch | Request cancellation is independent. |
-| All transitions are one batch in 19.3 | Independent transition lanes can progress; event/queue/Action coupling remains. |
-| Independent transitions execute simultaneously | “Parallel” describes scheduling independence, not main-thread parallel execution. |
-| Every commit is exactly one uninterrupted task | Ordinary passes are synchronous; View Transition orchestration can await between subphases. |
-| A hidden Activity is unmounted | State/host content can remain while effects disconnect and background work proceeds. |
-| Strict Mode proves all interleavings safe | It is a development stress check, not exhaustive scheduler verification. |
-| Wrapping an external-store mutation creates a transition snapshot | The store needs its own versioning; React validates snapshots and may retry synchronously. |
-| All blocked hydration events are queued and replayed | Current handling differs for discrete and continuous event categories. |
-| A source function existing means stable React uses it | Exports, build forks and feature flags determine reachability. |
-| A long render guarantees a long commit | Computation may produce few or no host changes. |
+| Myth                                                              | Accurate version                                                                                                      |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Concurrent React means multithreaded React                        | The DOM renderer cooperatively interleaves eligible work on the main thread.                                          |
+| Transitions use Web Workers                                       | A transition does not offload JavaScript; Workers require explicit app architecture.                                  |
+| React interrupts a component halfway through                      | Scheduler checks happen after React regains control; explicit suspension unwinds rather than freezes locals.          |
+| Each Fiber is an event-loop task                                  | Many Fiber units can execute in one host callback.                                                                    |
+| Every component is scheduled separately                           | A root callback drives traversal through many components.                                                             |
+| `startTransition` makes its callback asynchronous                 | The callback runs immediately; eligible updates receive transition treatment.                                         |
+| `startTransition` reduces computation                             | It may repeat work and increase CPU while improving urgent responsiveness.                                            |
+| Suspense catches any promise anywhere                             | Supported rendering reads use React's suspension machinery; effect/event promises do not automatically activate it.   |
+| Suspense is just a spinner                                        | It is also a reveal, retention, retry and hydration boundary.                                                         |
+| Fiber updates the live DOM as each component renders              | Ordinary candidate output is published at commit; detached host instances may be prepared during render.              |
+| React progressively commits finished Fibers                       | A time-sliced attempt does not expose its completed prefix as partial UI.                                             |
+| React always resumes exactly where it stopped                     | Unchanged attempts may resume; changed priority/dependencies can require restart.                                     |
+| Interrupted work is always fully discarded                        | Queues, pooled objects, current subtrees and eligible bailouts can survive; speculative calculations may be repeated. |
+| Transition means Scheduler LowPriority                            | Transition lanes normally map to Scheduler NormalPriority.                                                            |
+| MessageChannel is the React scheduler                             | It is a host-callback mechanism without knowledge of lanes or UI.                                                     |
+| React renders exactly 5 ms at a time                              | 5 ms is this build's default cooperative threshold; indivisible work can overrun it.                                  |
+| Every modern-root update is time-sliced                           | Sync, continuous and default work have blocking paths; eligibility matters.                                           |
+| A Scheduler callback necessarily implies concurrent rendering     | The callback can call the synchronous Fiber loop.                                                                     |
+| Concurrent rendering makes giant commits cheap                    | Mutation, layout effects and browser rendering remain distinct costs.                                                 |
+| `useDeferredValue` is debounce                                    | It spawns eligible follow-up work without a fixed delay or request suppression.                                       |
+| `useEffect` always runs after paint                               | Passive effects can flush before paint, including sync-related paths.                                                 |
+| There are two complete DOM trees                                  | Fiber alternates share retained host instances; WIP is not a cloned live document.                                    |
+| Higher priority means reorder the update queue                    | React skips by lanes and later rebases in enqueue order.                                                              |
+| A skipped update can be erased                                    | It must remain available unless legitimately superseded by queue semantics.                                           |
+| A second transition automatically aborts a fetch                  | Request cancellation is independent.                                                                                  |
+| All transitions are one batch in 19.3                             | Independent transition lanes can progress; event/queue/Action coupling remains.                                       |
+| Independent transitions execute simultaneously                    | “Parallel” describes scheduling independence, not main-thread parallel execution.                                     |
+| Every commit is exactly one uninterrupted task                    | Ordinary passes are synchronous; View Transition orchestration can await between subphases.                           |
+| A hidden Activity is unmounted                                    | State/host content can remain while effects disconnect and background work proceeds.                                  |
+| Strict Mode proves all interleavings safe                         | It is a development stress check, not exhaustive scheduler verification.                                              |
+| Wrapping an external-store mutation creates a transition snapshot | The store needs its own versioning; React validates snapshots and may retry synchronously.                            |
+| All blocked hydration events are queued and replayed              | Current handling differs for discrete and continuous event categories.                                                |
+| A source function existing means stable React uses it             | Exports, build forks and feature flags determine reachability.                                                        |
+| A long render guarantees a long commit                            | Computation may produce few or no host changes.                                                                       |
 
 Each correction follows the mechanism and immutable source references in sections 2–21. These rows are teaching summaries, not additional API promises.
 
 ## 26. Historical evolution and stale vocabulary
 
-| Stage | Architectural development | What to retain today |
-| --- | --- | --- |
-| Stack reconciler | Tree work expressed through recursive execution | Why stopping ordinary recursion without returning was difficult |
-| React 16 Fiber | Heap-resident units, parent/sibling links, current/alternate work | Fiber is the substrate, not itself a scheduling policy |
-| Expiration-time scheduling | Scalar deadlines represented urgency and batching in older reconciler designs | Historical fields/algorithms are not the current lane model |
-| Scheduler package | Cooperative host callback scheduling and priorities | Separate it from reconciler update selection |
-| Lanes | Bitsets represent work classes, sets and dependencies | A lane is more expressive than one scalar deadline |
-| React 18 concurrent features | Transitions/deferred UI, modern-root concurrency and streaming hydration | Eligibility, consistency and commit boundaries matter |
-| React 19 family | Actions, `use`, richer boundaries/hidden trees and observability | Async dependencies and visibility complicate simple CPU-only diagrams |
-| React 19.3 | Independent transitions and stable View Transition integration | Recheck global-batching and one-stack-commit slogans |
+| Stage                        | Architectural development                                                     | What to retain today                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Stack reconciler             | Tree work expressed through recursive execution                               | Why stopping ordinary recursion without returning was difficult       |
+| React 16 Fiber               | Heap-resident units, parent/sibling links, current/alternate work             | Fiber is the substrate, not itself a scheduling policy                |
+| Expiration-time scheduling   | Scalar deadlines represented urgency and batching in older reconciler designs | Historical fields/algorithms are not the current lane model           |
+| Scheduler package            | Cooperative host callback scheduling and priorities                           | Separate it from reconciler update selection                          |
+| Lanes                        | Bitsets represent work classes, sets and dependencies                         | A lane is more expressive than one scalar deadline                    |
+| React 18 concurrent features | Transitions/deferred UI, modern-root concurrency and streaming hydration      | Eligibility, consistency and commit boundaries matter                 |
+| React 19 family              | Actions, `use`, richer boundaries/hidden trees and observability              | Async dependencies and visibility complicate simple CPU-only diagrams |
+| React 19.3                   | Independent transitions and stable View Transition integration                | Recheck global-batching and one-stack-commit slogans                  |
 
 Stale article markers include reconciler `expirationTime` as the primary update model; `nextEffect` linked lists presented as the current ordinary effect traversal; `scheduleWork` as a universal modern entry point; a public experimental “Concurrent Mode” opt-in described as current stable setup; `requestIdleCallback` as the host driver; a fixed 16-transition-lane layout; `commitRootWhenReady` used as this tag's function name; and DOM `prepareUpdate` payload descriptions transplanted from older hosts. Some concepts survive in other renderers or old branches, so classify the statement rather than declaring every old identifier universally nonexistent.
 
@@ -1368,32 +1522,32 @@ Historical orientation: [React 16 announcement](https://legacy.reactjs.org/blog/
 
 All links resolve to **`1d34f91dfde6bba84d08b683aaba164c7194dacb`**. `R/` means `packages/react-reconciler/src/`, `D/` means `packages/react-dom-bindings/src/`, and `S/` means `packages/scheduler/src/`. The full filenames and line anchors are in the linked URLs and source manifest.
 
-| Order / file | Read first | Purpose | Initially skim/skip |
-| --- | --- | --- | --- |
-| 1. [stable exports][exports], [feature flags][flags] | Export list; `enableParallelTransitions`, `enableViewTransition`, `enableThrottledScheduling` | Establish the build actually studied | Unrelated experiments and renderer forks |
-| 2. [R/ReactInternalTypes.js][fiber-type] | `Fiber` fields | Storage vocabulary | Debug/profiling fields initially |
-| 3. [R/ReactFiber.js][fiber-copy] | `createWorkInProgress`, `resetWorkInProgress` | Current/alternate pooling and reset | Every constructor-by-element variant |
-| 4. [R/ReactFiberLane.js][lane-groups] | Constants; `getHighestPriorityLanes`, `getNextLanes` | Work selection and grouping | Hydration/hidden/entanglement branches on first pass, then revisit |
-| 5. [R/ReactEventPriorities.js][event-lane] | `lanesToEventPriority`, `eventPriorityToLane` | Coarse priority conversion | Nothing large |
-| 6. [R/ReactFiberHooks.js][dispatch] | `dispatchSetState`, `dispatchSetStateInternal` | Update object, lane and eager state | Other hook implementations initially |
-| 7. [R/ReactFiberConcurrentUpdates.js][concurrent-queues] | `enqueueConcurrentHookUpdate`, `finishQueueingConcurrentUpdates` | Staging and ancestor lane marking | Hidden-update details initially |
-| 8. [R/ReactFiberRootScheduler.js][root-scheduler] | `ensureRootIsScheduled`, `processRootScheduleInMicrotask`, `scheduleTaskForRootDuringMicrotask`, `performWorkOnRootViaSchedulerTask` | Root coordination and callbacks | `act`, legacy and special event cases first pass |
-| 9. [S/forks/Scheduler.js][scheduler-work] | `unstable_scheduleCallback`, `workLoop`, `performWorkUntilDeadline`, `shouldYieldToHost` | Callback deadlines and host execution | Profiling hooks initially |
-| 10. [S/SchedulerMinHeap.js][scheduler-heap] | `push`, `peek`, `pop`, comparator | Concrete task/timer ordering | Standard heap implementation after understanding invariants |
-| 11. [R/ReactFiberWorkLoop.js][work-gate] | `performWorkOnRoot`, `prepareFreshStack`, concurrent loop, `performUnitOfWork`, `completeUnitOfWork` | Render attempt lifecycle | Commit and suspension branches until traversal is clear |
-| 12. [R/ReactFiberBeginWork.js][begin] | Function component path; `bailoutOnAlreadyFinishedWork` | Execute/reconcile/skip | Specialized tags on first pass |
-| 13. [R/ReactChildFiber.js][child-reconcile] | `reconcileChildrenArray`, `placeChild`, deletion handling | Identity and changes | Uncommon iterable/lazy diagnostics initially |
-| 14. [R/ReactFiberCompleteWork.js][complete] | HostComponent branch, `updateHostComponent`, `bubbleProperties` | Host preparation and aggregated flags | Resource/hydration paths after ordinary DOM |
-| 15. [R/ReactFiberHooks.js][hook-queue] | `updateReducerImpl`; then transition/deferred/store implementations | Persistence, rebasing and hooks | Optimistic/revert handling only after basic queue trace |
-| 16. [R/ReactFiberClassUpdateQueue.js][class-queue] | `processUpdateQueue` | Related class/root queue with callbacks | Class-specific payload variants initially |
-| 17. [R/ReactFiberThenable.js][thenables], [ReactFiberThrow.js][throw], [ReactFiberUnwindWork.js][unwind] | `trackUsedThenable`, `throwException`, unwind handlers | Pending read → capture → recovery | Development diagnostics initially |
-| 18. [R/ReactFiberSuspenseComponent.js][suspense-component], [ReactFiberSuspenseContext.js][suspense-context] | Boundary state and handler/shell context | Retention and fallback policy | SuspenseList experiments initially |
-| 19. [R/ReactFiberWorkLoop.js][commit-ready] | `completeRootWhenReady`, `commitRoot`, phase flushes, ping/retry functions | Finished work, commit readiness and orchestration | Instrumentation until ordinary sequence is understood |
-| 20. [R/ReactFiberCommitWork.js][commit-work], [ReactFiberCommitEffects.js][commit-effects] | Mutation/layout traversals, effect lists, refs, retry listeners | Apply tree effects | Host persistence/native branches initially |
-| 21. [D/client/ReactFiberConfigDOM.js][dom-host] | Host creation/commit, microtasks, View Transition and resource readiness | Actual browser operations | Server-specific host details initially |
-| 22. [D/events/ReactDOMEventListener.js][event-priority], [ReactDOMUpdateBatching.js][controlled-batching] | Priority wrappers; event cleanup; hydration branch | Event-to-lane route and controlled input | Event replay details until main input trace is clear |
-| 23. [R/ReactFiberHydrationContext.js][hydration], [BeginWork dehydrated boundaries][dehydrated] | Claiming nodes, boundary reentry | Selective hydration | Mismatch diagnostic formatting initially |
-| 24. [ReactFizzServer.js][fizz-boundary] | `renderSuspenseBoundary`, `retryTask`, `startWork`, `startFlowing` | Server task/segment pipeline | Serialization details until architecture is clear |
+| Order / file                                                                                                 | Read first                                                                                                                           | Purpose                                           | Initially skim/skip                                                |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------ |
+| 1. [stable exports][exports], [feature flags][flags]                                                         | Export list; `enableParallelTransitions`, `enableViewTransition`, `enableThrottledScheduling`                                        | Establish the build actually studied              | Unrelated experiments and renderer forks                           |
+| 2. [R/ReactInternalTypes.js][fiber-type]                                                                     | `Fiber` fields                                                                                                                       | Storage vocabulary                                | Debug/profiling fields initially                                   |
+| 3. [R/ReactFiber.js][fiber-copy]                                                                             | `createWorkInProgress`, `resetWorkInProgress`                                                                                        | Current/alternate pooling and reset               | Every constructor-by-element variant                               |
+| 4. [R/ReactFiberLane.js][lane-groups]                                                                        | Constants; `getHighestPriorityLanes`, `getNextLanes`                                                                                 | Work selection and grouping                       | Hydration/hidden/entanglement branches on first pass, then revisit |
+| 5. [R/ReactEventPriorities.js][event-lane]                                                                   | `lanesToEventPriority`, `eventPriorityToLane`                                                                                        | Coarse priority conversion                        | Nothing large                                                      |
+| 6. [R/ReactFiberHooks.js][dispatch]                                                                          | `dispatchSetState`, `dispatchSetStateInternal`                                                                                       | Update object, lane and eager state               | Other hook implementations initially                               |
+| 7. [R/ReactFiberConcurrentUpdates.js][concurrent-queues]                                                     | `enqueueConcurrentHookUpdate`, `finishQueueingConcurrentUpdates`                                                                     | Staging and ancestor lane marking                 | Hidden-update details initially                                    |
+| 8. [R/ReactFiberRootScheduler.js][root-scheduler]                                                            | `ensureRootIsScheduled`, `processRootScheduleInMicrotask`, `scheduleTaskForRootDuringMicrotask`, `performWorkOnRootViaSchedulerTask` | Root coordination and callbacks                   | `act`, legacy and special event cases first pass                   |
+| 9. [S/forks/Scheduler.js][scheduler-work]                                                                    | `unstable_scheduleCallback`, `workLoop`, `performWorkUntilDeadline`, `shouldYieldToHost`                                             | Callback deadlines and host execution             | Profiling hooks initially                                          |
+| 10. [S/SchedulerMinHeap.js][scheduler-heap]                                                                  | `push`, `peek`, `pop`, comparator                                                                                                    | Concrete task/timer ordering                      | Standard heap implementation after understanding invariants        |
+| 11. [R/ReactFiberWorkLoop.js][work-gate]                                                                     | `performWorkOnRoot`, `prepareFreshStack`, concurrent loop, `performUnitOfWork`, `completeUnitOfWork`                                 | Render attempt lifecycle                          | Commit and suspension branches until traversal is clear            |
+| 12. [R/ReactFiberBeginWork.js][begin]                                                                        | Function component path; `bailoutOnAlreadyFinishedWork`                                                                              | Execute/reconcile/skip                            | Specialized tags on first pass                                     |
+| 13. [R/ReactChildFiber.js][child-reconcile]                                                                  | `reconcileChildrenArray`, `placeChild`, deletion handling                                                                            | Identity and changes                              | Uncommon iterable/lazy diagnostics initially                       |
+| 14. [R/ReactFiberCompleteWork.js][complete]                                                                  | HostComponent branch, `updateHostComponent`, `bubbleProperties`                                                                      | Host preparation and aggregated flags             | Resource/hydration paths after ordinary DOM                        |
+| 15. [R/ReactFiberHooks.js][hook-queue]                                                                       | `updateReducerImpl`; then transition/deferred/store implementations                                                                  | Persistence, rebasing and hooks                   | Optimistic/revert handling only after basic queue trace            |
+| 16. [R/ReactFiberClassUpdateQueue.js][class-queue]                                                           | `processUpdateQueue`                                                                                                                 | Related class/root queue with callbacks           | Class-specific payload variants initially                          |
+| 17. [R/ReactFiberThenable.js][thenables], [ReactFiberThrow.js][throw], [ReactFiberUnwindWork.js][unwind]     | `trackUsedThenable`, `throwException`, unwind handlers                                                                               | Pending read → capture → recovery                 | Development diagnostics initially                                  |
+| 18. [R/ReactFiberSuspenseComponent.js][suspense-component], [ReactFiberSuspenseContext.js][suspense-context] | Boundary state and handler/shell context                                                                                             | Retention and fallback policy                     | SuspenseList experiments initially                                 |
+| 19. [R/ReactFiberWorkLoop.js][commit-ready]                                                                  | `completeRootWhenReady`, `commitRoot`, phase flushes, ping/retry functions                                                           | Finished work, commit readiness and orchestration | Instrumentation until ordinary sequence is understood              |
+| 20. [R/ReactFiberCommitWork.js][commit-work], [ReactFiberCommitEffects.js][commit-effects]                   | Mutation/layout traversals, effect lists, refs, retry listeners                                                                      | Apply tree effects                                | Host persistence/native branches initially                         |
+| 21. [D/client/ReactFiberConfigDOM.js][dom-host]                                                              | Host creation/commit, microtasks, View Transition and resource readiness                                                             | Actual browser operations                         | Server-specific host details initially                             |
+| 22. [D/events/ReactDOMEventListener.js][event-priority], [ReactDOMUpdateBatching.js][controlled-batching]    | Priority wrappers; event cleanup; hydration branch                                                                                   | Event-to-lane route and controlled input          | Event replay details until main input trace is clear               |
+| 23. [R/ReactFiberHydrationContext.js][hydration], [BeginWork dehydrated boundaries][dehydrated]              | Claiming nodes, boundary reentry                                                                                                     | Selective hydration                               | Mismatch diagnostic formatting initially                           |
+| 24. [ReactFizzServer.js][fizz-boundary]                                                                      | `renderSuspenseBoundary`, `retryTask`, `startWork`, `startFlowing`                                                                   | Server task/segment pipeline                      | Serialization details until architecture is clear                  |
 
 Reading method: trace one concrete update end to end, annotate which variables live on the root versus a Fiber versus a hook queue versus the Scheduler task, then introduce one complication at a time. Read test gates and build flags before treating a test as evidence about stable behavior. This research inspected source and ran the educational checks; it did not execute React's complete upstream test suites.
 
@@ -1419,28 +1573,28 @@ The event-loop diagram intentionally branches. A linear animation that always pl
 
 ## 29. Professional talk insights and difficult questions
 
-| Senior-engineer question / claim | Precise answer or useful demonstration |
-| --- | --- |
-| What object is actually scheduled? | Usually a callback to work on a root; the callback traverses many Fibers. |
-| Why both microtasks and tasks? | A microtask coordinates roots and eligible sync work; later host tasks provide opportunities for input/paint interleaving. |
-| Why not yield through `await Promise.resolve()`? | Promise continuations stay in microtask processing; chaining them can postpone the very host work you wanted to admit. |
-| Is Fiber a coroutine? | It stores resumable React work state, but does not preserve an arbitrary paused JavaScript stack frame. |
-| Why does a 5 ms scheduler produce a 105 ms task? | A checkpoint cannot preempt the 100 ms unit entered just before the threshold. |
-| Can completion itself be the bottleneck? | Yes; ancestor completion and child aggregation can run inside one unit. |
-| Why can NormalPriority render synchronously? | Scheduler priority selects callback urgency; lane policy independently selects the Fiber loop. |
-| Why replay an already committed update? | It must be reapplied after earlier skipped updates to preserve queue order. |
-| Why can an urgent input still lag with a transition? | The urgent parent may re-render expensive unchanged children, or previous indivisible/commit/browser work may block it. |
-| Is an abandoned transition a canceled operation? | Only that attempt's output may be abandoned; queued intent, network work and other effects have separate lifecycles. |
-| Can newer content appear before older independent work? | 19.3 permits independent transition progress; shared queues and dependencies constrain it. |
-| Why is a hidden tree still expensive? | Retained memory, background rendering and reconnection work remain. |
-| Why can external stores force blocking? | Snapshot consistency is validated; unversioned mutation cannot supply an old snapshot on demand. |
-| Can a commit wait after DOM mutation? | The View Transition host path can defer later subphases; mutation itself is not sliced. |
-| Why can a short commit still miss the frame? | Style/layout/paint and layout-effect-induced reads can dominate outside the apparent mutation measurement. |
-| Does `isPending` measure “a background thread is busy”? | No; it represents the hook's transition/Action pending lifecycle, including asynchronous dependencies. |
-| Why can a component's updater run before rendering begins? | Eager state calculation during dispatch is an optimization; purity still applies. |
-| Can React retry something that rejected? | The retry reads the rejection and proceeds through error handling rather than treating rejection as successful content. |
-| Why are stable exports as important as source files? | Experimental APIs and inactive loops remain present in the repository. |
-| What is the strongest overall “aha”? | Scheduling, consistency and publication are separate problems coordinated by different layers. |
+| Senior-engineer question / claim                           | Precise answer or useful demonstration                                                                                     |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| What object is actually scheduled?                         | Usually a callback to work on a root; the callback traverses many Fibers.                                                  |
+| Why both microtasks and tasks?                             | A microtask coordinates roots and eligible sync work; later host tasks provide opportunities for input/paint interleaving. |
+| Why not yield through `await Promise.resolve()`?           | Promise continuations stay in microtask processing; chaining them can postpone the very host work you wanted to admit.     |
+| Is Fiber a coroutine?                                      | It stores resumable React work state, but does not preserve an arbitrary paused JavaScript stack frame.                    |
+| Why does a 5 ms scheduler produce a 105 ms task?           | A checkpoint cannot preempt the 100 ms unit entered just before the threshold.                                             |
+| Can completion itself be the bottleneck?                   | Yes; ancestor completion and child aggregation can run inside one unit.                                                    |
+| Why can NormalPriority render synchronously?               | Scheduler priority selects callback urgency; lane policy independently selects the Fiber loop.                             |
+| Why replay an already committed update?                    | It must be reapplied after earlier skipped updates to preserve queue order.                                                |
+| Why can an urgent input still lag with a transition?       | The urgent parent may re-render expensive unchanged children, or previous indivisible/commit/browser work may block it.    |
+| Is an abandoned transition a canceled operation?           | Only that attempt's output may be abandoned; queued intent, network work and other effects have separate lifecycles.       |
+| Can newer content appear before older independent work?    | 19.3 permits independent transition progress; shared queues and dependencies constrain it.                                 |
+| Why is a hidden tree still expensive?                      | Retained memory, background rendering and reconnection work remain.                                                        |
+| Why can external stores force blocking?                    | Snapshot consistency is validated; unversioned mutation cannot supply an old snapshot on demand.                           |
+| Can a commit wait after DOM mutation?                      | The View Transition host path can defer later subphases; mutation itself is not sliced.                                    |
+| Why can a short commit still miss the frame?               | Style/layout/paint and layout-effect-induced reads can dominate outside the apparent mutation measurement.                 |
+| Does `isPending` measure “a background thread is busy”?    | No; it represents the hook's transition/Action pending lifecycle, including asynchronous dependencies.                     |
+| Why can a component's updater run before rendering begins? | Eager state calculation during dispatch is an optimization; purity still applies.                                          |
+| Can React retry something that rejected?                   | The retry reads the rejection and proceeds through error handling rather than treating rejection as successful content.    |
+| Why are stable exports as important as source files?       | Experimental APIs and inactive loops remain present in the repository.                                                     |
+| What is the strongest overall “aha”?                       | Scheduling, consistency and publication are separate problems coordinated by different layers.                             |
 
 A strong talk sequence is: show the event-loop constraint; expose a Fiber unit; demonstrate a 100 ms overrun; add lanes; prove rebasing numerically; run the interrupted search; add Suspense; finally expose the synchronous commit/browser bottleneck. This sequence explains why each mechanism exists without treating concurrency as a magical performance switch.
 
@@ -1648,17 +1802,17 @@ timelines are illustrative unless explicitly identified as source constants.
 
 ## 2. Layer ownership and end-to-end update route
 
-| Layer | Responsibility |
-| --- | --- |
-| Browser event loop | Choose runnable tasks, run microtask checkpoints, allow rendering opportunities |
-| DOM event system | Dispatch handlers under React event/update priority |
-| Hook/class queue | Preserve ordered updates and base history |
-| Lanes | Encode eligible work sets, urgency, suspension and dependencies |
-| Root scheduler | Coordinate roots, sync flushing and callback reuse/replacement |
-| Scheduler package | General callbacks, deadlines, host tasks and cooperative yield predicate |
-| Fiber/reconciler | Persistent work records, traversal, reconciliation, suspension and retry |
-| DOM renderer/commit | Prepare host instances and publish completed changes |
-| Browser rendering | Style, layout, paint and compositing |
+| Layer               | Responsibility                                                                  |
+| ------------------- | ------------------------------------------------------------------------------- |
+| Browser event loop  | Choose runnable tasks, run microtask checkpoints, allow rendering opportunities |
+| DOM event system    | Dispatch handlers under React event/update priority                             |
+| Hook/class queue    | Preserve ordered updates and base history                                       |
+| Lanes               | Encode eligible work sets, urgency, suspension and dependencies                 |
+| Root scheduler      | Coordinate roots, sync flushing and callback reuse/replacement                  |
+| Scheduler package   | General callbacks, deadlines, host tasks and cooperative yield predicate        |
+| Fiber/reconciler    | Persistent work records, traversal, reconciliation, suspension and retry        |
+| DOM renderer/commit | Prepare host instances and publish completed changes                            |
+| Browser rendering   | Style, layout, paint and compositing                                            |
 
 Ordinary path: event → context/priority → `setState` update+lane → queue/staged concurrent update → mark Fiber/ancestor/root lanes → `ensureRootIsScheduled` → root microtask → sync flush or Scheduler callback → `performWorkOnRoot` → render loop → `beginWork`/reconcile/`completeWork` → completed candidate → commit readiness → mutation/current switch/layout → host rendering and passive effects, whose relative order is conditional. [Dispatch][dispatch], [staging][concurrent-queues], [root scheduler][root-scheduler], [work gate][work-gate]
 
@@ -1685,8 +1839,7 @@ function completeUnitOfWork(unit) {
   }
   return null;
 }
-while (nextUnit && !shouldYield())
-  nextUnit = performUnitOfWork(nextUnit);
+while (nextUnit && !shouldYield()) nextUnit = performUnitOfWork(nextUnit);
 ```
 
 Pseudocode omits real props bookkeeping, exceptions, profiling and completion paths that return further work. One unit can include a full component function, reconciliation loop and multiple ancestor completions. React cannot pause an arbitrary component instruction. A 100 ms call blocks for 100 ms. Suspension at `use` throws/unwinds; it does not preserve a paused language stack. [Unit loop][work-loops], [completion][complete-unit]
@@ -1707,14 +1860,14 @@ Call path: `performWorkUntilDeadline` → `flushWork` → `workLoop` → root ca
 
 `root.callbackPriority` is a representative **lane**, not a Scheduler enum. `scheduleTaskForRootDuringMicrotask` maps eligible work to a callback. At execution, `performWorkOnRootViaSchedulerTask` checks pending commits, flushes pending effects, reselects lanes and returns a continuation only if the root still owns the same callback node. [Scheduling][root-task], [callback][root-callback]
 
-| Work | Typical root route | Ordinary render policy |
-| --- | --- | --- |
-| Discrete input/Sync | Sync flush, often without Scheduler callback | Blocking |
-| Continuous input | Scheduler UserBlocking | Blocking lane classification |
-| Default | Scheduler Normal | Blocking lane classification |
-| Transition update/deferred | Usually Scheduler Normal | Concurrent unless forced, expired or exceptional |
-| Retry | Scheduler Normal | Usually concurrent; retry policy matters |
-| Idle/Offscreen | Scheduler Idle | Usually concurrent |
+| Work                       | Typical root route                           | Ordinary render policy                           |
+| -------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| Discrete input/Sync        | Sync flush, often without Scheduler callback | Blocking                                         |
+| Continuous input           | Scheduler UserBlocking                       | Blocking lane classification                     |
+| Default                    | Scheduler Normal                             | Blocking lane classification                     |
+| Transition update/deferred | Usually Scheduler Normal                     | Concurrent unless forced, expired or exceptional |
+| Retry                      | Scheduler Normal                             | Usually concurrent; retry policy matters         |
+| Idle/Offscreen             | Scheduler Idle                               | Usually concurrent                               |
 
 **TransitionLane is not Scheduler LowPriority. Asynchronous callback scheduling is not proof of interruptible rendering.** `performWorkOnRoot` uses `!forceSync && !includesBlockingLane && !includesExpiredLane`, with a prerender exception. Scheduler timeout can force sync in this build. [Event conversion][event-lane], [blocking mask][blocking-lanes], [gate][work-gate]
 
@@ -1724,17 +1877,17 @@ Controlled event cleanup checks restoration needs, calls `flushSyncWork`, then r
 
 31 usable bits; lower bits generally indicate higher priority, with grouping/policy exceptions. Exact zero-based bit layout in this tag:
 
-| Bits | Meaning |
-| --- | --- |
-| 0 / 1 | SyncHydration / Sync |
-| 2 / 3 | InputContinuousHydration / InputContinuous |
-| 4 / 5 | DefaultHydration / Default |
-| 6 / 7 | Experimental Gesture / TransitionHydration |
-| 8–17 | Ten transition-update lanes |
-| 18–21 | Four transition-deferred lanes |
-| 22–25 | Four retry lanes |
-| 26 / 27 | SelectiveHydration / IdleHydration |
-| 28 / 29 / 30 | Idle / Offscreen / Deferred marker |
+| Bits         | Meaning                                    |
+| ------------ | ------------------------------------------ |
+| 0 / 1        | SyncHydration / Sync                       |
+| 2 / 3        | InputContinuousHydration / InputContinuous |
+| 4 / 5        | DefaultHydration / Default                 |
+| 6 / 7        | Experimental Gesture / TransitionHydration |
+| 8–17         | Ten transition-update lanes                |
+| 18–21        | Four transition-deferred lanes             |
+| 22–25        | Four retry lanes                           |
+| 26 / 27      | SelectiveHydration / IdleHydration         |
+| 28 / 29 / 30 | Idle / Offscreen / Deferred marker         |
 
 `a | b`: union; `a & b`: overlap; `lanes & -lanes`: lowest set bit; `a & ~b`: removal; `(set & subset) === subset`: containment, including NoLane=0. [Lane layout/grouping][lane-groups]
 
@@ -1754,19 +1907,22 @@ Proof example: initial 1; A transition `+10`; B Sync `×2`; C transition `+1`. U
 
 ```js
 function rebase(base, updates, lanes) {
-  let state = base, saved = base, skipped = false;
+  let state = base,
+    saved = base,
+    skipped = false;
   const rest = [];
   for (const u of updates) {
     const include = u.lane === 0 || (u.lane & lanes) === u.lane;
     if (!include) {
       if (!skipped) saved = state;
-      skipped = true; rest.push({...u});
+      skipped = true;
+      rest.push({ ...u });
     } else {
       state = u.action(state);
-      if (skipped) rest.push({...u, lane: 0});
+      if (skipped) rest.push({ ...u, lane: 0 });
     }
   }
-  return {state, base: skipped ? saved : state, updates: rest};
+  return { state, base: skipped ? saved : state, updates: rest };
 }
 ```
 
@@ -1799,7 +1955,11 @@ let inTransition = false;
 function startTransitionToy(fn) {
   const previous = inTransition;
   inTransition = true;
-  try { fn(); } finally { inTransition = previous; }
+  try {
+    fn();
+  } finally {
+    inTransition = previous;
+  }
 }
 ```
 
@@ -1827,8 +1987,9 @@ Already revealed content may remain during a suspending transition; new nested b
 
 ```js
 // Concept only: production uses Fiber handlers, internal sentinels and lanes.
-try { return render(); }
-catch (x) {
+try {
+  return render();
+} catch (x) {
   if (!x || typeof x.then !== 'function') throw x;
   x.then(scheduleRetry, scheduleRetry);
   return transition && hasCommittedContent ? previousContent : fallback;
@@ -1857,13 +2018,13 @@ History: stack reconciler → Fiber (React 16) → expiration-time models/Schedu
 
 ## 14. Performance, profiling and teaching constraints
 
-| Bottleneck | Concurrency outcome |
-| --- | --- |
-| One 100 ms component | Cannot slice the call; optimize/offload computation |
-| Many small Fibers | Can yield between units; parent/reconciliation/completion still indivisible |
-| 20,000 DOM insertions | Commit/browser cost remains; reduce node count |
-| Large layout/paint | Browser work dominates; inspect CSS, invalidation and reads |
-| Repeatedly interrupted typing | Better urgent responsiveness can cost more CPU and slower final completion |
+| Bottleneck                    | Concurrency outcome                                                         |
+| ----------------------------- | --------------------------------------------------------------------------- |
+| One 100 ms component          | Cannot slice the call; optimize/offload computation                         |
+| Many small Fibers             | Can yield between units; parent/reconciliation/completion still indivisible |
+| 20,000 DOM insertions         | Commit/browser cost remains; reduce node count                              |
+| Large layout/paint            | Browser work dominates; inspect CSS, invalidation and reads                 |
+| Repeatedly interrupted typing | Better urgent responsiveness can cost more CPU and slower final completion  |
 
 Use memoization, state localization, virtualization, pagination, algorithmic improvement, caching or Workers according to the bottleneck. `flushSync` forces relevant work and reduces flexibility; it is not a general optimization. Responsiveness, final-result latency, CPU and throughput must be measured separately.
 

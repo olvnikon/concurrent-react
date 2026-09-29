@@ -37,6 +37,9 @@ Read the material relevant to the task, not the entire research pack every time.
 - Isolated mechanisms: `examples/mechanisms.mjs`.
 - Existing integrated browser demo: `mini-concurrent-react-demo.html`.
 - Setup findings and proposed next work: `docs/project-setup.md`.
+- Implemented lessons and presenter instructions: `docs/demo-guide.md`.
+- Slide text: `docs/community-call-slides.md`; measured traces:
+  `docs/profiling-walkthrough.md`.
 
 The context pack and dossier also have identical copies in `docs/` at setup.
 Use the root copies as the working reference; avoid creating divergent copies.
@@ -82,9 +85,11 @@ duplication if the standalone demo remains supported.
 
 ## Evidence and profiling
 
-- Existing engine verification: `node examples/verify.mjs` from the project root.
-  `package.json` currently has a placeholder test script; do not claim `npm test`
-  runs the suite until the script is intentionally wired up.
+- `npm test` runs the original engine checks and the isolated model tests.
+  `npm run test:browser` exercises the lesson host in headless Edge.
+- Use `npm run format` and `npm run format:check` for Prettier. Preserve the
+  exclusions in `.prettierignore`: neither reference directory, dependencies,
+  build output, captured evidence, nor immutable source metadata may be formatted.
 - Verify observable ordering and state invariants with controlled clocks/queues
   for toy mechanisms. Avoid exact wall-clock assertions for browser scheduling.
 - Exercise browser demos before describing them as verified. Record browser,

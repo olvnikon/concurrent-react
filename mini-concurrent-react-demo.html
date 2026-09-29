@@ -1,368 +1,821 @@
 <!doctype html>
-<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MiniConcurrentReact · source study</title>
-<style>
-:root{font-family:Inter,system-ui,sans-serif;color:#192630;background:#f3f5f7;font-size:15px}*{box-sizing:border-box}body{margin:0}main{max-width:1320px;margin:auto;padding:36px 28px}h1{font-size:clamp(28px,4vw,44px);letter-spacing:-1.5px;margin:8px 0 12px}h2{font-size:17px;margin:0 0 16px}.eyebrow{font:600 12px ui-monospace,monospace;letter-spacing:2px;color:#24696a}.intro{max-width:850px;line-height:1.6;color:#53616c}a{color:#086667}.controls,.card{background:white;border:1px solid #dce2e5;border-radius:14px;padding:22px}.controls{display:flex;align-items:end;gap:18px;flex-wrap:wrap;margin:24px 0}.field{display:grid;gap:8px}.field.grow{flex:1;min-width:220px}label,.label{font-size:12px;font-weight:650;color:#65717a}input,select,button{font:inherit;padding:12px;border:1px solid #bac9ce;border-radius:7px}button{background:#145e61;border-color:#145e61;color:white;cursor:pointer;font-weight:600}button:disabled{opacity:.5;cursor:wait}button.secondary{color:#145e61;background:white}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:0 0 20px}.stat{background:#e8edef;border-radius:10px;padding:16px}.stat strong{display:block;font:600 28px ui-monospace,monospace;margin-top:6px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.state{display:flex;gap:24px;flex-wrap:wrap;margin:0 0 16px}.value{font:600 21px ui-monospace,monospace;color:#145e61}.rows{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-height:400px;overflow:auto}.row{padding:10px 8px;background:#f2f6f6;border-radius:5px;font:12px ui-monospace,monospace}.trace{height:460px;overflow:auto;font:12px ui-monospace,monospace}.entry{padding:8px 0;border-bottom:1px solid #eef1f3;display:grid;grid-template-columns:64px 112px 1fr;gap:8px}.entry.commit-end{color:#007364}.entry.abandon{color:#b3442e}.entry.yield{color:#966517}.muted{color:#63717b}.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#e4f0ee;font-size:12px}footer{line-height:1.65;color:#55656f;margin-top:24px;font-size:13px}details{margin-top:18px}summary{cursor:pointer;font-weight:650}code{font-family:ui-monospace,monospace}#status{min-height:22px} @media(max-width:850px){.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}main{padding:24px 16px}.rows{grid-template-columns:repeat(2,1fr)}}
-</style>
-<main>
-<div class="eyebrow">REACT 19.3.0 · EDUCATIONAL RECONSTRUCTION</div>
-<h1>Watch a render yield.</h1>
-<p class="intro">Type while 120 small row functions render. The input commits urgently; the results commit only when a draft finishes. A second input can abandon that draft, while its updates remain available for rebasing.</p>
-<div class="controls">
-<div class="field grow"><label for="search">Search value</label><input id="search" placeholder="Type a, then b…" autocomplete="off"></div>
-<div class="field"><label for="cost">CPU per row</label><select id="cost"><option value="0.5">0.5 ms</option><option value="1" selected>1 ms</option><option value="3">3 ms</option></select></div>
-<div class="field"><label for="blocking">Indivisible work</label><select id="blocking"><option value="no">Small row functions</option><option value="yes">First row blocks 100 ms</option></select></div>
-<button id="scripted">Run a → ab</button><button class="secondary" id="clear">Clear trace</button>
-</div>
-<div class="stats"><div class="stat"><span class="label">Render attempts</span><strong id="renders">0</strong></div><div class="stat"><span class="label">Yields</span><strong id="yields">0</strong></div><div class="stat"><span class="label">Abandoned drafts</span><strong id="abandons">0</strong></div><div class="stat"><span class="label">Commits</span><strong id="commits">0</strong></div></div>
-<div class="grid">
-<section class="card"><h2>Committed UI <span class="pill" id="status">Ready</span></h2><div class="state"><div><div class="label">Input state</div><span class="value" id="input-state">""</span></div><div><div class="label">Results query</div><span class="value" id="query-state">""</span></div><div><div class="label">Animation-frame callbacks</div><span class="value" id="frames">0</span></div></div><div class="rows" id="rows"></div></section>
-<section class="card"><h2>Scheduling trace</h2><div class="muted" style="font-size:12px;margin-bottom:12px">Time · event · render generation / state</div><div class="trace" id="trace" aria-live="off"></div></section>
-</div>
-<details><summary>What this demonstrates—and what is simplified</summary><p class="intro">This is a custom teaching renderer, not React. It uses a MessageChannel host scheduler, microtask root scheduling, two toy lane bits, an explicit Fiber traversal, current/alternate objects, a persistent update queue, query-only Results memoization, and a synchronous snapshot commit. It omits hooks, real DOM reconciliation, errors, nested Suspense, hydration, lane expiration, multiple roots, and View Transitions. Its 5 ms budget is a checkpoint threshold, not a maximum task duration.</p><p class="intro">The trace is diagnostic UI outside the renderer. It may update while the renderer is paused. Result cards change only during a commit. The scripted button injects the second update in a later task after the first transition yield; that makes interruption reproducible without relying on typing speed. Pressing keys yourself exercises browser input tasks.</p></details>
-<footer>Read alongside <strong>Concurrent React Internals — Research Dossier</strong>. Open the browser Performance panel to inspect tasks and <code>mini-react:</code> User Timing marks. Select the 100 ms option to see a single function overshoot the scheduler budget.</footer>
-</main>
-<script type="module">
-// Educational reconstruction, not React source or a compatible renderer.
-// Fixed Search/Input/Results/Row tree; one root update queue; one transition lane.
-// See README.md for deliberate differences from React 19.3.0.
-export const NoLane = 0, SyncLane = 1, TransitionLane = 2;
-export const mergeLanes = (a, b) => a | b;
-export const getHighestPriorityLane = lanes => lanes & -lanes;
-export function getNextLanes(root) {
-  return getHighestPriorityLane(root.pendingLanes & ~root.suspendedLanes);
-}
-let transitionDepth = 0;
-export function startTransition(action) {
-  transitionDepth++;
-  try { action(); } finally { transitionDepth--; }
-}
-
-// Pure queue processing. Calling this never consumes committed updates.
-export function processQueue(baseState, updates, renderLanes) {
-  let state = baseState, nextBaseState = baseState, skipped = false;
-  const baseQueue = [];
-  for (const update of updates) {
-    const include = update.lane === NoLane ||
-      (update.lane & renderLanes) === update.lane;
-    if (!include) {
-      if (!skipped) nextBaseState = state;
-      skipped = true;
-      baseQueue.push({...update});
-    } else {
-      state = update.action(state);
-      if (skipped) baseQueue.push({...update, lane: NoLane});
+<html lang="en">
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MiniConcurrentReact · source study</title>
+  <style>
+    :root {
+      font-family: Inter, system-ui, sans-serif;
+      color: #192630;
+      background: #f3f5f7;
+      font-size: 15px;
     }
-  }
-  return {state, baseState: skipped ? nextBaseState : state, baseQueue};
-}
-
-// 43 lines: FIFO host scheduler with cancellation and continuations.
-// Deliberately omits React Scheduler's heaps, deadlines and five priorities.
-export function createScheduler({
-  now = () => performance.now(),
-  postTask, budgetMs = 5,
-} = {}) {
-  let close = () => {};
-  if (!postTask) {
-    const channel = new MessageChannel();
-    const posted = [];
-    channel.port1.onmessage = () => posted.shift()?.();
-    postTask = callback => { posted.push(callback); channel.port2.postMessage(0); };
-    close = () => { channel.port1.close(); channel.port2.close(); };
-  }
-  const queue = [];
-  let posted = false, deadline = 0;
-  const shouldYield = () => now() >= deadline;
-  function request() {
-    if (!posted && queue.length) { posted = true; postTask(workLoop); }
-  }
-  function workLoop() {
-    posted = false;
-    deadline = now() + budgetMs;
-    try {
-      while (queue.length) {
-        const task = queue[0];
-        if (!task.callback) { queue.shift(); continue; }
-        if (shouldYield()) break;
-        const callback = task.callback;
-        task.callback = null;
-        const continuation = callback();
-        if (typeof continuation === 'function' && !task.cancelled) {
-          task.callback = continuation;
-          break; // A continuation always gets a fresh host task.
-        }
-        queue.shift();
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+    }
+    main {
+      max-width: 1320px;
+      margin: auto;
+      padding: 36px 28px;
+    }
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -1.5px;
+      margin: 8px 0 12px;
+    }
+    h2 {
+      font-size: 17px;
+      margin: 0 0 16px;
+    }
+    .eyebrow {
+      font:
+        600 12px ui-monospace,
+        monospace;
+      letter-spacing: 2px;
+      color: #24696a;
+    }
+    .intro {
+      max-width: 850px;
+      line-height: 1.6;
+      color: #53616c;
+    }
+    a {
+      color: #086667;
+    }
+    .controls,
+    .card {
+      background: white;
+      border: 1px solid #dce2e5;
+      border-radius: 14px;
+      padding: 22px;
+    }
+    .controls {
+      display: flex;
+      align-items: end;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin: 24px 0;
+    }
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+    .field.grow {
+      flex: 1;
+      min-width: 220px;
+    }
+    label,
+    .label {
+      font-size: 12px;
+      font-weight: 650;
+      color: #65717a;
+    }
+    input,
+    select,
+    button {
+      font: inherit;
+      padding: 12px;
+      border: 1px solid #bac9ce;
+      border-radius: 7px;
+    }
+    button {
+      background: #145e61;
+      border-color: #145e61;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
+    button.secondary {
+      color: #145e61;
+      background: white;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 0 0 20px;
+    }
+    .stat {
+      background: #e8edef;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .stat strong {
+      display: block;
+      font:
+        600 28px ui-monospace,
+        monospace;
+      margin-top: 6px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .state {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin: 0 0 16px;
+    }
+    .value {
+      font:
+        600 21px ui-monospace,
+        monospace;
+      color: #145e61;
+    }
+    .rows {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      max-height: 400px;
+      overflow: auto;
+    }
+    .row {
+      padding: 10px 8px;
+      background: #f2f6f6;
+      border-radius: 5px;
+      font:
+        12px ui-monospace,
+        monospace;
+    }
+    .trace {
+      height: 460px;
+      overflow: auto;
+      font:
+        12px ui-monospace,
+        monospace;
+    }
+    .entry {
+      padding: 8px 0;
+      border-bottom: 1px solid #eef1f3;
+      display: grid;
+      grid-template-columns: 64px 112px 1fr;
+      gap: 8px;
+    }
+    .entry.commit-end {
+      color: #007364;
+    }
+    .entry.abandon {
+      color: #b3442e;
+    }
+    .entry.yield {
+      color: #966517;
+    }
+    .muted {
+      color: #63717b;
+    }
+    .pill {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      background: #e4f0ee;
+      font-size: 12px;
+    }
+    footer {
+      line-height: 1.65;
+      color: #55656f;
+      margin-top: 24px;
+      font-size: 13px;
+    }
+    details {
+      margin-top: 18px;
+    }
+    summary {
+      cursor: pointer;
+      font-weight: 650;
+    }
+    code {
+      font-family: ui-monospace, monospace;
+    }
+    #status {
+      min-height: 22px;
+    }
+    @media (max-width: 850px) {
+      .grid {
+        grid-template-columns: 1fr;
       }
-    } finally { request(); }
-  }
-  function schedule(callback) {
-    const task = {callback, cancelled: false};
-    queue.push(task); request(); return task;
-  }
-  function cancel(task) { if (task) { task.cancelled = true; task.callback = null; } }
-  return {schedule, cancel, shouldYield, close};
-}
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      main {
+        padding: 24px 16px;
+      }
+      .rows {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+  <main>
+    <div class="eyebrow">REACT 19.3.0 · EDUCATIONAL RECONSTRUCTION</div>
+    <h1>Watch a render yield.</h1>
+    <p class="intro">
+      Type while 120 small row functions render. The input commits urgently; the results commit only
+      when a draft finishes. A second input can abandon that draft, while its updates remain
+      available for rebasing.
+    </p>
+    <div class="controls">
+      <div class="field grow">
+        <label for="search">Search value</label
+        ><input id="search" placeholder="Type a, then b…" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="cost">CPU per row</label
+        ><select id="cost">
+          <option value="0.5">0.5 ms</option>
+          <option value="1" selected>1 ms</option>
+          <option value="3">3 ms</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="blocking">Indivisible work</label
+        ><select id="blocking">
+          <option value="no">Small row functions</option>
+          <option value="yes">First row blocks 100 ms</option>
+        </select>
+      </div>
+      <button id="scripted">Run a → ab</button
+      ><button class="secondary" id="clear">Clear trace</button>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <span class="label">Render attempts</span><strong id="renders">0</strong>
+      </div>
+      <div class="stat"><span class="label">Yields</span><strong id="yields">0</strong></div>
+      <div class="stat">
+        <span class="label">Abandoned drafts</span><strong id="abandons">0</strong>
+      </div>
+      <div class="stat"><span class="label">Commits</span><strong id="commits">0</strong></div>
+    </div>
+    <div class="grid">
+      <section class="card">
+        <h2>Committed UI <span class="pill" id="status">Ready</span></h2>
+        <div class="state">
+          <div>
+            <div class="label">Input state</div>
+            <span class="value" id="input-state">""</span>
+          </div>
+          <div>
+            <div class="label">Results query</div>
+            <span class="value" id="query-state">""</span>
+          </div>
+          <div>
+            <div class="label">Animation-frame callbacks</div>
+            <span class="value" id="frames">0</span>
+          </div>
+        </div>
+        <div class="rows" id="rows"></div>
+      </section>
+      <section class="card">
+        <h2>Scheduling trace</h2>
+        <div class="muted" style="font-size: 12px; margin-bottom: 12px">
+          Time · event · render generation / state
+        </div>
+        <div class="trace" id="trace" aria-live="off"></div>
+      </section>
+    </div>
+    <details>
+      <summary>What this demonstrates—and what is simplified</summary>
+      <p class="intro">
+        This is a custom teaching renderer, not React. It uses a MessageChannel host scheduler,
+        microtask root scheduling, two toy lane bits, an explicit Fiber traversal, current/alternate
+        objects, a persistent update queue, query-only Results memoization, and a synchronous
+        snapshot commit. It omits hooks, real DOM reconciliation, errors, nested Suspense,
+        hydration, lane expiration, multiple roots, and View Transitions. Its 5 ms budget is a
+        checkpoint threshold, not a maximum task duration.
+      </p>
+      <p class="intro">
+        The trace is diagnostic UI outside the renderer. It may update while the renderer is paused.
+        Result cards change only during a commit. The scripted button injects the second update in a
+        later task after the first transition yield; that makes interruption reproducible without
+        relying on typing speed. Pressing keys yourself exercises browser input tasks.
+      </p>
+    </details>
+    <footer>
+      Read alongside <strong>Concurrent React Internals — Research Dossier</strong>. Open the
+      browser Performance panel to inspect tasks and <code>mini-react:</code> User Timing marks.
+      Select the 100 ms option to see a single function overshoot the scheduler budget.
+    </footer>
+  </main>
+  <script type="module">
+    // Educational reconstruction, not React source or a compatible renderer.
+    // Fixed Search/Input/Results/Row tree; one root update queue; one transition lane.
+    // See README.md for deliberate differences from React 19.3.0.
+    export const NoLane = 0,
+      SyncLane = 1,
+      TransitionLane = 2;
+    export const mergeLanes = (a, b) => a | b;
+    export const getHighestPriorityLane = (lanes) => lanes & -lanes;
+    export function getNextLanes(root) {
+      return getHighestPriorityLane(root.pendingLanes & ~root.suspendedLanes);
+    }
+    let transitionDepth = 0;
+    export function startTransition(action) {
+      transitionDepth++;
+      try {
+        action();
+      } finally {
+        transitionDepth--;
+      }
+    }
 
-export function createFiber(tag, pendingProps, key = null) {
-  return {
-    tag, key, elementType: tag, type: tag, stateNode: null,
-    return: null, child: null, sibling: null, index: 0, ref: null,
-    pendingProps, memoizedProps: null, memoizedState: null,
-    updateQueue: null, dependencies: null, flags: 0, subtreeFlags: 0,
-    deletions: null, lanes: 0, childLanes: 0, alternate: null,
-    output: null, bailedOut: false,
-  };
-}
-export function createWorkInProgress(current, props) {
-  let work = current.alternate;
-  if (!work) {
-    work = createFiber(current.tag, props, current.key);
-    work.alternate = current; current.alternate = work;
-  }
-  Object.assign(work, {
-    pendingProps: props, memoizedProps: current.memoizedProps,
-    memoizedState: current.memoizedState, output: current.output,
-    stateNode: current.stateNode, updateQueue: current.updateQueue,
-    child: current.child, lanes: current.lanes, childLanes: current.childLanes,
-    flags: 0, subtreeFlags: 0, deletions: null, bailedOut: false,
-    return: null, sibling: null,
-  });
-  return work;
-}
-function linkChildren(parent, descriptions) {
-  let old = parent.alternate?.child ?? null, previous = null;
-  parent.child = null;
-  for (let i = 0; i < descriptions.length; i++) {
-    const [tag, props, key = null] = descriptions[i];
-    const same = old && old.tag === tag && old.key === key;
-    const child = same ? createWorkInProgress(old, props) : createFiber(tag, props, key);
-    child.return = parent; child.index = i;
-    if (previous) previous.sibling = child; else parent.child = child;
-    previous = child;
-    old = old?.sibling ?? null;
-  }
-}
-export function beginWork(fiber, root) {
-  const props = fiber.pendingProps;
-  root.emit('begin', {fiber: fiber.tag, key: fiber.key});
-  switch (fiber.tag) {
-    case 'Search':
-      linkChildren(fiber, [['Input', {value: props.input}], ['Results', {query: props.query}]]);
-      return fiber.child;
-    case 'Input': fiber.output = props.value; return null;
-    case 'Results': {
-      // Explicit query-only memoization, analogous to memo(SlowResults).
-      const old = fiber.alternate;
-      if (old && old.memoizedProps.query === props.query && root.memoResults) {
-        fiber.bailedOut = true;
-        fiber.child = old.child; fiber.output = old.output;
-        root.emit('bailout', {fiber: 'Results', query: props.query});
+    // Pure queue processing. Calling this never consumes committed updates.
+    export function processQueue(baseState, updates, renderLanes) {
+      let state = baseState,
+        nextBaseState = baseState,
+        skipped = false;
+      const baseQueue = [];
+      for (const update of updates) {
+        const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
+        if (!include) {
+          if (!skipped) nextBaseState = state;
+          skipped = true;
+          baseQueue.push({ ...update });
+        } else {
+          state = update.action(state);
+          if (skipped) baseQueue.push({ ...update, lane: NoLane });
+        }
+      }
+      return { state, baseState: skipped ? nextBaseState : state, baseQueue };
+    }
+
+    // 43 lines: FIFO host scheduler with cancellation and continuations.
+    // Deliberately omits React Scheduler's heaps, deadlines and five priorities.
+    export function createScheduler({
+      now = () => performance.now(),
+      postTask,
+      budgetMs = 5,
+    } = {}) {
+      let close = () => {};
+      if (!postTask) {
+        const channel = new MessageChannel();
+        const posted = [];
+        channel.port1.onmessage = () => posted.shift()?.();
+        postTask = (callback) => {
+          posted.push(callback);
+          channel.port2.postMessage(0);
+        };
+        close = () => {
+          channel.port1.close();
+          channel.port2.close();
+        };
+      }
+      const queue = [];
+      let posted = false,
+        deadline = 0;
+      const shouldYield = () => now() >= deadline;
+      function request() {
+        if (!posted && queue.length) {
+          posted = true;
+          postTask(workLoop);
+        }
+      }
+      function workLoop() {
+        posted = false;
+        deadline = now() + budgetMs;
+        try {
+          while (queue.length) {
+            const task = queue[0];
+            if (!task.callback) {
+              queue.shift();
+              continue;
+            }
+            if (shouldYield()) break;
+            const callback = task.callback;
+            task.callback = null;
+            const continuation = callback();
+            if (typeof continuation === 'function' && !task.cancelled) {
+              task.callback = continuation;
+              break; // A continuation always gets a fresh host task.
+            }
+            queue.shift();
+          }
+        } finally {
+          request();
+        }
+      }
+      function schedule(callback) {
+        const task = { callback, cancelled: false };
+        queue.push(task);
+        request();
+        return task;
+      }
+      function cancel(task) {
+        if (task) {
+          task.cancelled = true;
+          task.callback = null;
+        }
+      }
+      return { schedule, cancel, shouldYield, close };
+    }
+
+    export function createFiber(tag, pendingProps, key = null) {
+      return {
+        tag,
+        key,
+        elementType: tag,
+        type: tag,
+        stateNode: null,
+        return: null,
+        child: null,
+        sibling: null,
+        index: 0,
+        ref: null,
+        pendingProps,
+        memoizedProps: null,
+        memoizedState: null,
+        updateQueue: null,
+        dependencies: null,
+        flags: 0,
+        subtreeFlags: 0,
+        deletions: null,
+        lanes: 0,
+        childLanes: 0,
+        alternate: null,
+        output: null,
+        bailedOut: false,
+      };
+    }
+    export function createWorkInProgress(current, props) {
+      let work = current.alternate;
+      if (!work) {
+        work = createFiber(current.tag, props, current.key);
+        work.alternate = current;
+        current.alternate = work;
+      }
+      Object.assign(work, {
+        pendingProps: props,
+        memoizedProps: current.memoizedProps,
+        memoizedState: current.memoizedState,
+        output: current.output,
+        stateNode: current.stateNode,
+        updateQueue: current.updateQueue,
+        child: current.child,
+        lanes: current.lanes,
+        childLanes: current.childLanes,
+        flags: 0,
+        subtreeFlags: 0,
+        deletions: null,
+        bailedOut: false,
+        return: null,
+        sibling: null,
+      });
+      return work;
+    }
+    function linkChildren(parent, descriptions) {
+      let old = parent.alternate?.child ?? null,
+        previous = null;
+      parent.child = null;
+      for (let i = 0; i < descriptions.length; i++) {
+        const [tag, props, key = null] = descriptions[i];
+        const same = old && old.tag === tag && old.key === key;
+        const child = same ? createWorkInProgress(old, props) : createFiber(tag, props, key);
+        child.return = parent;
+        child.index = i;
+        if (previous) previous.sibling = child;
+        else parent.child = child;
+        previous = child;
+        old = old?.sibling ?? null;
+      }
+    }
+    export function beginWork(fiber, root) {
+      const props = fiber.pendingProps;
+      root.emit('begin', { fiber: fiber.tag, key: fiber.key });
+      switch (fiber.tag) {
+        case 'Search':
+          linkChildren(fiber, [
+            ['Input', { value: props.input }],
+            ['Results', { query: props.query }],
+          ]);
+          return fiber.child;
+        case 'Input':
+          fiber.output = props.value;
+          return null;
+        case 'Results': {
+          // Explicit query-only memoization, analogous to memo(SlowResults).
+          const old = fiber.alternate;
+          if (old && old.memoizedProps.query === props.query && root.memoResults) {
+            fiber.bailedOut = true;
+            fiber.child = old.child;
+            fiber.output = old.output;
+            root.emit('bailout', { fiber: 'Results', query: props.query });
+            return null;
+          }
+          // Like React reconciliation, this loop itself cannot yield.
+          linkChildren(
+            fiber,
+            Array.from({ length: root.rowCount }, (_, i) => [
+              'Row',
+              { query: props.query, index: i },
+              String(i),
+            ]),
+          );
+          return fiber.child;
+        }
+        case 'Row':
+          // One whole call is indivisible from the scheduler's perspective.
+          fiber.output = root.renderRow(props);
+          return null;
+        default:
+          throw new Error('Unknown educational Fiber tag');
+      }
+    }
+    export function completeWork(fiber, root) {
+      if (fiber.tag === 'Results' && !fiber.bailedOut) {
+        const rows = [];
+        for (let child = fiber.child; child; child = child.sibling) rows.push(child.output);
+        fiber.output = rows;
+      }
+      if (fiber.tag === 'Search')
+        fiber.output = {
+          input: fiber.child.output,
+          query: fiber.pendingProps.query,
+          rows: fiber.child.sibling.output,
+        };
+      // Model an effect marker; the host adapter applies the final snapshot at commit.
+      fiber.flags = fiber.output !== fiber.alternate?.output ? 1 : 0;
+      if (!fiber.bailedOut) {
+        for (let child = fiber.child; child; child = child.sibling)
+          fiber.subtreeFlags |= child.flags | child.subtreeFlags;
+      }
+      fiber.memoizedProps = fiber.pendingProps;
+      root.emit('complete', { fiber: fiber.tag, key: fiber.key });
+    }
+    export function completeUnitOfWork(unit, root) {
+      let fiber = unit;
+      while (fiber) {
+        completeWork(fiber, root);
+        if (fiber.sibling) return fiber.sibling;
+        fiber = fiber.return;
+      }
+      return null;
+    }
+    export function performUnitOfWork(unit, root) {
+      return beginWork(unit, root) || completeUnitOfWork(unit, root);
+    }
+
+    export function createMiniConcurrentRoot({
+      scheduler = createScheduler(),
+      queueMicrotask: enqueueMicrotask = globalThis.queueMicrotask,
+      now = () => performance.now(),
+      rowCount = 120,
+      renderRow = ({ query, index }) => `${query || 'empty'} · row ${index + 1}`,
+      commit = () => {},
+      onEvent = () => {},
+      memoResults = true,
+    } = {}) {
+      const initial = { input: '', query: '' };
+      const root = {
+        current: createFiber('Search', initial),
+        baseState: initial,
+        baseQueue: [],
+        pending: [],
+        pendingLanes: 0,
+        suspendedLanes: 0,
+        draft: null,
+        nextUnit: null,
+        callback: null,
+        microtaskScheduled: false,
+        rowCount,
+        renderRow,
+        memoResults,
+        generation: 0,
+        committedGeneration: 0,
+        lastSnapshot: null,
+        emit(type, detail = {}) {
+          onEvent({ type, time: now(), generation: root.generation, ...detail });
+        },
+      };
+      function refreshLanes() {
+        root.pendingLanes = [...root.baseQueue, ...root.pending].reduce((n, u) => n | u.lane, 0);
+      }
+      function prepare(lanes) {
+        if (root.draft) root.emit('abandon', { lanes: root.draft.lanes });
+        const pendingCount = root.pending.length;
+        const queueResult = processQueue(
+          root.baseState,
+          [...root.baseQueue, ...root.pending.slice(0, pendingCount)],
+          lanes,
+        );
+        root.generation++;
+        const work = createWorkInProgress(root.current, queueResult.state);
+        root.draft = { work, lanes, queueResult, pendingCount };
+        root.nextUnit = work;
+        root.emit('render-start', { lanes, state: queueResult.state });
+      }
+      function commitRoot() {
+        const draft = root.draft;
+        // No yields or awaits within this synchronous mutation adapter.
+        root.emit('commit-start', { lanes: draft.lanes });
+        commit(draft.work.output);
+        root.current = draft.work;
+        root.baseState = draft.queueResult.baseState;
+        root.baseQueue = draft.queueResult.baseQueue;
+        root.pending.splice(0, draft.pendingCount); // Keep updates received after render began.
+        root.lastSnapshot = draft.work.output;
+        root.committedGeneration = root.generation;
+        root.draft = null;
+        root.nextUnit = null;
+        refreshLanes();
+        root.emit('commit-end', { lanes: draft.lanes, state: root.current.pendingProps });
+      }
+      function perform(lanes, sync) {
+        if (!root.draft || root.draft.lanes !== lanes) prepare(lanes);
+        while (root.nextUnit && (sync || !scheduler.shouldYield()))
+          root.nextUnit = performUnitOfWork(root.nextUnit, root);
+        if (!root.nextUnit) commitRoot();
+        else root.emit('yield', { lanes, next: root.nextUnit.tag });
+      }
+      function concurrentCallback() {
+        const lanes = getNextLanes(root);
+        if (!lanes) {
+          root.callback = null;
+          return null;
+        }
+        perform(lanes, lanes === SyncLane);
+        if (root.draft) return concurrentCallback;
+        root.callback = null;
+        ensureRootIsScheduled();
         return null;
       }
-      // Like React reconciliation, this loop itself cannot yield.
-      linkChildren(fiber, Array.from({length: root.rowCount}, (_, i) =>
-        ['Row', {query: props.query, index: i}, String(i)]));
-      return fiber.child;
+      function processRootScheduleInMicrotask() {
+        root.microtaskScheduled = false;
+        if (getNextLanes(root) === SyncLane) {
+          scheduler.cancel(root.callback);
+          root.callback = null;
+          perform(SyncLane, true);
+        }
+        if (getNextLanes(root) && !root.callback)
+          root.callback = scheduler.schedule(concurrentCallback);
+      }
+      function ensureRootIsScheduled() {
+        if (!root.microtaskScheduled) {
+          root.microtaskScheduled = true;
+          enqueueMicrotask(processRootScheduleInMicrotask);
+        }
+      }
+      function setState(action, lane = transitionDepth ? TransitionLane : SyncLane) {
+        root.pending.push({ action, lane });
+        refreshLanes();
+        root.emit('update', { lane });
+        ensureRootIsScheduled();
+      }
+      function input(value) {
+        root.emit('input', { value });
+        setState((s) => ({ ...s, input: value }));
+        startTransition(() => setState((s) => ({ ...s, query: value })));
+      }
+      function mount() {
+        setState((s) => s, SyncLane);
+      }
+      return { root, input, setState, mount, ensureRootIsScheduled, scheduler };
     }
-    case 'Row':
-      // One whole call is indivisible from the scheduler's perspective.
-      fiber.output = root.renderRow(props);
-      return null;
-    default: throw new Error('Unknown educational Fiber tag');
-  }
-}
-export function completeWork(fiber, root) {
-  if (fiber.tag === 'Results' && !fiber.bailedOut) {
-    const rows = [];
-    for (let child = fiber.child; child; child = child.sibling) rows.push(child.output);
-    fiber.output = rows;
-  }
-  if (fiber.tag === 'Search') fiber.output = {
-    input: fiber.child.output,
-    query: fiber.pendingProps.query,
-    rows: fiber.child.sibling.output,
-  };
-  // Model an effect marker; the host adapter applies the final snapshot at commit.
-  fiber.flags = fiber.output !== fiber.alternate?.output ? 1 : 0;
-  if (!fiber.bailedOut) {
-    for (let child = fiber.child; child; child = child.sibling)
-      fiber.subtreeFlags |= child.flags | child.subtreeFlags;
-  }
-  fiber.memoizedProps = fiber.pendingProps;
-  root.emit('complete', {fiber: fiber.tag, key: fiber.key});
-}
-export function completeUnitOfWork(unit, root) {
-  let fiber = unit;
-  while (fiber) {
-    completeWork(fiber, root);
-    if (fiber.sibling) return fiber.sibling;
-    fiber = fiber.return;
-  }
-  return null;
-}
-export function performUnitOfWork(unit, root) {
-  return beginWork(unit, root) || completeUnitOfWork(unit, root);
-}
 
-export function createMiniConcurrentRoot({
-  scheduler = createScheduler(), queueMicrotask: enqueueMicrotask = globalThis.queueMicrotask,
-  now = () => performance.now(), rowCount = 120,
-  renderRow = ({query, index}) => `${query || 'empty'} · row ${index + 1}`,
-  commit = () => {}, onEvent = () => {}, memoResults = true,
-} = {}) {
-  const initial = {input: '', query: ''};
-  const root = {
-    current: createFiber('Search', initial), baseState: initial, baseQueue: [], pending: [],
-    pendingLanes: 0, suspendedLanes: 0, draft: null, nextUnit: null,
-    callback: null, microtaskScheduled: false, rowCount, renderRow, memoResults,
-    generation: 0, committedGeneration: 0, lastSnapshot: null,
-    emit(type, detail = {}) { onEvent({type, time: now(), generation: root.generation, ...detail}); },
-  };
-  function refreshLanes() {
-    root.pendingLanes = [...root.baseQueue, ...root.pending].reduce((n, u) => n | u.lane, 0);
-  }
-  function prepare(lanes) {
-    if (root.draft) root.emit('abandon', {lanes: root.draft.lanes});
-    const pendingCount = root.pending.length;
-    const queueResult = processQueue(root.baseState,
-      [...root.baseQueue, ...root.pending.slice(0, pendingCount)], lanes);
-    root.generation++;
-    const work = createWorkInProgress(root.current, queueResult.state);
-    root.draft = {work, lanes, queueResult, pendingCount};
-    root.nextUnit = work;
-    root.emit('render-start', {lanes, state: queueResult.state});
-  }
-  function commitRoot() {
-    const draft = root.draft;
-    // No yields or awaits within this synchronous mutation adapter.
-    root.emit('commit-start', {lanes: draft.lanes});
-    commit(draft.work.output);
-    root.current = draft.work;
-    root.baseState = draft.queueResult.baseState;
-    root.baseQueue = draft.queueResult.baseQueue;
-    root.pending.splice(0, draft.pendingCount); // Keep updates received after render began.
-    root.lastSnapshot = draft.work.output;
-    root.committedGeneration = root.generation;
-    root.draft = null; root.nextUnit = null;
-    refreshLanes();
-    root.emit('commit-end', {lanes: draft.lanes, state: root.current.pendingProps});
-  }
-  function perform(lanes, sync) {
-    if (!root.draft || root.draft.lanes !== lanes) prepare(lanes);
-    while (root.nextUnit && (sync || !scheduler.shouldYield()))
-      root.nextUnit = performUnitOfWork(root.nextUnit, root);
-    if (!root.nextUnit) commitRoot();
-    else root.emit('yield', {lanes, next: root.nextUnit.tag});
-  }
-  function concurrentCallback() {
-    const lanes = getNextLanes(root);
-    if (!lanes) { root.callback = null; return null; }
-    perform(lanes, lanes === SyncLane);
-    if (root.draft) return concurrentCallback;
-    root.callback = null;
-    ensureRootIsScheduled();
-    return null;
-  }
-  function processRootScheduleInMicrotask() {
-    root.microtaskScheduled = false;
-    if (getNextLanes(root) === SyncLane) {
-      scheduler.cancel(root.callback); root.callback = null;
-      perform(SyncLane, true);
+    const $ = (id) => document.getElementById(id);
+    const stats = { renders: 0, yields: 0, abandons: 0, commits: 0 };
+    const trace = [];
+    const start = performance.now();
+    let app,
+      scripted = false,
+      injectSecond = false,
+      frames = 0,
+      traceDirty = true;
+    let scriptedTimer;
+    const cost = () => Number($('cost').value);
+    const spin = (ms) => {
+      const end = performance.now() + ms;
+      while (performance.now() < end) {}
+    };
+    function finishScriptedReplay() {
+      // Cancel the next scripted input even if its timer is already queued.
+      clearTimeout(scriptedTimer);
+      scripted = false;
+      injectSecond = false;
+      $('scripted').disabled = false;
     }
-    if (getNextLanes(root) && !root.callback)
-      root.callback = scheduler.schedule(concurrentCallback);
-  }
-  function ensureRootIsScheduled() {
-    if (!root.microtaskScheduled) {
-      root.microtaskScheduled = true;
-      enqueueMicrotask(processRootScheduleInMicrotask);
+    function onEvent(e) {
+      if (
+        e.type === 'begin' ||
+        e.type === 'complete' ||
+        e.type === 'update' ||
+        e.type === 'bailout'
+      )
+        return;
+      const key = {
+        'render-start': 'renders',
+        yield: 'yields',
+        abandon: 'abandons',
+        'commit-end': 'commits',
+      }[e.type];
+      if (key) stats[key]++;
+      trace.push(e);
+      if (trace.length > 240) trace.shift();
+      traceDirty = true;
+      performance.mark(`mini-react:${e.type}:g${e.generation}`);
+      if (e.type === 'yield' && injectSecond) {
+        injectSecond = false;
+        scriptedTimer = setTimeout(() => {
+          $('search').value = 'ab';
+          app.input('ab');
+        }, 0);
+      }
+      if (e.type === 'commit-end' && e.state.query === 'ab' && scripted) {
+        finishScriptedReplay();
+      }
     }
-  }
-  function setState(action, lane = transitionDepth ? TransitionLane : SyncLane) {
-    root.pending.push({action, lane}); refreshLanes();
-    root.emit('update', {lane}); ensureRootIsScheduled();
-  }
-  function input(value) {
-    root.emit('input', {value});
-    setState(s => ({...s, input: value}));
-    startTransition(() => setState(s => ({...s, query: value})));
-  }
-  function mount() { setState(s => s, SyncLane); }
-  return {root, input, setState, mount, ensureRootIsScheduled, scheduler};
-}
-
-const $ = id => document.getElementById(id);
-const stats = {renders:0,yields:0,abandons:0,commits:0};
-const trace = []; const start = performance.now();
-let app, scripted=false, injectSecond=false, frames=0, traceDirty=true;
-let scriptedTimer;
-const cost = () => Number($('cost').value);
-const spin = ms => { const end=performance.now()+ms; while(performance.now()<end){} };
-function finishScriptedReplay() {
-  // Cancel the next scripted input even if its timer is already queued.
-  clearTimeout(scriptedTimer);
-  scripted=false; injectSecond=false; $('scripted').disabled=false;
-}
-function onEvent(e) {
-  if(e.type==='begin'||e.type==='complete'||e.type==='update'||e.type==='bailout')return;
-  const key = {'render-start':'renders','yield':'yields','abandon':'abandons','commit-end':'commits'}[e.type];
-  if(key)stats[key]++;
-  trace.push(e); if(trace.length>240)trace.shift(); traceDirty=true;
-  performance.mark(`mini-react:${e.type}:g${e.generation}`);
-  if(e.type==='yield' && injectSecond) {
-    injectSecond=false;
-    scriptedTimer=setTimeout(()=>{ $('search').value='ab'; app.input('ab'); },0);
-  }
-  if(e.type==='commit-end' && e.state.query==='ab' && scripted){
-    finishScriptedReplay();
-  }
-}
-app=createMiniConcurrentRoot({onEvent,rowCount:120, renderRow:({query,index})=>{
-  if(query)spin(index===0 && $('blocking').value==='yes' ? 100 : cost());
-  return `${query || 'empty'} · row ${String(index+1).padStart(3,'0')}`;
-}, commit:snapshot=>{
-  if($('search').value!==snapshot.input)$('search').value=snapshot.input;
-  $('input-state').textContent=JSON.stringify(snapshot.input);
-  $('query-state').textContent=JSON.stringify(snapshot.query);
-  const existingQuery=$('rows').dataset.query;
-  if(existingQuery!==snapshot.query){
-    const fragment=document.createDocumentFragment();
-    for(const text of snapshot.rows){const div=document.createElement('div');div.className='row';div.textContent=text;fragment.append(div);}
-    $('rows').replaceChildren(fragment);$('rows').dataset.query=snapshot.query;
-  }
-}});
-$('search').addEventListener('input',e=>{
-  // Real input takes ownership from the scripted replay.
-  if(scripted)finishScriptedReplay();
-  app.input(e.target.value);
-});
-$('clear').addEventListener('click',()=>{trace.length=0;Object.keys(stats).forEach(k=>stats[k]=0);traceDirty=true;});
-$('scripted').addEventListener('click',()=>{
-  if(app.root.pendingLanes)return;
-  scripted=true; $('scripted').disabled=true;
-  // Reset in an urgent update, then start the scripted pair in a fresh task.
-  app.setState(()=>({input:'',query:''}));
-  scriptedTimer=setTimeout(()=>{injectSecond=true; $('search').value='a'; app.input('a');},0);
-});
-function refresh(){
-  $('frames').textContent=String(++frames);
-  if(traceDirty){
-    traceDirty=false;Object.keys(stats).forEach(k=>$(k).textContent=stats[k]);
-    const fragment=document.createDocumentFragment();
-    for(const e of trace){
-      const row=document.createElement('div');row.className='entry '+e.type;
-      const detail=e.state?JSON.stringify(e.state):e.value?JSON.stringify(e.value):e.next?`next: ${e.next}`:`g${e.generation}`;
-      for(const text of [(e.time-start).toFixed(1),e.type,`g${e.generation} · ${detail}`]){
-        const cell=document.createElement('span');cell.textContent=text;row.append(cell);
-      } fragment.append(row);
+    app = createMiniConcurrentRoot({
+      onEvent,
+      rowCount: 120,
+      renderRow: ({ query, index }) => {
+        if (query) spin(index === 0 && $('blocking').value === 'yes' ? 100 : cost());
+        return `${query || 'empty'} · row ${String(index + 1).padStart(3, '0')}`;
+      },
+      commit: (snapshot) => {
+        if ($('search').value !== snapshot.input) $('search').value = snapshot.input;
+        $('input-state').textContent = JSON.stringify(snapshot.input);
+        $('query-state').textContent = JSON.stringify(snapshot.query);
+        const existingQuery = $('rows').dataset.query;
+        if (existingQuery !== snapshot.query) {
+          const fragment = document.createDocumentFragment();
+          for (const text of snapshot.rows) {
+            const div = document.createElement('div');
+            div.className = 'row';
+            div.textContent = text;
+            fragment.append(div);
+          }
+          $('rows').replaceChildren(fragment);
+          $('rows').dataset.query = snapshot.query;
+        }
+      },
+    });
+    $('search').addEventListener('input', (e) => {
+      // Real input takes ownership from the scripted replay.
+      if (scripted) finishScriptedReplay();
+      app.input(e.target.value);
+    });
+    $('clear').addEventListener('click', () => {
+      trace.length = 0;
+      Object.keys(stats).forEach((k) => (stats[k] = 0));
+      traceDirty = true;
+    });
+    $('scripted').addEventListener('click', () => {
+      if (app.root.pendingLanes) return;
+      scripted = true;
+      $('scripted').disabled = true;
+      // Reset in an urgent update, then start the scripted pair in a fresh task.
+      app.setState(() => ({ input: '', query: '' }));
+      scriptedTimer = setTimeout(() => {
+        injectSecond = true;
+        $('search').value = 'a';
+        app.input('a');
+      }, 0);
+    });
+    function refresh() {
+      $('frames').textContent = String(++frames);
+      if (traceDirty) {
+        traceDirty = false;
+        Object.keys(stats).forEach((k) => ($(k).textContent = stats[k]));
+        const fragment = document.createDocumentFragment();
+        for (const e of trace) {
+          const row = document.createElement('div');
+          row.className = 'entry ' + e.type;
+          const detail = e.state
+            ? JSON.stringify(e.state)
+            : e.value
+              ? JSON.stringify(e.value)
+              : e.next
+                ? `next: ${e.next}`
+                : `g${e.generation}`;
+          for (const text of [
+            (e.time - start).toFixed(1),
+            e.type,
+            `g${e.generation} · ${detail}`,
+          ]) {
+            const cell = document.createElement('span');
+            cell.textContent = text;
+            row.append(cell);
+          }
+          fragment.append(row);
+        }
+        $('trace').replaceChildren(fragment);
+        $('trace').scrollTop = $('trace').scrollHeight;
+      }
+      $('status').textContent = app.root.draft
+        ? 'Rendering draft'
+        : app.root.pendingLanes
+          ? 'Scheduled'
+          : 'Ready';
+      if (!scripted) $('scripted').disabled = !!app.root.pendingLanes;
+      requestAnimationFrame(refresh);
     }
-    $('trace').replaceChildren(fragment);$('trace').scrollTop=$('trace').scrollHeight;
-  }
-  $('status').textContent=app.root.draft?'Rendering draft':app.root.pendingLanes?'Scheduled':'Ready';
-  if(!scripted)$('scripted').disabled=!!app.root.pendingLanes;
-  requestAnimationFrame(refresh);
-}
-app.mount(); requestAnimationFrame(refresh);
-window.miniDemo={app,stats,trace};
-</script></html>
+    app.mount();
+    requestAnimationFrame(refresh);
+    window.miniDemo = { app, stats, trace };
+  </script>
+</html>

@@ -19,7 +19,7 @@ explicitly. This setting keeps the comparison easier to narrate; it is not
 advice to disable Strict Mode in applications.
 
 ```sh
-npm test                  # 10 original checks + 5 isolated-model tests
+npm test                  # 10 original checks + 9 isolated-model tests
 npm run models            # runnable Scheduler/Fiber/queue/Suspense walkthrough
 npm run test:browser       # scripted functional rehearsal, installed Edge
 npm run build             # ordinary production build
@@ -77,6 +77,13 @@ Source: [Scheduler.js, shouldYieldToHost and host callback setup][scheduler].
 The selected stable build has `enableThrottledScheduling = false` in
 [ReactFeatureFlags.js][flags]; do not describe the alternative reconciler
 budget branch as the active policy.
+
+`requestIdleCallback` is intentionally not the host driver. It asks for idle time,
+which may not arrive under load, rather than simply arranging a later task.
+[Slide 03a](community-call-slides.md#03a--why-not-requestidlecallback) compares it
+with MessageChannel, microtasks, timers and rAF, and includes a small API example.
+See the [idle callback specification](https://w3c.github.io/requestidlecallback/)
+and the pinned [Scheduler host setup][scheduler-host].
 
 ## 2. Fiber and publication
 
@@ -172,7 +179,37 @@ Source: [startTransition documentation][transition-docs],
 **Classification:** real React plus a separately labeled educational model.
 **Code:** [suspense.jsx](../demos/suspense.jsx),
 [resources.mjs](../demos/resources.mjs),
-[createResource / createBoundary](../examples/mechanisms.mjs).
+[MiniSuspense](../demos/models/suspense.mjs),
+[model controls](../demos/suspense-model.jsx),
+[createResource](../examples/mechanisms.mjs).
+
+### First: step through the educational boundary
+
+The upper panel is an **educational reconstruction**, not React's own Suspense
+implementation. Start with **Reset model** and choose **Urgent**:
+
+1. **Create pending B** creates a stable resource; current is still Article A.
+2. **Render / Retry model** prepares a fallback candidate. Current is still A.
+3. **Discard candidate** proves rendering did not publish or hide A. Render again.
+4. **Commit candidate** publishes Loading.
+5. **Resolve model resource** records a ping/retry request. Current is still Loading.
+6. **Render / Retry model** prepares B. **Commit candidate** publishes B.
+7. Reset model; select **Transition** and repeat. A is retained while B is pending.
+8. Optional: reject instead of resolve; retry reports an error, not another fallback.
+
+Walk the actual code: `createResource.read` → `MiniSuspense` → listener → ping →
+`MiniSuspense` retry → `commit`. The source panel includes the entire small
+boundary. Only commit changes current/revealed-content state. Discarding a
+fallback draft cannot make a later Transition forget currently committed A;
+committing fallback does, so historical A cannot be resurrected.
+
+These manual buttons expose phases real React drives automatically. Diagnostic
+candidate/log panels are React UI around the model, not a partial model commit.
+The model's single notification callback merges root ping and boundary retry
+scheduling; it has no lane selection, hidden tree, nested boundaries, Fiber
+unwinding, fallback throttling or prewarming.
+
+### Then: compare the public React behavior
 
 1. **Reset to pending mount**: fallback is visible; **Resolve resource** reveals A.
 2. **Reset to revealed A**, choose **Urgent**, then **Load Article B**:
@@ -186,30 +223,30 @@ The real example creates a stable promise outside rendering and calls
 `use(request.promise)` in Article. The controls settle that same promise once.
 No real HTTP request or cache integration is implied.
 
-For the miniature, open its first source panel and follow:
+`npm run models` executes pending render → fallback commit → notification →
+ready render → ready commit. Deterministic tests cover discard isolation, pending
+mount, retained content, listener deduplication, explicit commit and rejection.
+The browser check exercises both the model controls and the real boundary.
 
-1. `createResource` records pending/fulfilled/rejected status.
-2. `read()` throws the stable wakeable while pending, returns fulfilled data,
-   or throws the rejection reason.
-3. `createBoundary` catches only thenables, registers one retry listener,
-   and chooses fallback or currently revealed content.
-4. Settlement updates the resource, then schedules retry.
-5. Retry calls render again; success is published immediately in this toy.
+The `read` helper is **not a supported production data-fetching API**. A normal
+React component cannot implement Suspense by catching around `return children`:
+JSX creates element descriptions, not synchronous descendant calls. Real
+Suspense is a renderer-recognized Fiber boundary. At this revision, `use` throws
+an internal suspension exception and the work loop retrieves the thenable;
+our explicit raw throw is a simplified teaching protocol. Do not equate
+suspension with CPU yielding or the waiting interval with CPU time. Production
+promises should come from a suitable framework/cache integration.
 
-`npm run models` actually executes “Loading” followed by “Ready.” Existing tests
-also cover retained content, listener deduplication and not resurrecting old
-content once fallback has replaced it. The real browser test checks rejection.
-
-The helper is **not a supported production data-fetching API**. It combines
-successful render/publication, whereas React separates render, boundary unwind,
-ping/retry scheduling and commit. React also handles hidden trees, lanes, multiple
-boundaries, and fallback throttling. Do not teach a thrown promise as CPU yielding
-or the waiting interval as CPU time. Production promises should come from a
-suitable framework/cache integration rather than new promises in render.
+The older `createBoundary` helper remains in `examples/mechanisms.mjs` for the
+original research walkthrough; it combines successful render/publication.
+Use the new `MiniSuspense` model for this presentation's phase-by-phase demo.
 
 Source: [use][use-docs], [Suspense][suspense-docs],
 [ReactFiberWorkLoop.js, attachPingListener / pingSuspendedRoot][ping],
-[ReactFiberSuspenseContext.js][boundary-context].
+[ReactFiberSuspenseContext.js][boundary-context], [handleThrow][handle-throw],
+[ReactFiberThrow.js, throwException][throw],
+[ReactFiberBeginWork.js, updateSuspenseComponent][boundary],
+[ReactFiberCommitWork.js, attachSuspenseRetryListeners][retry].
 
 ## Rehearsal and verification boundaries
 
@@ -237,11 +274,16 @@ All source links below use commit `1d34f91dfde6bba84d08b683aaba164c7194dacb`
 Teaching snippets are original reconstructions; upstream files retain their license.
 
 [scheduler]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L459
+[scheduler-host]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L532-L561
 [flags]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/shared/ReactFeatureFlags.js#L76
 [fiber]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiber.js#L323
 [work-loop]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3073
 [hooks]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L1316
 [ping]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4970
+[handle-throw]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L2302-L2369
+[throw]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberThrow.js#L364-L485
+[boundary]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L2383-L2427
+[retry]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitWork.js#L1978-L2012
 [boundary-context]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberSuspenseContext.js#L22
 [transition-docs]: https://react.dev/reference/react/startTransition
 [use-docs]: https://react.dev/reference/react/use

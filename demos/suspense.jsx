@@ -3,7 +3,7 @@ import { Lesson, Source } from './shared.jsx';
 import { createRequest, createScenario } from './resources.mjs';
 import { onRender, mark } from './profiling.mjs';
 import source from './suspense.jsx?raw';
-import mechanismSource from '../examples/mechanisms.mjs?raw';
+import SuspenseModel from './suspense-model.jsx';
 
 class ErrorBoundary extends Component {
   state = { error: null };
@@ -53,6 +53,7 @@ function Scenario({ initial }) {
         <label>
           Replacement mode
           <select
+            aria-label="Replacement mode"
             value={mode}
             onChange={(e) => setMode(e.target.value)}
             disabled={!settled || isPending}
@@ -102,7 +103,6 @@ export default function SuspenseLesson() {
     setScenario(createScenario(pending));
     setGeneration((n) => n + 1);
   }
-  const boundarySource = mechanismSource.slice(0, mechanismSource.indexOf('// Simplified store'));
   return (
     <Lesson
       number="05"
@@ -110,6 +110,8 @@ export default function SuspenseLesson() {
       title="Wait for data. Then retry."
       question="When should a boundary show fallback, and when can current content stay visible?"
     >
+      <SuspenseModel />
+      <h2>Compare with real React Suspense</h2>
       <div className="controls">
         <button className="secondary" onClick={() => reset(false)}>
           Reset to revealed A
@@ -126,7 +128,6 @@ export default function SuspenseLesson() {
         resource becoming ready. The pending Transition is waiting for data, not using CPU
         continuously.
       </p>
-      <Source code={boundarySource} file="examples/mechanisms.mjs · educational Suspense" />
       <Source code={source} file="suspense.jsx · real React" />
     </Lesson>
   );

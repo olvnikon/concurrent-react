@@ -1,6 +1,7 @@
 # Concurrent React community call: implementation plan
 
-Status: P0–P5 implemented; recordings and 20-slide text delivered. P6/P7 retain the manual DevTools and presenter-rehearsal steps below.
+Status: P0–P5 implemented; recordings and slide text delivered (now 22 slides).
+P6/P7 retain the manual DevTools and presenter-rehearsal steps below.
 Planning assumption: 60–75 minutes plus questions, for an audience familiar with
 components and hooks. Adjust pacing if the user later specifies a duration.
 
@@ -329,6 +330,19 @@ when all five units, the recordings/walkthrough, and slide text are ready to use
 - Remaining manual work: React DevTools extension capture, interactive import of
   a saved Performance trace, manual typing on the presentation machine and full
   talk timing. Automation is not a substitute for those presenter steps.
+
+## Accuracy follow-up — 10 October 2026
+
+- [Accuracy review](accuracy-review.md) checks the teaching paths against pinned
+  source and records caveats for the four suggested articles.
+- `demos/models/suspense.mjs` now implements the phase-separated MiniSuspense;
+  lesson 5 provides manual render/retry/commit and discard controls beside real React.
+- Slide text now has 22 slides, adding requestIdleCallback comparison and separate
+  Suspense notification/retry/commit. The guide and CLI walkthrough match the model.
+- Verification: 10 original checks plus 9 model tests, all five lessons in Edge
+  155.0.4283.45, both builds, formatting and 68 immutable reference hashes passed.
+  September traces were re-extracted, not replaced; manual DevTools capture and
+  complete presenter rehearsal remain pending.
 
 ## Deferred scope
 

@@ -4,6 +4,8 @@ import { scheduleUnits } from './scheduler.mjs';
 import { createDraft, exampleTree, performUnitOfWork, publish } from './fiber.mjs';
 import { rebaseExample } from './queue.mjs';
 import { createRequest } from '../resources.mjs';
+import { createResource } from '../../examples/mechanisms.mjs';
+import { createSuspenseBoundary } from './suspense.mjs';
 
 test('scheduler retains its next unit across host tasks and cancellation', () => {
   const host = [],
@@ -90,4 +92,96 @@ test('controlled React resources keep promise identity and settle once', async (
   const rejected = createRequest('B');
   rejected.reject();
   await assert.rejects(rejected.promise, /Could not load B/);
+});
+
+test('Suspense render and discard do not publish fallback or change revealed state', () => {
+  const boundary = createSuspenseBoundary(() => {});
+  boundary.commit(boundary.MiniSuspense({ children: () => 'A' }));
+  const pending = { then() {} };
+  const props = {
+    children: () => {
+      throw pending;
+    },
+    fallback: 'Loading',
+  };
+  const candidate = boundary.MiniSuspense(props);
+  assert.deepEqual(candidate, { status: 'fallback', content: 'Loading' });
+  assert.equal(boundary.getCurrent(), 'A');
+  // Discard that candidate. A subsequent Transition still sees committed A.
+  assert.deepEqual(boundary.MiniSuspense({ ...props, transition: true }), {
+    status: 'retained',
+    content: 'A',
+  });
+  boundary.commit(candidate);
+  assert.equal(boundary.getCurrent(), 'Loading');
+  assert.equal(boundary.MiniSuspense({ ...props, transition: true }).status, 'fallback');
+});
+
+test('Suspense cannot retain content on an initial pending mount', () => {
+  const boundary = createSuspenseBoundary(() => {});
+  const candidate = boundary.MiniSuspense({
+    children: () => {
+      throw { then() {} };
+    },
+    fallback: 'Loading',
+    transition: true,
+  });
+  assert.equal(candidate.status, 'fallback');
+  assert.equal(boundary.getCurrent(), undefined);
+  boundary.commit(candidate);
+  assert.equal(boundary.getCurrent(), 'Loading');
+});
+
+test('one resource ping queues one retry; retry rendering still needs commit', async () => {
+  const request = createRequest('B');
+  const resource = createResource(request.promise);
+  let wakeable;
+  try {
+    resource.read();
+  } catch (value) {
+    wakeable = value;
+  }
+  const retries = [];
+  const boundary = createSuspenseBoundary(() => retries.push('retry'));
+  const props = { children: resource.read, fallback: 'Loading' };
+  boundary.commit(boundary.MiniSuspense(props));
+  boundary.MiniSuspense(props); // Same pending resource must not add another listener.
+  request.resolve();
+  await wakeable;
+  assert.deepEqual(retries, ['retry']);
+  assert.equal(boundary.getCurrent(), 'Loading');
+  const candidate = boundary.MiniSuspense(props);
+  assert.deepEqual(candidate, { status: 'content', content: 'B' });
+  assert.equal(boundary.getCurrent(), 'Loading');
+  boundary.commit(candidate);
+  assert.equal(boundary.getCurrent(), 'B');
+});
+
+test('rejection pings the boundary, then retry throws to error handling', async () => {
+  const request = createRequest('B');
+  const resource = createResource(request.promise);
+  let wakeable;
+  try {
+    resource.read();
+  } catch (value) {
+    wakeable = value;
+  }
+  let retries = 0;
+  const boundary = createSuspenseBoundary(() => retries++);
+  const props = { children: resource.read, fallback: 'Loading' };
+  boundary.commit(boundary.MiniSuspense(props));
+  request.reject();
+  await wakeable;
+  assert.equal(retries, 1);
+  assert.throws(() => boundary.MiniSuspense(props), /Could not load B/);
+  assert.equal(boundary.getCurrent(), 'Loading');
+  assert.throws(
+    () =>
+      boundary.MiniSuspense({
+        children: () => {
+          throw null;
+        },
+      }),
+    (e) => e === null,
+  );
 });

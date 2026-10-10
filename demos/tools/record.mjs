@@ -80,7 +80,7 @@ try {
   for (const mode of ['urgent', 'transition']) {
     await page.getByRole('button', { name: 'Reset to revealed A' }).click();
     await page.getByRole('heading', { name: 'Article A' }).waitFor();
-    await page.getByLabel('Replacement mode').selectOption(mode);
+    await page.getByLabel('Replacement mode', { exact: true }).selectOption(mode);
     await record('suspense-' + mode, async () => {
       await page.getByRole('button', { name: 'Load Article B' }).click();
       // A deliberate 500 ms resource wait, not an assertion about React timing.

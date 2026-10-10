@@ -1,6 +1,7 @@
 # Concurrent React: from work units to visible UI
 
-Presenter text, 20 slides. Proposed pacing: 60–75 minutes plus questions.
+Presenter text, 22 slides (03a and 16a are companion slides). Proposed pacing:
+60–75 minutes plus questions.
 Keep “On screen” concise; “Speaker notes” are not slide body text.
 Examples: React 19.3.0; internal references pinned to
 `1d34f91dfde6bba84d08b683aaba164c7194dacb`.
@@ -75,6 +76,49 @@ with environment-specific alternatives; it is not a universal mandate to use
 MessageChannel in application code. A microtask chain can delay rendering/input.
 Sources: [HTML event loops][event-loop], [Scheduler.js][scheduler].
 
+## 03a — Why not requestIdleCallback?
+
+**Takeaway:** scheduling later and waiting for idle time are different policies.
+
+**On screen**
+
+| API                     | What it asks the browser to do                            |
+| ----------------------- | --------------------------------------------------------- |
+| `queueMicrotask`        | Continue at the microtask checkpoint                      |
+| `MessageChannel`        | Deliver another task                                      |
+| `setTimeout`            | Queue a timer task when eligible                          |
+| `requestAnimationFrame` | Run a callback in a rendering update                      |
+| `requestIdleCallback`   | Run during an idle period, with a remaining-time estimate |
+
+React's default browser Scheduler uses **MessageChannel**, not `requestIdleCallback`.
+
+**Demo cue:** Show the Scheduler model's host helper. This is an API comparison,
+not another mode of the React demo.
+
+**Speaker notes**
+
+Here is a browser API illustration, not React's implementation. Assume a finite
+`units` array and `next = 0`; each unit must be small:
+
+```js
+function idleWork(deadline) {
+  while (next < units.length && deadline.timeRemaining() > 0) {
+    units[next++]();
+  }
+  if (next < units.length) requestIdleCallback(idleWork);
+}
+requestIdleCallback(idleWork);
+```
+
+Without a timeout, idle callbacks may wait indefinitely under load. A timeout
+queues a callback even without idle time; it is not an exact execution deadline.
+The remaining-time check is cooperative, not a way to interrupt a running unit.
+React needs to schedule updates without waiting for an idle period. Its pinned
+default host preference is `setImmediate` → `MessageChannel` → `setTimeout`;
+ordinary browsers take the MessageChannel path. `scheduler/unstable_post_task`
+is a separate entry/fork, not automatic detection of the browser API.
+Sources: [idle callback specification][idle], [Scheduler host setup][scheduler-host].
+
 ## 04 — A minimal cooperative Scheduler
 
 **Takeaway:** save where work stopped, then schedule a continuation.
@@ -104,6 +148,10 @@ empty queues, cancellation and completion callbacks. The 5 ms threshold is check
 between units, not enforced inside them. A unit can overrun it. The frame counter
 counts animation callbacks, not paints. React additionally uses priorities and
 expiration; this toy does not. Source: [Scheduler.js, shouldYieldToHost][scheduler].
+Keep the ownership clear: root scheduling selects pending lanes and arranges work;
+Scheduler runs callbacks; the reconciler callback traverses Fibers and checks
+whether to yield. Scheduler itself does not walk the component tree. Sync work
+also has a root-scheduling microtask path; not every update waits for MessageChannel.
 Allow roughly 8 minutes for slides 2–4.
 
 ## 05 — Fiber makes the traversal explicit
@@ -385,36 +433,72 @@ model of notification/control flow, not a supported production data-fetching
 integration. The real example uses `use` with a stable promise created outside
 rendering. Source: [mechanisms.mjs](../examples/mechanisms.mjs), [use][use].
 
-## 16 — Catch, choose, notify, retry
+## 16 — A tiny Suspense boundary chooses a candidate
 
-**Takeaway:** settlement schedules another attempt; it does not directly draw the UI.
+**Takeaway:** handling suspension prepares a candidate without publishing it.
 
 **On screen**
 
-Educational pseudocode:
+Educational pseudocode of runnable `MiniSuspense` (guard/listener code abbreviated):
 
 ```js
 try {
-  publish(render());
+  return { status: 'content', content: children() };
 } catch (value) {
   if (!isThenable(value)) throw value;
   listenOnce(value, scheduleRetry);
-  show(transition && currentlyRevealed ? current : fallback);
+  return transition && hasRevealedContent
+    ? { status: 'retained', content: current }
+    : { status: 'fallback', content: fallback };
 }
 ```
 
-**Demo cue:** Walk `createBoundary`, then `npm run models`: Loading → Ready.
+**Demo cue:** In the educational Suspense panel, Create pending B → Render.
+Compare the candidate with the unchanged current output; discard it once.
 
 **Speaker notes**
 
-The runnable helper defines the thenable guard, listener deduplication and
-revealed/fallback flags explicitly. “Currently revealed” must become false when
-fallback replaces the content; otherwise a later attempt could resurrect
-historical UI incorrectly. Retry renders again, and rejection escapes to error
-handling. The toy combines successful render and publication. React separates
-boundary capture/unwind, ping lanes, retry and commit.
-Sources: [mechanisms.mjs](../examples/mechanisms.mjs),
-[attachPingListener / pingSuspendedRoot][ping].
+The excerpt abbreviates the inline guard and listener code as `isThenable` and
+`listenOnce`; the source panel contains their complete implementation. This is
+a renderer-owned boundary that invokes a child function, not an ordinary React
+component catching errors around `return children`. JSX describes elements;
+React invokes descendants later. In real React, Suspense is a special Fiber
+boundary. `use` signals suspension with an internal exception; the work loop
+retrieves the thenable, finds the active boundary, and marks capture/unwind work.
+The raw thrown wakeable in our model is deliberately simpler.
+Sources: [suspense.mjs](../demos/models/suspense.mjs),
+[handleThrow][handle-throw], [throwException][throw], [updateSuspenseComponent][boundary].
+
+## 16a — A ping is not a commit
+
+**Takeaway:** resource readiness, retry rendering, and publication are separate.
+
+**On screen**
+
+```text
+Pending read → boundary chooses fallback candidate → commit fallback
+Resolve      → ping queues retry → render B candidate → commit B
+```
+
+For a Transition, revealed A can stay current while B waits.
+
+**Demo cue:** Urgent model: Commit candidate → Resolve model resource.
+Current still shows Loading. Render / Retry model prepares B; Commit shows B.
+Reset model; repeat in Transition mode. Optional: Reject instead of Resolve.
+
+**Speaker notes**
+
+The runnable model deduplicates listeners by wakeable identity. Settlement only
+requests a retry; it does not render or publish. Only `commit` changes current
+output and revealed-content state. A discarded fallback candidate must not hide
+committed A. Once fallback has actually committed, a later Transition must not
+resurrect historical A. Rejection causes retry too, then `read` throws an error
+outside Suspense. The buttons expose phases that real React drives automatically.
+Real React tracks root ping lanes and committed-boundary retry listeners separately;
+our single callback intentionally collapses those scheduling details. It also
+omits nested boundaries, Offscreen trees, prewarming and fallback throttling.
+Sources: [model](../demos/models/suspense.mjs), [pingSuspendedRoot][ping],
+[attachSuspenseRetryListeners][retry].
 
 ## 17 — Urgent replacement versus Transition
 
@@ -471,7 +555,9 @@ this is not a complete account of every experimental host/transition integration
 A “Waiting for Paint” React label is not a measured paint. Avoid using the toy
 rAF counter as FPS evidence. This project has no dedicated large-DOM commit
 benchmark: describe it as a limitation, not an implemented demo.
-Sources: [Performance Tracks][tracks], [HTML event loops][event-loop].
+Passive effects are not guaranteed to run after paint; do not teach `useEffect`
+as an unconditional after-paint callback.
+Sources: [Performance Tracks][tracks], [HTML event loops][event-loop], [useEffect][effect].
 
 ## 19 — What to take back to application code
 
@@ -517,6 +603,9 @@ simplifications. [Profiling walkthrough](profiling-walkthrough.md) records actua
 events and the remaining manual DevTools/rehearsal gaps. The original research
 dossier is optional deeper reading, not the slide script. Both upstream source
 directories stay read-only.
+The [accuracy review](accuracy-review.md) records corrections and caveats for
+the four suggested articles; they are secondary explanations, not our authority
+for production implementation claims.
 
 ## Presenter source links
 
@@ -528,11 +617,18 @@ these slide snippets; models/excerpts are the project's teaching code.
 [memo]: https://react.dev/reference/react/memo
 [suspense]: https://react.dev/reference/react/Suspense
 [use]: https://react.dev/reference/react/use
+[effect]: https://react.dev/reference/react/useEffect
 [profiler]: https://react.dev/reference/react/Profiler
 [tracks]: https://react.dev/reference/dev-tools/react-performance-tracks
 [event-loop]: https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model
+[idle]: https://w3c.github.io/requestidlecallback/
+[scheduler-host]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L532-L561
 [scheduler]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L459
 [fiber]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiber.js#L323
 [work-loop]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3073
 [hooks]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L1316
 [ping]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4970
+[handle-throw]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L2302-L2369
+[throw]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberThrow.js#L364-L485
+[boundary]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberBeginWork.js#L2383-L2427
+[retry]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberCommitWork.js#L1978-L2012

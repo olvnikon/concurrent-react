@@ -1,7 +1,8 @@
 import { scheduleUnits } from './scheduler.mjs';
 import { createDraft, exampleTree, performUnitOfWork, publish } from './fiber.mjs';
 import { rebaseExample } from './queue.mjs';
-import { createBoundary, createResource } from '../../examples/mechanisms.mjs';
+import { createResource } from '../../examples/mechanisms.mjs';
+import { createSuspenseBoundary } from './suspense.mjs';
 
 let time = 0;
 const tasks = [];
@@ -29,19 +30,17 @@ const resource = createResource(
   }),
 );
 const retryTasks = [];
-const boundary = createBoundary(() =>
-  retryTasks.push(() =>
-    console.log(
-      'retry:',
-      boundary(() => resource.read(), 'Loading'),
-    ),
-  ),
-);
-console.log(
-  'Suspense:',
-  boundary(() => resource.read(), 'Loading'),
-);
+const boundary = createSuspenseBoundary(() => retryTasks.push('retry'));
+const props = { children: resource.read, fallback: 'Loading' };
+let candidate = boundary.MiniSuspense(props);
+console.log('Suspense draft:', candidate, 'Current:', boundary.getCurrent());
+boundary.commit(candidate);
+console.log('Commit:', boundary.getCurrent());
 resolve('Ready');
 await Promise.resolve();
 await Promise.resolve();
-while (retryTasks.length) retryTasks.shift()();
+console.log('Notification:', retryTasks, 'Current is still:', boundary.getCurrent());
+candidate = boundary.MiniSuspense(props);
+console.log('Retry draft:', candidate, 'Current is still:', boundary.getCurrent());
+boundary.commit(candidate);
+console.log('Commit:', boundary.getCurrent());

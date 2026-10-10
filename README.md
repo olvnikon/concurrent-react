@@ -14,14 +14,16 @@ Open the printed localhost URL. Use Node 22.12+; verified with 22.17.1.
 React and React DOM are pinned to **19.3.0**.
 
 - [Demo guide](docs/demo-guide.md): lesson steps, code walkthroughs and simplifications.
-- [Slide text](docs/community-call-slides.md): 20 slides with speaker notes and demo cues.
+- [Slide text](docs/community-call-slides.md): 22 slides with speaker notes and demo cues,
+  including requestIdleCallback and step-by-step MiniSuspense.
+- [Accuracy review](docs/accuracy-review.md): source checks and caveats for suggested articles.
 - [Profiling walkthrough](docs/profiling-walkthrough.md): five captured real React
   traces, observed interruption, and exact recording/rehearsal instructions.
 - [Implementation progress](docs/community-call-implementation-plan.md): completed
   work and remaining manual DevTools/presenter rehearsal steps.
 
 ```sh
-npm test                  # original 10 checks + 5 isolated-model tests
+npm test                  # original 10 checks + 9 isolated-model tests
 npm run models            # executable minimal internals walkthroughs
 npm run test:browser       # headless Edge functional rehearsal
 npm run build

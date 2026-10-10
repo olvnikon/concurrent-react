@@ -74,7 +74,7 @@ The toy name `postTask` does not refer to the browser scheduling API. Our defaul
 uses MessageChannel. React's browser Scheduler host path has a similar purpose,
 with environment-specific alternatives; it is not a universal mandate to use
 MessageChannel in application code. A microtask chain can delay rendering/input.
-Sources: [HTML event loops][event-loop], [Scheduler.js][scheduler].
+Sources: [HTML event loops][event-loop], [Scheduler host setup][scheduler-host].
 
 ## 03a — Why not requestIdleCallback?
 
@@ -91,6 +91,8 @@ Sources: [HTML event loops][event-loop], [Scheduler.js][scheduler].
 | `requestIdleCallback`   | Run during an idle period, with a remaining-time estimate |
 
 React's default browser Scheduler uses **MessageChannel**, not `requestIdleCallback`.
+
+**Source:** [Scheduler host setup, lines 530–561][scheduler-host].
 
 **Demo cue:** Show the Scheduler model's host helper. This is an API comparison,
 not another mode of the React demo.
@@ -147,11 +149,14 @@ This slide excerpt assumes a nonempty queue; the runnable version also handles
 empty queues, cancellation and completion callbacks. The 5 ms threshold is checked
 between units, not enforced inside them. A unit can overrun it. The frame counter
 counts animation callbacks, not paints. React additionally uses priorities and
-expiration; this toy does not. Source: [Scheduler.js, shouldYieldToHost][scheduler].
+expiration; this toy does not. Sources: [shouldYieldToHost][scheduler],
+[5 ms default and priority timeouts][scheduler-flags], [Scheduler workLoop][scheduler-loop].
 Keep the ownership clear: root scheduling selects pending lanes and arranges work;
 Scheduler runs callbacks; the reconciler callback traverses Fibers and checks
 whether to yield. Scheduler itself does not walk the component tree. Sync work
 also has a root-scheduling microtask path; not every update waits for MessageChannel.
+Sources: [root lane selection and sync microtask path][root-scheduler],
+[reconciler work loop][work-loop].
 Allow roughly 8 minutes for slides 2–4.
 
 ## 05 — Fiber makes the traversal explicit
@@ -207,7 +212,7 @@ This is a compact pseudocode view of the runnable model's traversal; `complete`
 means recording completion here, not executing a hidden full renderer.
 Completing a leaf may also complete several ancestors before a checkpoint.
 Real begin/complete work may produce or reuse child Fibers and prepare host work.
-Source: [performUnitOfWork / completeUnitOfWork][work-loop].
+Sources: [performUnitOfWork][work-loop], [completeUnitOfWork][complete-work].
 
 ## 07 — A draft is not the visible UI
 
@@ -229,7 +234,7 @@ The draft panel is teaching instrumentation, not partially published example UI.
 Our publish operation copies a list. Real React commits host mutations and other
 effects; it is not a second renderer running alongside this model.
 Render output can be abandoned while update intent remains queued.
-Sources: [createWorkInProgress][fiber], [work loop][work-loop].
+Sources: [createWorkInProgress][fiber], [work loop][work-loop], [render and commit][render-commit].
 Allow roughly 8 minutes for slides 5–7.
 
 ## 08 — Mark the update, not the calculation
@@ -557,7 +562,8 @@ rAF counter as FPS evidence. This project has no dedicated large-DOM commit
 benchmark: describe it as a limitation, not an implemented demo.
 Passive effects are not guaranteed to run after paint; do not teach `useEffect`
 as an unconditional after-paint callback.
-Sources: [Performance Tracks][tracks], [HTML event loops][event-loop], [useEffect][effect].
+Sources: [render and commit][render-commit], [Performance Tracks][tracks],
+[HTML event loops][event-loop], [useEffect][effect].
 
 ## 19 — What to take back to application code
 
@@ -580,7 +586,7 @@ Do not build production fetching around our toy `read` helper.
 Consider reducing work before adding more scheduling instrumentation.
 The Scheduler, Fiber, queue and boundary models explain a mechanism; they are
 not interchangeable with React's implementation.
-Sources: [startTransition][transition], [Suspense][suspense], [use][use].
+Sources: [startTransition][transition], [render purity][purity], [Suspense][suspense], [use][use].
 
 ## 20 — Source to screen, with boundaries
 
@@ -594,7 +600,8 @@ Sources: [startTransition][transition], [Suspense][suspense], [use][use].
 - Observations: saved traces and documented settings.
 - Questions?
 
-**Demo cue:** Share the demo guide, slide text, and profiling walkthrough.
+**Demo cue:** Show the closing source list below; share the demo guide, slide text,
+and profiling walkthrough.
 
 **Speaker notes**
 
@@ -607,7 +614,36 @@ The [accuracy review](accuracy-review.md) records corrections and caveats for
 the four suggested articles; they are secondary explanations, not our authority
 for production implementation claims.
 
-## Presenter source links
+## Closing references — display or share after slide 20
+
+Keep the claim-specific links in speaker notes, and include this clickable list
+at the end of the presentation. Markdown reference definitions alone are not
+visible to the audience.
+
+### Public behavior and browser APIs
+
+- Update priority: [startTransition][transition] and [memo][memo].
+- Waiting for data: [Suspense][suspense] and [use][use].
+- Publication and effects: [render and commit][render-commit],
+  [render purity][purity], and [useEffect][effect].
+- Evidence: [Profiler][profiler], [React Performance Tracks][tracks], and
+  [our measured walkthrough](profiling-walkthrough.md).
+- Browser scheduling: [HTML event loops][event-loop] and
+  [requestIdleCallback specification][idle].
+
+### Pinned implementation — React 19.3.0
+
+- Scheduler: [MessageChannel / host selection][scheduler-host],
+  [yield checks][scheduler], [default budget / priority timeouts][scheduler-flags],
+  and [callbacks / continuations][scheduler-loop].
+- Fiber: [current / alternate][fiber], [begin work / yield checkpoints][work-loop],
+  and [completion / next sibling][complete-work].
+- Updates: [root lane selection / sync microtask path][root-scheduler] and
+  [hook queues / rebasing][hooks].
+- Suspense capture: [handleThrow][handle-throw], [throwException][throw], and
+  [boundary / fallback selection][boundary].
+- Suspense retry: [root ping listeners][ping] and
+  [committed-boundary retry listeners][retry].
 
 Links to internals all use the same pinned commit. The demo guide maps each symbol
 and distinguishes the separate clone. No upstream implementation is copied into
@@ -618,14 +654,20 @@ these slide snippets; models/excerpts are the project's teaching code.
 [suspense]: https://react.dev/reference/react/Suspense
 [use]: https://react.dev/reference/react/use
 [effect]: https://react.dev/reference/react/useEffect
+[render-commit]: https://react.dev/learn/render-and-commit
+[purity]: https://react.dev/reference/rules/components-and-hooks-must-be-pure
 [profiler]: https://react.dev/reference/react/Profiler
 [tracks]: https://react.dev/reference/dev-tools/react-performance-tracks
 [event-loop]: https://html.spec.whatwg.org/multipage/webappapis.html#event-loop-processing-model
 [idle]: https://w3c.github.io/requestidlecallback/
-[scheduler-host]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L532-L561
+[scheduler-host]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L530-L561
 [scheduler]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L459
+[scheduler-flags]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/SchedulerFeatureFlags.js#L10-L18
+[scheduler-loop]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/scheduler/src/forks/Scheduler.js#L193-L259
 [fiber]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiber.js#L323
 [work-loop]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3073
+[complete-work]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L3368-L3431
+[root-scheduler]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberRootScheduler.js#L384-L500
 [hooks]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberHooks.js#L1316
 [ping]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L4970
 [handle-throw]: https://github.com/react/react/blob/1d34f91dfde6bba84d08b683aaba164c7194dacb/packages/react-reconciler/src/ReactFiberWorkLoop.js#L2302-L2369

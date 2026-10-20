@@ -6,6 +6,8 @@
 /node_modules/
 /dist/
 /.vite/
+/.presentation-build/
+/presentations/
 /evidence/
 /source-manifest.json
 /source-references.json

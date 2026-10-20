@@ -14,7 +14,8 @@ export function scheduleUnits(
     // Always finish one unit. A running function cannot be preempted.
     do {
       if (next === units.length) break;
-      units[next++]();
+      units[next]();
+      next++;
     } while (!cancelled && next < units.length && now() < deadline);
 
     if (cancelled) return;

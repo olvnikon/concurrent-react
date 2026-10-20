@@ -7,6 +7,8 @@ import schedulerSource from './models/scheduler.mjs?raw';
 import fiberSource from './models/fiber.mjs?raw';
 import engineSource from '../examples/mini-concurrent-react.mjs?raw';
 
+const NUMBER_OF_UNITS = 1200;
+
 export function SchedulerLesson() {
   const [mode, setMode] = useState('tasks');
   const [cost, setCost] = useState(2);
@@ -15,34 +17,40 @@ export function SchedulerLesson() {
   const [taps, setTaps] = useState(0);
   const cleanup = useRef(() => {});
   const frameOutput = useRef(null);
+
   useEffect(() => {
-    let frames = 0,
-      handle;
+    let frames = 0;
+    let handle;
+
     function frame() {
       if (frameOutput.current) frameOutput.current.textContent = ++frames;
       handle = requestAnimationFrame(frame);
     }
     handle = requestAnimationFrame(frame);
+
     return () => {
       cancelAnimationFrame(handle);
       cleanup.current();
     };
   }, []);
+
   function reset() {
     cleanup.current();
     setRunning(false);
     setSlices([]);
     setTaps(0);
   }
+
   function run() {
     reset();
     setRunning(true);
     const entries = [];
-    const units = Array.from({ length: 120 }, () => () => spin(cost));
+    const units = Array.from({ length: NUMBER_OF_UNITS }, () => () => spin(cost));
     const record = ({ first, next }) => {
       entries.push('Units ' + (first + 1) + '–' + next);
       setSlices([...entries]);
     };
+
     if (mode === 'blocking') {
       units.forEach((unit) => unit());
       record({ first: 0, next: units.length });
@@ -63,6 +71,7 @@ export function SchedulerLesson() {
       host?.close();
     };
   }
+
   return (
     <Lesson
       number="01"

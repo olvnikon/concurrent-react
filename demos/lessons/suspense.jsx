@@ -1,10 +1,11 @@
 import React, { Component, Profiler, Suspense, use, useState, useTransition } from 'react';
-import { Lesson, Source } from './shared.jsx';
-import { createRequest, createScenario } from './resources.mjs';
-import { onRender, mark } from './profiling.mjs';
+import { Lesson, Source } from '../shared.jsx';
+import { createRequest, createScenario } from '../resources.mjs';
+import { onRender, mark } from '../profiling.mjs';
 import source from './suspense.jsx?raw';
 import SuspenseModel from './suspense-model.jsx';
 
+// Rejections are errors, not pending work: Suspense does not handle them.
 class ErrorBoundary extends Component {
   state = { error: null };
   static getDerivedStateFromError(error) {
@@ -19,6 +20,7 @@ class ErrorBoundary extends Component {
   }
 }
 function Article({ request }) {
+  // Read the same stable promise on every attempt; React handles pending reads.
   const title = use(request.promise);
   return (
     <article className="article">
@@ -30,11 +32,13 @@ function Article({ request }) {
 }
 function Scenario({ initial }) {
   const [request, setRequest] = useState(initial);
+  // Controls must reach B even while a Transition keeps committed A on screen.
   const [control, setControl] = useState(initial);
   const [mode, setMode] = useState('urgent');
   const [isPending, startTransition] = useTransition();
   const [settled, setSettled] = useState(initial.status !== 'pending');
   function load() {
+    // Create the promise once in this event, never during rendering.
     const next = createRequest('Article B');
     setControl(next);
     setSettled(false);
@@ -43,6 +47,7 @@ function Scenario({ initial }) {
     else setRequest(next);
   }
   function settle(outcome) {
+    // Stand in for a response arriving; React then retries the pending content.
     mark('resource:' + outcome);
     control[outcome]();
     setSettled(true);
@@ -100,6 +105,7 @@ export default function SuspenseLesson() {
   const [scenario, setScenario] = useState(firstScenario);
   const [generation, setGeneration] = useState(0);
   function reset(pending) {
+    // A new key resets both the scenario and any previous error-boundary state.
     setScenario(createScenario(pending));
     setGeneration((n) => n + 1);
   }
@@ -128,7 +134,7 @@ export default function SuspenseLesson() {
         resource becoming ready. The pending Transition is waiting for data, not using CPU
         continuously.
       </p>
-      <Source code={source} file="suspense.jsx · real React" />
+      <Source code={source} file="lessons/suspense.jsx · real React" />
     </Lesson>
   );
 }

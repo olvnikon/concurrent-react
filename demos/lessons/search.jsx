@@ -1,9 +1,10 @@
 import React, { memo, Profiler, startTransition, useState } from 'react';
-import { Lesson, Source, spin } from './shared.jsx';
-import { onRender, mark, clearRecording, commits } from './profiling.mjs';
+import { Lesson, Source, spin } from '../shared.jsx';
+import { onRender, mark, clearRecording, commits } from '../profiling.mjs';
 import source from './search.jsx?raw';
 
 function SlowRow({ query, index, cost }) {
+  // Separate component calls give React checkpoints between rows, not inside spin.
   if (query) spin(cost);
   return (
     <li>
@@ -11,6 +12,7 @@ function SlowRow({ query, index, cost }) {
     </li>
   );
 }
+// Unchanged props let the urgent input pass skip expensive results.
 const SlowResults = memo(function SlowResults({ query, cost, shape }) {
   // This variant puts the SAME total cost inside one indivisible call.
   if (query && shape === 'single') spin(cost * 120);
@@ -30,6 +32,7 @@ function SearchExample({ mode, cost, shape }) {
     const value = event.target.value;
     mark('input:' + value);
     setInput(value); // The controlled input always stays urgent.
+    // The callback runs now; the marked state update can render at lower urgency.
     if (mode === 'transition') startTransition(() => setQuery(value));
     else setQuery(value);
   }
@@ -56,6 +59,7 @@ function SearchExample({ mode, cost, shape }) {
 }
 
 export default function SearchLesson() {
+  // Changing settings or Reset remounts SearchExample via its key.
   const [mode, setMode] = useState('ordinary');
   const [cost, setCost] = useState(2);
   const [shape, setShape] = useState('rows');
@@ -127,7 +131,7 @@ export default function SearchLesson() {
         </pre>
         <p>These callbacks describe commits. They cannot establish abandoned work on their own.</p>
       </details>
-      <Source code={source} file="search.jsx" />
+      <Source code={source} file="lessons/search.jsx" />
     </Lesson>
   );
 }

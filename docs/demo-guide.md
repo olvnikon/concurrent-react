@@ -4,6 +4,12 @@ Five lessons, one small host. Lessons 1–3 are **educational reconstructions**;
 lessons 4–5 use **real React 19.3.0**. Lesson 5 also exposes the small Suspense
 model. Source panels show the actual teaching code, not a second implementation.
 
+Lesson components live in `demos/lessons/`: `scheduler.jsx`, `fiber.jsx`,
+`queue.jsx`, `search.jsx`, and `suspense.jsx` (with `suspense-model.jsx`).
+Start in the lesson component for controls and UI, then follow its imports into
+`demos/models/` for the educational mechanism. `demos/shared.jsx` contains `spin`,
+the deliberate main-thread workload used by Scheduler and Search.
+
 ## Run and maintain
 
 From the project root, with Node 22.12+ (verified with 22.17.1):
@@ -45,7 +51,7 @@ lockfile and immutable source metadata. Do not override those exclusions.
 **Question:** where can the browser regain control?
 **Classification:** educational reconstruction.
 **Code:** [scheduler.mjs](../demos/models/scheduler.mjs),
-[UI](../demos/model-lessons.jsx).
+[UI](../demos/lessons/scheduler.jsx).
 
 1. Select “MessageChannel tasks,” 4 ms per unit; click **Run work**.
 2. Tap **Tap while working**. Watch work slices and the frame-callback counter.
@@ -55,9 +61,17 @@ lockfile and immutable source metadata. Do not override those exclusions.
 
 Expected: the task version returns between slices. The other versions can delay
 input handling and frame callbacks until their work finishes. On a fast machine,
-repeat the interaction rather than asserting a particular frame count.
+use the 4 ms setting rather than asserting a particular frame count. The UI runs
+1200 **units**, not 1200 slices: at 2 ms per unit this is about 2.4 seconds of
+deliberate work, plus overhead. A slice can contain several units. Blocking and
+microtask modes can freeze interaction for the whole run; Reset cannot interrupt
+a running function or get ahead of the microtask chain.
 
-Walk the code in this order: `next` → one unit → budget check → `postTask(workLoop)`.
+Walk the code in this order: `nextUnitIndex` → one unit → budget check → `postTask(workLoop)`.
+`nextUnitIndex` is the zero-based index of the next unprocessed unit, saved between
+callbacks. It is not an ID or the currently running unit. Slice reports use
+`firstUnitIndex` (inclusive) and `nextUnitIndex` (exclusive); the UI converts that
+range into one-based unit numbers.
 A callback must finish its current unit even if that unit overruns the budget.
 The host helper queues a callback and posts one MessageChannel message to deliver
 it. Its `postTask` name means an injected enqueue function, **not** the browser
@@ -143,7 +157,7 @@ noncommutative 1 → 2 → 23 result. The model is also executable via `npm run 
 
 **Question:** what changes when expensive results become a Transition?
 **Classification:** real React.
-**Code:** [search.jsx](../demos/search.jsx), [profiling.mjs](../demos/profiling.mjs).
+**Code:** [search.jsx](../demos/lessons/search.jsx), [profiling.mjs](../demos/profiling.mjs).
 
 1. Choose **Ordinary updates**, **120 small components**, **2 ms**. Reset.
 2. Type `a` and quickly `b`. The deliberately expensive results delay the update.
@@ -177,10 +191,10 @@ Source: [startTransition documentation][transition-docs],
 
 **Question:** what does a boundary show when the next resource is pending?
 **Classification:** real React plus a separately labeled educational model.
-**Code:** [suspense.jsx](../demos/suspense.jsx),
+**Code:** [suspense.jsx](../demos/lessons/suspense.jsx),
 [resources.mjs](../demos/resources.mjs),
 [MiniSuspense](../demos/models/suspense.mjs),
-[model controls](../demos/suspense-model.jsx),
+[model controls](../demos/lessons/suspense-model.jsx),
 [createResource](../examples/mechanisms.mjs).
 
 ### First: step through the educational boundary

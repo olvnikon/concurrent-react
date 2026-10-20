@@ -11,7 +11,15 @@ try {
     await page.getByRole('button', { name: 'Reset', exact: true }).click();
     await page.getByLabel('Scheduling').selectOption(mode);
     await page.getByRole('button', { name: 'Run work', exact: true }).click();
-    await page.waitForFunction(() => document.querySelector('.log')?.textContent.includes('120'));
+    if (mode === 'tasks') {
+      // Scripted input checks the live interaction, not a particular slice duration.
+      await page.getByRole('button', { name: 'Tap while working', exact: true }).click();
+      assert.match(await page.locator('.cards').textContent(), /1 taps handled/);
+      assert.equal(await page.getByRole('status').textContent(), 'Working…');
+    }
+    // Wait for the whole run, not an early slice that happens to include "120".
+    await page.getByRole('status').filter({ hasText: 'Ready' }).waitFor();
+    assert.match(await page.locator('.log').textContent(), /–1200$/);
   }
   await page.getByRole('button', { name: /Fiber & publication/ }).click();
   await page.getByRole('button', { name: 'Step one unit' }).click();

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { createSuspenseBoundary } from './models/suspense.mjs';
-import { createResource } from '../examples/mechanisms.mjs';
-import { createRequest } from './resources.mjs';
-import { Source } from './shared.jsx';
-import source from './models/suspense.mjs?raw';
-import mechanismSource from '../examples/mechanisms.mjs?raw';
+import { createSuspenseBoundary } from '../models/suspense.mjs';
+import { createResource } from '../../examples/mechanisms.mjs';
+import { createRequest } from '../resources.mjs';
+import { Source } from '../shared.jsx';
+import source from '../models/suspense.mjs?raw';
+import mechanismSource from '../../examples/mechanisms.mjs?raw';
 
 function createModel(notify) {
+  // Mutable teaching state, separate from React's own renderer and Suspense.
   const model = {
     active: true,
     events: [],
@@ -15,6 +16,7 @@ function createModel(notify) {
     error: null,
     retryQueued: false,
   };
+  // A ping requests retry; it does not replace the currently committed output.
   model.boundary = createSuspenseBoundary(() => {
     if (!model.active) return;
     model.retryQueued = true;
@@ -31,6 +33,7 @@ export default function SuspenseModel() {
   const notify = () => redraw((n) => n + 1);
   const [model, setModel] = useState(() => createModel(notify));
   const [mode, setMode] = useState('urgent');
+  // Ignore late promise notifications after Reset or leaving the lesson.
   useEffect(
     () => () => {
       model.active = false;
@@ -46,6 +49,7 @@ export default function SuspenseModel() {
     notify();
   }
   function render() {
+    // Prepare a candidate only; a separate button publishes it.
     model.retryQueued = false; // The manual driver consumes the retry request.
     model.error = null;
     try {
@@ -63,6 +67,7 @@ export default function SuspenseModel() {
     notify();
   }
   function commit() {
+    // This is the only action that changes the model's committed output.
     model.boundary.commit(model.candidate);
     model.events.push('commit: ' + model.boundary.getCurrent());
     model.candidate = null;

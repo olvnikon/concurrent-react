@@ -133,10 +133,10 @@ Educational reconstruction — core of [scheduler.mjs](../demos/models/scheduler
 function workLoop() {
   const deadline = now() + budgetMs;
   do {
-    units[next++]();
-  } while (next < units.length && now() < deadline);
+    units[nextUnitIndex++]();
+  } while (nextUnitIndex < units.length && now() < deadline);
 
-  if (next < units.length) postTask(workLoop);
+  if (nextUnitIndex < units.length) postTask(workLoop);
 }
 postTask(workLoop);
 ```
@@ -250,7 +250,7 @@ setInput(value);
 startTransition(() => setQuery(value));
 ```
 
-**Demo cue:** Show `change` in [search.jsx](../demos/search.jsx); run comparison later.
+**Demo cue:** Show `change` in [search.jsx](../demos/lessons/search.jsx); run comparison later.
 
 **Speaker notes**
 
@@ -325,7 +325,7 @@ Source: [updateReducerImpl][hooks]. Allow roughly 7 minutes for slides 8–10.
 Keep row cost and work distribution unchanged for the next comparison. The
 actual input characters are React-controlled state. Results are a fixed list
 whose render cost depends on the query, not a real search algorithm.
-Source: [search.jsx](../demos/search.jsx). Saved trace context:
+Source: [search.jsx](../demos/lessons/search.jsx). Saved trace context:
 [profiling walkthrough](profiling-walkthrough.md#1-ordinary-search-the-baseline).
 
 ## 12 — A Transition needs an inexpensive urgent path
@@ -352,7 +352,7 @@ This slide is an excerpt, not a standalone component. `memo` matters here becaus
 urgent input changes do not yet change the results props. The later changed-query
 render still costs work. Splitting state alone would not make an unmemoized
 expensive subtree free. Memoization is a performance aid, not a semantic guarantee.
-Sources: [search.jsx](../demos/search.jsx), [memo][memo], [startTransition][transition].
+Sources: [search.jsx](../demos/lessons/search.jsx), [memo][memo], [startTransition][transition].
 
 ## 13 — Read evidence at the right layer
 

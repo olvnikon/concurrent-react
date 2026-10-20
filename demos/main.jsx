@@ -1,8 +1,10 @@
 import React, { useState, version } from 'react';
 import { createRoot } from 'react-dom/client';
-import { SchedulerLesson, FiberLesson, QueueLesson } from './model-lessons.jsx';
-import SearchLesson from './search.jsx';
-import SuspenseLesson from './suspense.jsx';
+import { SchedulerLesson } from './lessons/scheduler.jsx';
+import { FiberLesson } from './lessons/fiber.jsx';
+import { QueueLesson } from './lessons/queue.jsx';
+import SearchLesson from './lessons/search.jsx';
+import SuspenseLesson from './lessons/suspense.jsx';
 import './styles.css';
 
 const lessons = [

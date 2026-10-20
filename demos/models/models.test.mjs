@@ -26,7 +26,7 @@ test('scheduler retains its next unit across host tasks and cancellation', () =>
   );
   host.shift()();
   assert.deepEqual(output, [1, 2]);
-  assert.deepEqual(slices, [{ first: 0, next: 2 }]);
+  assert.deepEqual(slices, [{ firstUnitIndex: 0, nextUnitIndex: 2 }]);
   cancel();
   host.shift()();
   assert.deepEqual(output, [1, 2]);

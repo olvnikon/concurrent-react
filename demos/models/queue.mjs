@@ -9,7 +9,9 @@ export const updates = [
 ];
 
 export function rebaseExample() {
+  // Skip Transition updates now; retain the history needed to replay in order.
   const urgent = processQueue(1, updates, SyncLane);
+  // Replay from the saved base, not from the urgent result of 2.
   const final = processQueue(urgent.baseState, urgent.baseQueue, TransitionLane);
   return { urgent, final };
 }

@@ -313,8 +313,8 @@ when all five units, the recordings/walkthrough, and slide text are ready to use
   and profiling commands in `package.json`.
 - Models: `demos/models/scheduler.mjs`, `fiber.mjs`, `queue.mjs`; Suspense reuses
   `examples/mechanisms.mjs`. `npm run models` executes all four walkthroughs.
-- Real React: `demos/search.jsx` (ordinary/Transition/indivisible), and
-  `demos/suspense.jsx` with stable controlled promises in `demos/resources.mjs`.
+- Real React: `demos/lessons/search.jsx` (ordinary/Transition/indivisible), and
+  `demos/lessons/suspense.jsx` with stable controlled promises in `demos/resources.mjs`.
 - [Demo guide](demo-guide.md), [20-slide text](community-call-slides.md), and
   [measured profiling walkthrough](profiling-walkthrough.md) are delivered.
 - Five recorded browser traces and programmatic Profiler callback logs are in

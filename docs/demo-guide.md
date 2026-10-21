@@ -25,7 +25,7 @@ explicitly. This setting keeps the comparison easier to narrate; it is not
 advice to disable Strict Mode in applications.
 
 ```sh
-npm test                  # 10 original checks + 9 isolated-model tests
+npm test                  # 10 original checks + 10 isolated-model tests
 npm run models            # runnable Scheduler/Fiber/queue/Suspense walkthrough
 npm run test:browser       # scripted functional rehearsal, installed Edge
 npm run build             # ordinary production build
@@ -56,8 +56,26 @@ lockfile and immutable source metadata. Do not override those exclusions.
 1. Select “MessageChannel tasks,” 4 ms per unit; click **Run work**.
 2. Tap **Tap while working**. Watch work slices and the frame-callback counter.
 3. Repeat with **One blocking function** and **Microtask chain**.
-4. **Reset** clears the run and taps; the frame counter is cumulative while this
+4. Try **requestIdleCallback** with the same work cost. Tap while it runs. On a quiet
+   page it may progress well; under load it may wait longer. It does not wait for
+   typing to stop, and it is not guaranteed to be slower than MessageChannel.
+5. **Reset** clears the run and taps; the frame counter is cumulative while this
    lesson is mounted. Leaving the lesson cancels its work.
+
+To compare under load, enable **Simulate browser load**, fixed at **24 ms** per
+animation callback. Repeat MessageChannel and idle mode with the same settings.
+The artificial work runs in a separate `requestAnimationFrame` loop only while
+the job is active. It competes for main-thread time; it is not a simulated React
+render or background thread. It can reduce idle opportunities, but does not
+guarantee starvation or a particular slowdown. Display refresh rate and browser
+policy affect the outcome. Both modes
+can slow down, and input may also become less responsive.
+
+Turn the load checkbox off mid-run and watch whether idle progress changes.
+Reset, completion, or leaving the lesson cancels the load loop. Reset keeps the
+load setting (like the work cost) for the next run. Blocking/microtask work can
+prevent this animation loop from running too, so use tasks versus idle for this
+comparison, not those two modes.
 
 Expected: the task version returns between slices. The other versions can delay
 input handling and frame callbacks until their work finishes. On a fast machine,
@@ -92,8 +110,17 @@ The selected stable build has `enableThrottledScheduling = false` in
 [ReactFeatureFlags.js][flags]; do not describe the alternative reconciler
 budget branch as the active policy.
 
-`requestIdleCallback` is intentionally not the host driver. It asks for idle time,
-which may not arrive under load, rather than simply arranging a later task.
+The optional `requestIdleCallback` mode is an API comparison, not React's host
+driver. It checks `deadline.timeRemaining()` before each unit as well as the
+model's 5 ms threshold. A running unit can still overrun either budget. No timeout
+is supplied, so work can wait indefinitely if idle time does not arrive. Reset and
+leaving the lesson cancel the outstanding idle callback. Unsupported browsers
+disable this mode instead of silently substituting a different API.
+`createIdleTasks` wraps idle scheduling and cancellation behind the same
+`postTask`/`close` interface as the MessageChannel helper. It keeps one pending
+callback handle because this demo schedules only one continuation at a time.
+This explains the policy difference, not a guaranteed performance ranking:
+waiting for idle time is different from simply arranging a later task.
 [Slide 03a](community-call-slides.md#03a--why-not-requestidlecallback) compares it
 with MessageChannel, microtasks, timers and rAF, and includes a small API example.
 See the [idle callback specification](https://w3c.github.io/requestidlecallback/)

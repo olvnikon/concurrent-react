@@ -53,6 +53,42 @@ test('a long unit overruns the budget but remaining units run later', () => {
   host.shift()();
   assert.deepEqual(output, ['long', 'next']);
 });
+test('idle scheduling waits for idle time, resumes in order, and reports completion', () => {
+  const host = [],
+    output = [],
+    slices = [];
+  let clock = 0;
+  let done = 0;
+  scheduleUnits(
+    [1, 2, 3].map((n) => () => {
+      output.push(n);
+      clock += 3;
+    }),
+    {
+      postTask: (fn) => host.push(fn),
+      now: () => clock,
+      onSlice: (slice) => slices.push(slice),
+      onDone: () => done++,
+    },
+  );
+  // One unit overruns this short idle window, so the second unit must wait.
+  host.shift()({ timeRemaining: () => Math.max(0, 2 - clock) });
+  assert.deepEqual(output, [1]);
+  // With no idle time, keep the same next unit and do not log an empty slice.
+  host.shift()({ timeRemaining: () => 0 });
+  assert.deepEqual(output, [1]);
+  assert.equal(slices.length, 1);
+  assert.equal(done, 0);
+  host.shift()({ timeRemaining: () => 50 });
+  assert.deepEqual(output, [1, 2, 3]);
+  assert.deepEqual(slices, [
+    { firstUnitIndex: 0, nextUnitIndex: 1 },
+    { firstUnitIndex: 1, nextUnitIndex: 3 },
+  ]);
+  assert.equal(done, 1);
+  assert.equal(host.length, 0);
+});
+
 test('Fiber draft cannot publish early and discarding it leaves current output intact', () => {
   const current = ['old'];
   let draft = createDraft(exampleTree());

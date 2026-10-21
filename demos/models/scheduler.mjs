@@ -8,24 +8,32 @@ export function scheduleUnits(
   let nextUnitIndex = 0;
   let cancelled = false;
 
-  function workLoop() {
+  function workLoop(idleDeadline) {
     if (cancelled) return;
     // A fresh budget for this slice. Tests can inject a controlled clock via now.
     const deadline = now() + budgetMs;
     const firstUnitIndex = nextUnitIndex;
-    // Always finish one unit. A running function cannot be preempted.
-    do {
-      if (nextUnitIndex === units.length) break;
+    // Idle mode also respects the browser's estimate; other modes have no idleDeadline.
+    while (
+      !cancelled &&
+      nextUnitIndex < units.length &&
+      (!idleDeadline || idleDeadline.timeRemaining() > 0)
+    ) {
+      // Finish the whole unit, even if it overruns either budget.
       units[nextUnitIndex]();
       nextUnitIndex++;
-    } while (!cancelled && nextUnitIndex < units.length && now() < deadline);
+      if (now() >= deadline) break;
+    }
 
     if (cancelled) return;
     // The end index is exclusive: [0, 2) means units at indices 0 and 1 ran.
-    onSlice({ firstUnitIndex, nextUnitIndex });
+    if (nextUnitIndex > firstUnitIndex) onSlice({ firstUnitIndex, nextUnitIndex });
     // Return after enqueueing the continuation; do not call workLoop recursively.
-    if (nextUnitIndex < units.length) postTask(workLoop);
-    else onDone();
+    if (nextUnitIndex < units.length) {
+      postTask(workLoop);
+    } else {
+      onDone();
+    }
   }
 
   // postTask is our injected enqueue function, NOT the browser scheduler.postTask API.
@@ -33,6 +41,20 @@ export function scheduleUnits(
   return () => {
     // A queued callback may still arrive, but it will exit without doing work.
     cancelled = true;
+  };
+}
+
+// Same interface as the MessageChannel helper; this demo has one pending continuation.
+export function createIdleTasks() {
+  let handle;
+  return {
+    postTask(callback) {
+      // No timeout: wait for idle time and pass its deadline to the callback.
+      handle = requestIdleCallback(callback);
+    },
+    close() {
+      if (handle !== undefined) cancelIdleCallback(handle);
+    },
   };
 }
 
@@ -51,6 +73,7 @@ export function createHostTasks() {
     close() {
       // Discard pending callbacks and release both ports when a run ends.
       callbacks.length = 0;
+      // 2 channels because one sends and the other receives
       channel.port1.close();
       channel.port2.close();
     },

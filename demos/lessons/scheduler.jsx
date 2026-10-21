@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Lesson, Source, spin } from '../shared.jsx';
-import { createHostTasks, scheduleUnits } from '../models/scheduler.mjs';
+import { createHostTasks, createIdleTasks, scheduleUnits } from '../models/scheduler.mjs';
 import schedulerSource from '../models/scheduler.mjs?raw';
 
 // Enough small units to leave time for live tapping; this is not the slice count.
@@ -12,6 +12,7 @@ export function SchedulerLesson() {
   const [slices, setSlices] = useState([]);
   const [running, setRunning] = useState(false);
   const [taps, setTaps] = useState(0);
+  const [simulateLoad, setSimulateLoad] = useState(false);
   // Keep cancellation available to Reset and unmount without triggering a render.
   const cleanup = useRef(() => {});
   const frameOutput = useRef(null);
@@ -32,6 +33,19 @@ export function SchedulerLesson() {
       cleanup.current();
     };
   }, []);
+
+  useEffect(() => {
+    if (!simulateLoad || !running) return;
+    let handle;
+    function simulateFrameLoad() {
+      // Artificial animation work uses time the browser might otherwise leave idle.
+      spin(24);
+      handle = requestAnimationFrame(simulateFrameLoad);
+    }
+    handle = requestAnimationFrame(simulateFrameLoad);
+    // Stop on completion, Reset, unmount, or when the load setting changes.
+    return () => cancelAnimationFrame(handle);
+  }, [simulateLoad, running]);
 
   // Stop the old run before clearing its diagnostic UI.
   function reset() {
@@ -60,8 +74,13 @@ export function SchedulerLesson() {
       setRunning(false);
       return;
     }
-    // Same work loop, different driver: a later task versus another microtask.
-    const host = mode === 'tasks' ? createHostTasks() : null;
+    // Both browser helpers expose postTask and close; microtasks need no host helper.
+    let host = null;
+    if (mode === 'tasks') {
+      host = createHostTasks();
+    } else if (mode === 'idle') {
+      host = createIdleTasks();
+    }
     const cancel = scheduleUnits(units, {
       postTask: host ? host.postTask : queueMicrotask,
       onSlice: record,
@@ -70,7 +89,7 @@ export function SchedulerLesson() {
         setRunning(false);
       },
     });
-    // Cancellation stops future slices; closing releases the MessageChannel ports.
+    // Stop future slices and release the pending idle callback or MessageChannel.
     cleanup.current = () => {
       cancel();
       host?.close();
@@ -91,6 +110,9 @@ export function SchedulerLesson() {
             <option value="blocking">One blocking function</option>
             <option value="tasks">MessageChannel tasks</option>
             <option value="microtasks">Microtask chain</option>
+            <option value="idle" disabled={typeof requestIdleCallback !== 'function'}>
+              requestIdleCallback
+            </option>
           </select>
         </label>
         <label>
@@ -108,6 +130,22 @@ export function SchedulerLesson() {
           Reset
         </button>
       </div>
+      <div className="controls">
+        <label className="load-toggle">
+          <input
+            type="checkbox"
+            checked={simulateLoad}
+            onChange={(event) => setSimulateLoad(event.target.checked)}
+          />
+          Simulate browser load
+        </label>
+      </div>
+      <p className="muted">
+        Artificial CPU work: 24 ms per animation callback, only while the job runs. Compare idle
+        mode with MessageChannel using the same load. Turn load off mid-run to let idle time return.
+        Reset stops both jobs; the load setting is kept for the next run. The result depends on the
+        browser and display.
+      </p>
       <div className="cards">
         <div className="card">
           <h2>Try another interaction</h2>
@@ -129,6 +167,14 @@ export function SchedulerLesson() {
         The model checks a 5 ms budget between units. A microtask chain still holds the browser in
         the microtask checkpoint. The frame counter counts callbacks, not paints.
       </p>
+      {mode === 'idle' && (
+        <p className="note">
+          Idle mode also checks deadline.timeRemaining(). It can progress well on a quiet page, but
+          may wait under load. Typing or tapping does not guarantee it will stop. This is an API
+          comparison, not React's Scheduler implementation.{' '}
+          <a href="https://w3c.github.io/requestidlecallback/#idle-periods">Idle callback rules</a>
+        </p>
+      )}
       <Source code={schedulerSource} file="models/scheduler.mjs" />
     </Lesson>
   );

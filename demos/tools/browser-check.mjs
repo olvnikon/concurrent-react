@@ -6,21 +6,54 @@ const { page, url } = lab;
 const errors = [];
 page.on('pageerror', (error) => errors.push(error.message));
 try {
+  // Test-only counting proves the load loop runs and stops; it is not a paint counter.
+  await page.addInitScript(() => {
+    window.frameLoadRuns = 0;
+    const requestFrame = window.requestAnimationFrame;
+    window.requestAnimationFrame = (callback) =>
+      requestFrame.call(window, (time) => {
+        if (callback.name === 'simulateFrameLoad') window.frameLoadRuns++;
+        callback(time);
+      });
+  });
   await page.goto(url);
-  for (const mode of ['tasks', 'blocking', 'microtasks']) {
+  for (const mode of ['tasks', 'blocking', 'microtasks', 'idle']) {
     await page.getByRole('button', { name: 'Reset', exact: true }).click();
     await page.getByLabel('Scheduling').selectOption(mode);
+    const previousLoadRuns = await page.evaluate(() => window.frameLoadRuns);
+    if (mode === 'tasks' || mode === 'idle') {
+      await page.getByLabel('Simulate browser load', { exact: true }).check();
+    }
     await page.getByRole('button', { name: 'Run work', exact: true }).click();
-    if (mode === 'tasks') {
+    if (mode === 'tasks' || mode === 'idle') {
       // Scripted input checks the live interaction, not a particular slice duration.
       await page.getByRole('button', { name: 'Tap while working', exact: true }).click();
       assert.match(await page.locator('.cards').textContent(), /1 taps handled/);
       assert.equal(await page.getByRole('status').textContent(), 'Working…');
+      // Let artificial frame work run, then remove it; do not assert a slowdown ratio.
+      await page.waitForTimeout(200);
+      await page.getByLabel('Simulate browser load', { exact: true }).uncheck();
+      assert.ok((await page.evaluate(() => window.frameLoadRuns)) > previousLoadRuns);
+      const stoppedAt = await page.evaluate(() => window.frameLoadRuns);
+      await page.waitForTimeout(100);
+      assert.equal(await page.evaluate(() => window.frameLoadRuns), stoppedAt);
     }
     // Wait for the whole run, not an early slice that happens to include "120".
     await page.getByRole('status').filter({ hasText: 'Ready' }).waitFor();
     assert.match(await page.locator('.log').textContent(), /–1200$/);
   }
+  // Reset must cancel a queued idle continuation as well as clear its diagnostic log.
+  await page.getByLabel('Simulate browser load', { exact: true }).check();
+  await page.getByRole('button', { name: 'Run work', exact: true }).click();
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
+  await page.waitForTimeout(150);
+  assert.equal(await page.getByRole('status').textContent(), 'Ready');
+  assert.match(await page.locator('.log').textContent(), /Run a comparison/);
+  // Reset retains the setting, but load runs only while a job is active.
+  assert.equal(await page.getByLabel('Simulate browser load', { exact: true }).isChecked(), true);
+  const resetLoadRuns = await page.evaluate(() => window.frameLoadRuns);
+  await page.waitForTimeout(100);
+  assert.equal(await page.evaluate(() => window.frameLoadRuns), resetLoadRuns);
   await page.getByRole('button', { name: /Fiber & publication/ }).click();
   await page.getByRole('button', { name: 'Step one unit' }).click();
   assert.equal(await page.getByTestId('fiber-current').textContent(), 'Previously committed UI');

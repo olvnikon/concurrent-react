@@ -157,6 +157,11 @@ h2 {
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+.load-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .card,
 .article,
 .fallback {

@@ -23,7 +23,7 @@ React and React DOM are pinned to **19.3.0**.
   work and remaining manual DevTools/presenter rehearsal steps.
 
 ```sh
-npm test                  # original 10 checks + 9 isolated-model tests
+npm test                  # original 10 checks + 10 isolated-model tests
 npm run models            # executable minimal internals walkthroughs
 npm run test:browser       # headless Edge functional rehearsal
 npm run build

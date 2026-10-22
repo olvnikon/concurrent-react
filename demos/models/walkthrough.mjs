@@ -26,7 +26,7 @@ const draft = createDraft(exampleTree());
 while (draft.next) performUnitOfWork(draft);
 console.log('Fiber:', draft.events, 'Published:', publish(draft));
 // First process urgent work, then replay the retained updates from the saved base.
-console.log('Queue:', rebaseExample());
+console.log('Queue:', rebaseExample(1));
 
 // Keep one pending promise so repeated reads refer to the same resource.
 let resolve;

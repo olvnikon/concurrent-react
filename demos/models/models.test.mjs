@@ -113,10 +113,15 @@ test('Fiber draft cannot publish early and discarding it leaves current output i
   ]);
 });
 test('queue lesson preserves the noncommutative update order', () => {
-  const { urgent, final } = rebaseExample();
+  const { urgent, final } = rebaseExample(1);
   assert.equal(urgent.state, 2);
   assert.equal(urgent.baseState, 1);
   assert.equal(final.state, 23);
+  // The caller chooses the starting value; the model must not assume 1.
+  const fromFour = rebaseExample(4);
+  assert.equal(fromFour.urgent.state, 8);
+  assert.equal(fromFour.urgent.baseState, 4);
+  assert.equal(fromFour.final.state, 29);
 });
 test('controlled React resources keep promise identity and settle once', async () => {
   const request = createRequest('A');

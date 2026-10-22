@@ -52,6 +52,12 @@ function Scenario({ initial }) {
     control[outcome]();
     setSettled(true);
   }
+  let status = 'Resource pending.';
+  if (isPending) {
+    status = 'Transition pending — current content can stay visible.';
+  } else if (settled) {
+    status = 'Resource settled.';
+  }
   return (
     <>
       <div className="controls">
@@ -77,13 +83,7 @@ function Scenario({ initial }) {
           Reject resource
         </button>
       </div>
-      <p role="status">
-        {isPending
-          ? 'Transition pending — current content can stay visible.'
-          : settled
-            ? 'Resource settled.'
-            : 'Resource pending.'}
-      </p>
+      <p role="status">{status}</p>
       <ErrorBoundary>
         <Suspense
           fallback={

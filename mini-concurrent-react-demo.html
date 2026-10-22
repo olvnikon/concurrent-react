@@ -785,13 +785,14 @@
         for (const e of trace) {
           const row = document.createElement('div');
           row.className = 'entry ' + e.type;
-          const detail = e.state
-            ? JSON.stringify(e.state)
-            : e.value
-              ? JSON.stringify(e.value)
-              : e.next
-                ? `next: ${e.next}`
-                : `g${e.generation}`;
+          let detail = `g${e.generation}`;
+          if (e.state) {
+            detail = JSON.stringify(e.state);
+          } else if (e.value) {
+            detail = JSON.stringify(e.value);
+          } else if (e.next) {
+            detail = `next: ${e.next}`;
+          }
           for (const text of [
             (e.time - start).toFixed(1),
             e.type,
@@ -806,11 +807,13 @@
         $('trace').replaceChildren(fragment);
         $('trace').scrollTop = $('trace').scrollHeight;
       }
-      $('status').textContent = app.root.draft
-        ? 'Rendering draft'
-        : app.root.pendingLanes
-          ? 'Scheduled'
-          : 'Ready';
+      let status = 'Ready';
+      if (app.root.draft) {
+        status = 'Rendering draft';
+      } else if (app.root.pendingLanes) {
+        status = 'Scheduled';
+      }
+      $('status').textContent = status;
       if (!scripted) $('scripted').disabled = !!app.root.pendingLanes;
       requestAnimationFrame(refresh);
     }

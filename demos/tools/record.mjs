@@ -43,6 +43,14 @@ async function record(name, action) {
   ].filter((n) =>
     /React|Blocking|Transition|Suspense|Render|Commit|Search|SlowRow|Article|Yield/i.test(n),
   );
+  let workload = { controlledResourceWaitMs: 500 };
+  if (name.startsWith('search-')) {
+    workload = {
+      cpuPerRowMs: 2,
+      rows: 120,
+      distribution: name.endsWith('indivisible') ? 'single' : 'rows',
+    };
+  }
   recordings.push({
     name,
     events: chunks.length,
@@ -50,13 +58,7 @@ async function record(name, action) {
     uniqueCommitTimes: new Set(commits.map((entry) => entry.commitTime)).size,
     reactEventNames: reactNames,
     input: 'Playwright keyboard events / UI clicks',
-    workload: name.startsWith('search-')
-      ? {
-          cpuPerRowMs: 2,
-          rows: 120,
-          distribution: name.endsWith('indivisible') ? 'single' : 'rows',
-        }
-      : { controlledResourceWaitMs: 500 },
+    workload,
   });
 }
 try {

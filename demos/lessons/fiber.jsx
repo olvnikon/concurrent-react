@@ -4,19 +4,25 @@ import { createDraft, exampleTree, performUnitOfWork, publish } from '../models/
 import fiberSource from '../models/fiber.mjs?raw';
 
 export function FiberLesson() {
+  // Step moves a bookmark through this draft; it does not change current output.
   const [draft, setDraft] = useState(() => createDraft(exampleTree()));
+  console.log({ draft });
   // Draft changes stay separate from the published output below.
   const [current, setCurrent] = useState(['Previously committed UI']);
+
   function step() {
+    // Pause manually after one unit; lesson 1's scheduler is not connected here.
     performUnitOfWork(draft);
     // The model mutates its draft; a new wrapper refreshes this diagnostic panel.
     setDraft({ ...draft });
   }
+
   // This button finishes synchronously; Step exposes the pause points manually.
   function run() {
     while (draft.next) performUnitOfWork(draft);
     setDraft({ ...draft });
   }
+
   return (
     <Lesson
       number="02"
@@ -24,7 +30,7 @@ export function FiberLesson() {
       title="Keep the draft private."
       question="How can a traversal pause while the visible output stays coherent?"
     >
-      <p className="tree">App → Input · Results → Row A · Row B</p>
+      <p className="tree">App → Input · Results → Row A · Row B · Row C → Footer</p>
       <div className="controls">
         <button disabled={!draft?.next} onClick={step}>
           Step one unit
@@ -42,6 +48,7 @@ export function FiberLesson() {
         >
           Publish
         </button>
+        {/* Dropping the draft leaves current output untouched. */}
         <button className="secondary" disabled={!draft} onClick={() => setDraft(null)}>
           Discard draft
         </button>

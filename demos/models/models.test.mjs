@@ -8,9 +8,9 @@ import { createResource } from '../../examples/mechanisms.mjs';
 import { createSuspenseBoundary } from './suspense.mjs';
 
 test('scheduler retains its next unit across host tasks and cancellation', () => {
-  const host = [],
-    output = [],
-    slices = [];
+  const host = [];
+  const output = [];
+  const slices = [];
   let clock = 0;
   const cancel = scheduleUnits(
     [1, 2, 3].map((n) => () => {
@@ -32,8 +32,8 @@ test('scheduler retains its next unit across host tasks and cancellation', () =>
   assert.deepEqual(output, [1, 2]);
 });
 test('a long unit overruns the budget but remaining units run later', () => {
-  const host = [],
-    output = [];
+  const host = [];
+  const output = [];
   let clock = 0;
   scheduleUnits(
     [
@@ -54,9 +54,9 @@ test('a long unit overruns the budget but remaining units run later', () => {
   assert.deepEqual(output, ['long', 'next']);
 });
 test('idle scheduling waits for idle time, resumes in order, and reports completion', () => {
-  const host = [],
-    output = [],
-    slices = [];
+  const host = [];
+  const output = [];
+  const slices = [];
   let clock = 0;
   let done = 0;
   scheduleUnits(
@@ -119,8 +119,8 @@ test('queue lesson preserves the noncommutative update order', () => {
   assert.equal(final.state, 23);
 });
 test('controlled React resources keep promise identity and settle once', async () => {
-  const request = createRequest('A'),
-    promise = request.promise;
+  const request = createRequest('A');
+  const promise = request.promise;
   request.resolve();
   request.reject();
   assert.equal(request.promise, promise);

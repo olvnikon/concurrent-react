@@ -10,7 +10,9 @@ const queueCode = engineSource.slice(
 );
 export function QueueLesson() {
   // Buttons reveal two precomputed passes; they do not schedule real React lanes.
+  // phase: 0 = initial 1, 1 = urgent result 2, 2 = replayed result 23.
   const [phase, setPhase] = useState(0);
+  // Start the code walkthrough in rebaseExample; then open its processQueue loop.
   const { urgent, final } = rebaseExample();
   return (
     <Lesson
@@ -30,6 +32,7 @@ export function QueueLesson() {
       <div className="answer" data-testid="queue-state">
         {phase === 0 ? 1 : phase === 1 ? urgent.state : final.state}
       </div>
+      {/* Each row is one queued update. Read down a column to follow one pass. */}
       <table>
         <thead>
           <tr>

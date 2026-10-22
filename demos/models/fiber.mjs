@@ -2,7 +2,8 @@
 // React reuses current/alternate Fibers and records flags for commit.
 export function createFiber(name, children = []) {
   const fiber = { name, child: null, sibling: null, return: null };
-  // Link down to the first child, across siblings, and back up to the parent.
+  // child = first child; sibling = next child of the same parent; return = parent.
+  // These links let us walk the tree without recursive function calls.
   children.forEach((child, index) => {
     child.return = fiber;
     if (index === 0) fiber.child = child;
@@ -14,16 +15,18 @@ export function createFiber(name, children = []) {
 export function exampleTree() {
   return createFiber('App', [
     createFiber('Input'),
-    createFiber('Results', [createFiber('Row A'), createFiber('Row B')]),
+    createFiber('Results', [createFiber('Row A'), createFiber('Row B'), createFiber('Row C')]),
+    createFiber('Footer'),
   ]);
 }
 
 export function createDraft(root) {
-  // next points to unfinished work, not the currently published UI.
+  // next is our bookmark: where the next Step will resume. Start at the root.
   return { next: root, output: [], events: [] };
 }
 
 export function performUnitOfWork(draft) {
+  // Begin the bookmarked node. Adding its name stands in for real render work.
   let unit = draft.next;
   if (!unit) return;
   draft.events.push('begin ' + unit.name);
@@ -33,7 +36,8 @@ export function performUnitOfWork(draft) {
     draft.next = unit.child;
     return;
   }
-  // Completion may walk several ancestors before the next yield checkpoint.
+  // No child: finish this node, then look sideways or climb back up.
+  // One Step can complete several parents (Row C -> Results -> App).
   while (unit) {
     draft.events.push('complete ' + unit.name);
     if (unit.sibling) {
@@ -41,8 +45,9 @@ export function performUnitOfWork(draft) {
       draft.next = unit.sibling;
       return;
     }
-    unit = unit.return;
+    unit = unit.return; // No sibling left: finish the parent too.
   }
+  // We climbed past the root. The draft is finished, but not published yet.
   draft.next = null;
 }
 

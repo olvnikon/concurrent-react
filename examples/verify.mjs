@@ -32,10 +32,10 @@ check('Rebasing preserves insertion order with noncommutative updates', () => {
 });
 function harness(options = {}) {
   let time = 0;
-  const tasks = [],
-    microtasks = [],
-    events = [],
-    commits = [];
+  const tasks = [];
+  const microtasks = [];
+  const events = [];
+  const commits = [];
   const now = () => time;
   const scheduler = createScheduler({ now, postTask: (cb) => tasks.push(cb), budgetMs: 5 });
   const app = createMiniConcurrentRoot({

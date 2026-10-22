@@ -1,9 +1,10 @@
 // Educational reconstruction, not React source or a compatible renderer.
 // Fixed Search/Input/Results/Row tree; one root update queue; one transition lane.
 // See README.md for deliberate differences from React 19.3.0.
-export const NoLane = 0,
-  SyncLane = 1,
-  TransitionLane = 2;
+export const NoLane = 0;
+export const SyncLane = 1;
+export const TransitionLane = 2;
+// Toy lane bits: Sync = 01, Transition = 10. NoLane marks an always-included replay copy.
 export const mergeLanes = (a, b) => a | b;
 export const getHighestPriorityLane = (lanes) => lanes & -lanes;
 export function getNextLanes(root) {
@@ -21,21 +22,28 @@ export function startTransition(action) {
 
 // Pure queue processing. Calling this never consumes committed updates.
 export function processQueue(baseState, updates, renderLanes) {
-  let state = baseState,
-    nextBaseState = baseState,
-    skipped = false;
-  const baseQueue = [];
+  // state = this pass's result; nextBaseState = where a later replay must restart.
+  let state = baseState;
+  let nextBaseState = baseState;
+  let skipped = false;
+  const baseQueue = []; // Updates to keep for the next pass, in their original order.
   for (const update of updates) {
+    // Is this update in the selected lanes? Replay copies (NoLane) always run.
     const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
     if (!include) {
+      // 1. First skip: save the state BEFORE it. In our demo, that is 1 before +10.
       if (!skipped) nextBaseState = state;
       skipped = true;
+      // 2. Not selected for this pass? Keep the update for later instead of losing it.
       baseQueue.push({ ...update });
     } else {
+      // 3. Apply eligible work now. The urgent pass applies only x2: 1 -> 2.
       state = update.action(state);
+      // After a skip, keep applied work too: replay must still do +10, x2, +1 in order.
       if (skipped) baseQueue.push({ ...update, lane: NoLane });
     }
   }
+  // Return this pass's result AND the starting point / queue needed for a later pass.
   return { state, baseState: skipped ? nextBaseState : state, baseQueue };
 }
 
@@ -57,8 +65,8 @@ export function createScheduler({ now = () => performance.now(), postTask, budge
     };
   }
   const queue = [];
-  let posted = false,
-    deadline = 0;
+  let posted = false;
+  let deadline = 0;
   const shouldYield = () => now() >= deadline;
   function request() {
     if (!posted && queue.length) {
@@ -159,8 +167,8 @@ export function createWorkInProgress(current, props) {
   return work;
 }
 function linkChildren(parent, descriptions) {
-  let old = parent.alternate?.child ?? null,
-    previous = null;
+  let old = parent.alternate?.child ?? null;
+  let previous = null;
   parent.child = null;
   for (let i = 0; i < descriptions.length; i++) {
     const [tag, props, key = null] = descriptions[i];

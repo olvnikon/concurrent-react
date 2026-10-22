@@ -337,8 +337,8 @@ export function createScheduler({ now = () => performance.now(), postTask, budge
     };
   }
   const queue = [];
-  let posted = false,
-    deadline = 0;
+  let posted = false;
+  let deadline = 0;
   const shouldYield = () => now() >= deadline;
   function request() {
     if (!posted && queue.length) {
@@ -505,10 +505,10 @@ flowchart TD
 A useful miniature, intentionally without warm lanes, grouping, expiration or entanglement:
 
 ```js
-const NoLane = 0,
-  SyncLane = 1,
-  TransitionLane = 2,
-  IdleLane = 4;
+const NoLane = 0;
+const SyncLane = 1;
+const TransitionLane = 2;
+const IdleLane = 4;
 const mergeLanes = (a, b) => a | b;
 const getHighestPriorityLane = (lanes) => lanes & -lanes;
 function getNextLanes(root) {
@@ -719,9 +719,9 @@ Runnable educational algorithm, also used by the supplied renderer:
 
 ```js
 export function processQueue(baseState, updates, renderLanes) {
-  let state = baseState,
-    nextBaseState = baseState,
-    skipped = false;
+  let state = baseState;
+  let nextBaseState = baseState;
+  let skipped = false;
   const baseQueue = [];
   for (const update of updates) {
     const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
@@ -848,9 +848,9 @@ The companion `mechanisms.mjs` includes a cached resource and this boundary:
 ```js
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
-  let committed,
-    hasContent = false,
-    showingFallback = false;
+  let committed;
+  let hasContent = false;
+  let showingFallback = false;
   return function renderBoundary(render, fallback, { transition = false } = {}) {
     try {
       const content = render();
@@ -1091,9 +1091,9 @@ Complete integrated implementation:
 // Educational reconstruction, not React source or a compatible renderer.
 // Fixed Search/Input/Results/Row tree; one root update queue; one transition lane.
 // See README.md for deliberate differences from React 19.3.0.
-export const NoLane = 0,
-  SyncLane = 1,
-  TransitionLane = 2;
+export const NoLane = 0;
+export const SyncLane = 1;
+export const TransitionLane = 2;
 export const mergeLanes = (a, b) => a | b;
 export const getHighestPriorityLane = (lanes) => lanes & -lanes;
 export function getNextLanes(root) {
@@ -1111,9 +1111,9 @@ export function startTransition(action) {
 
 // Pure queue processing. Calling this never consumes committed updates.
 export function processQueue(baseState, updates, renderLanes) {
-  let state = baseState,
-    nextBaseState = baseState,
-    skipped = false;
+  let state = baseState;
+  let nextBaseState = baseState;
+  let skipped = false;
   const baseQueue = [];
   for (const update of updates) {
     const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
@@ -1147,8 +1147,8 @@ export function createScheduler({ now = () => performance.now(), postTask, budge
     };
   }
   const queue = [];
-  let posted = false,
-    deadline = 0;
+  let posted = false;
+  let deadline = 0;
   const shouldYield = () => now() >= deadline;
   function request() {
     if (!posted && queue.length) {
@@ -1249,8 +1249,8 @@ export function createWorkInProgress(current, props) {
   return work;
 }
 function linkChildren(parent, descriptions) {
-  let old = parent.alternate?.child ?? null,
-    previous = null;
+  let old = parent.alternate?.child ?? null;
+  let previous = null;
   parent.child = null;
   for (let i = 0; i < descriptions.length; i++) {
     const [tag, props, key = null] = descriptions[i];
@@ -1907,9 +1907,9 @@ Proof example: initial 1; A transition `+10`; B Sync `×2`; C transition `+1`. U
 
 ```js
 function rebase(base, updates, lanes) {
-  let state = base,
-    saved = base,
-    skipped = false;
+  let state = base;
+  let saved = base;
+  let skipped = false;
   const rest = [];
   for (const u of updates) {
     const include = u.lane === 0 || (u.lane & lanes) === u.lane;

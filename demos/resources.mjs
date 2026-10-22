@@ -1,7 +1,8 @@
 // Controlled, stable promises for the REAL React use(promise) example.
 // These are created by setup/event handlers, never by a component render.
 export function createRequest(label) {
-  let resolvePromise, rejectPromise;
+  let resolvePromise;
+  let rejectPromise;
   const request = { label, status: 'pending' };
   request.promise = new Promise((resolve, reject) => {
     resolvePromise = resolve;

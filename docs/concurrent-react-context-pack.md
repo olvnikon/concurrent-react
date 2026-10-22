@@ -124,9 +124,9 @@ Proof example: initial 1; A transition `+10`; B Sync `×2`; C transition `+1`. U
 
 ```js
 function rebase(base, updates, lanes) {
-  let state = base,
-    saved = base,
-    skipped = false;
+  let state = base;
+  let saved = base;
+  let skipped = false;
   const rest = [];
   for (const u of updates) {
     const include = u.lane === 0 || (u.lane & lanes) === u.lane;

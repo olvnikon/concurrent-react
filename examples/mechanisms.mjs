@@ -1,7 +1,7 @@
 // Teaching-only mechanisms. These are not production Suspense integration APIs.
 export function createResource(promise) {
-  let status = 'pending',
-    result;
+  let status = 'pending';
+  let result;
   const wakeable = Promise.resolve(promise).then(
     (value) => {
       status = 'fulfilled';
@@ -22,9 +22,9 @@ export function createResource(promise) {
 }
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
-  let committed,
-    hasContent = false,
-    showingFallback = false;
+  let committed;
+  let hasContent = false;
+  let showingFallback = false;
   return function renderBoundary(render, fallback, { transition = false } = {}) {
     try {
       const content = render();

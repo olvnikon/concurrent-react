@@ -307,9 +307,9 @@
     // Educational reconstruction, not React source or a compatible renderer.
     // Fixed Search/Input/Results/Row tree; one root update queue; one transition lane.
     // See README.md for deliberate differences from React 19.3.0.
-    export const NoLane = 0,
-      SyncLane = 1,
-      TransitionLane = 2;
+    export const NoLane = 0;
+    export const SyncLane = 1;
+    export const TransitionLane = 2;
     export const mergeLanes = (a, b) => a | b;
     export const getHighestPriorityLane = (lanes) => lanes & -lanes;
     export function getNextLanes(root) {
@@ -327,9 +327,9 @@
 
     // Pure queue processing. Calling this never consumes committed updates.
     export function processQueue(baseState, updates, renderLanes) {
-      let state = baseState,
-        nextBaseState = baseState,
-        skipped = false;
+      let state = baseState;
+      let nextBaseState = baseState;
+      let skipped = false;
       const baseQueue = [];
       for (const update of updates) {
         const include = update.lane === NoLane || (update.lane & renderLanes) === update.lane;
@@ -367,8 +367,8 @@
         };
       }
       const queue = [];
-      let posted = false,
-        deadline = 0;
+      let posted = false;
+      let deadline = 0;
       const shouldYield = () => now() >= deadline;
       function request() {
         if (!posted && queue.length) {
@@ -469,8 +469,8 @@
       return work;
     }
     function linkChildren(parent, descriptions) {
-      let old = parent.alternate?.child ?? null,
-        previous = null;
+      let old = parent.alternate?.child ?? null;
+      let previous = null;
       parent.child = null;
       for (let i = 0; i < descriptions.length; i++) {
         const [tag, props, key = null] = descriptions[i];
@@ -681,11 +681,11 @@
     const stats = { renders: 0, yields: 0, abandons: 0, commits: 0 };
     const trace = [];
     const start = performance.now();
-    let app,
-      scripted = false,
-      injectSecond = false,
-      frames = 0,
-      traceDirty = true;
+    let app;
+    let scripted = false;
+    let injectSecond = false;
+    let frames = 0;
+    let traceDirty = true;
     let scriptedTimer;
     const cost = () => Number($('cost').value);
     const spin = (ms) => {

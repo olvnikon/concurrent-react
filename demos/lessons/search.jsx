@@ -28,6 +28,7 @@ const SlowResults = memo(function SlowResults({ query, cost, shape }) {
 function SearchExample({ mode, cost, shape }) {
   const [input, setInput] = useState('');
   const [query, setQuery] = useState('');
+
   function change(event) {
     const value = event.target.value;
     mark('input:' + value);
@@ -36,6 +37,7 @@ function SearchExample({ mode, cost, shape }) {
     if (mode === 'transition') startTransition(() => setQuery(value));
     else setQuery(value);
   }
+  
   return (
     <>
       <label className="search-label">
@@ -85,7 +87,7 @@ export default function SearchLesson() {
           <select value={cost} onChange={(e) => setCost(Number(e.target.value))}>
             <option value="1">1 ms</option>
             <option value="2">2 ms</option>
-            <option value="4">4 ms</option>
+            <option value="10">10 ms</option>
           </select>
         </label>
         <label>

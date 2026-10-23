@@ -6,6 +6,7 @@ export function createSuspenseBoundary(scheduleRetry) {
   let current;
   let hasRevealedContent = false;
 
+  // childred is a `read` function!
   function MiniSuspense({ children, fallback, transition = false }) {
     try {
       // Call our child function now; this prepares output but does not publish it.
@@ -19,6 +20,7 @@ export function createSuspenseBoundary(scheduleRetry) {
 
       if (!listening.has(value)) {
         listening.add(value);
+
         const ping = () => {
           listening.delete(value);
           scheduleRetry(); // Notification only: no render or commit here.

@@ -6,7 +6,7 @@ import fiberSource from '../models/fiber.mjs?raw';
 export function FiberLesson() {
   // Step moves a bookmark through this draft; it does not change current output.
   const [draft, setDraft] = useState(() => createDraft(exampleTree()));
-  console.log({ draft });
+  console.log('Fiber draft step', draft);
   // Draft changes stay separate from the published output below.
   const [current, setCurrent] = useState(['Previously committed UI']);
 

@@ -20,6 +20,7 @@ export function createResource(promise) {
     },
   };
 }
+
 export function createBoundary(scheduleRetry) {
   const listening = new WeakSet();
   let committed;

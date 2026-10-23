@@ -39,7 +39,7 @@ export function SchedulerLesson() {
     let handle;
     function simulateFrameLoad() {
       // Artificial animation work uses time the browser might otherwise leave idle.
-      spin(24);
+      spin(50);
       handle = requestAnimationFrame(simulateFrameLoad);
     }
     handle = requestAnimationFrame(simulateFrameLoad);

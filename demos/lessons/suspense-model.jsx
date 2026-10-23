@@ -9,13 +9,14 @@ import mechanismSource from '../../examples/mechanisms.mjs?raw';
 function createModel(notify) {
   // Mutable teaching state, separate from React's own renderer and Suspense.
   const model = {
-    active: true,
-    events: [],
-    candidate: null,
-    request: null,
-    error: null,
-    retryQueued: false,
+    active: true, // should this model still receive notifications?
+    events: [], // the messages displayed in the log
+    candidate: null, // the latest proposed output
+    request: null, // the manually controlled request for Article B
+    error: null, // an error displayed by the demonstration
+    retryQueued: false, // a flag saying "the resource changed; try rendering again."
   };
+
   // A ping requests retry; it does not replace the currently committed output.
   model.boundary = createSuspenseBoundary(() => {
     if (!model.active) return;
@@ -23,8 +24,10 @@ function createModel(notify) {
     model.events.push('ping: retry queued; current is unchanged');
     notify();
   });
+
   model.read = () => 'Article A';
   model.boundary.commit(model.boundary.MiniSuspense({ children: model.read }));
+
   return model;
 }
 
@@ -33,6 +36,7 @@ export default function SuspenseModel() {
   const notify = () => redraw((n) => n + 1);
   const [model, setModel] = useState(() => createModel(notify));
   const [mode, setMode] = useState('urgent');
+  
   // Ignore late promise notifications after Reset or leaving the lesson.
   useEffect(
     () => () => {
@@ -48,6 +52,7 @@ export default function SuspenseModel() {
     model.events.push('resource pending; render has not run yet');
     notify();
   }
+
   function render() {
     // Prepare a candidate only; a separate button publishes it.
     model.retryQueued = false; // The manual driver consumes the retry request.
@@ -66,6 +71,7 @@ export default function SuspenseModel() {
     }
     notify();
   }
+
   function commit() {
     // This is the only action that changes the model's committed output.
     model.boundary.commit(model.candidate);
@@ -73,11 +79,13 @@ export default function SuspenseModel() {
     model.candidate = null;
     notify();
   }
+
   function settle(outcome) {
     model.request[outcome]();
     model.events.push('resource ' + outcome + '; notification follows asynchronously');
     notify();
   }
+
   function reset() {
     model.active = false;
     setModel(createModel(notify));
@@ -88,6 +96,7 @@ export default function SuspenseModel() {
     0,
     mechanismSource.indexOf('export function createBoundary'),
   );
+
   return (
     <section aria-label="Educational Suspense model">
       <h2>Inside a tiny Suspense boundary · educational reconstruction</h2>
